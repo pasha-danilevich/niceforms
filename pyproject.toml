@@ -1,0 +1,19 @@
+[project]
+name = "niceforms"
+version = "0.1.0"
+description = "A dynamic form generator for NiceGUI that automatically creates interactive UI forms from Pydantic models"
+authors = [
+    {name = "pasha_danilevich", email = "danilevitch.pasha@yandex.ru"}
+]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9, <4.0"
+pydantic = "^2.12.5"
+nicegui = "^3.6.1"
+
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

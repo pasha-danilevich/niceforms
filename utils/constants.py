@@ -1,0 +1,11 @@
+"""Константы приложения.""" 
+
+DEFAULT_FORM_WIDTH = "max-w-2xl"
+PRIMARY_COLOR_GRADIENT = "bg-gradient-to-r from-blue-500 to-purple-600"
+ERROR_BACKGROUND_COLOR = "bg-red-50"
+ERROR_BORDER_COLOR = "border-red-200"
+SUCCESS_BACKGROUND_COLOR = "bg-green-50"
+SUCCESS_BORDER_COLOR = "border-green-200"
+NULL_OPTION_VALUE = "__null__"
+NULL_OPTION_LABEL = "<Не указано>"
+DEFAULT_PADDING = "p-6"
