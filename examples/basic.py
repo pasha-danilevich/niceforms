@@ -4,11 +4,13 @@ from typing import List
 from nicegui import ui, APIRouter
 from pydantic import BaseModel, Field
 from niceforms import constants
+
 constants.DEFAULT_FORM_WIDTH = "max-w-4xl"
 
 from niceforms import BaseModelForm
 
 from _layout import base
+
 router = APIRouter()
 
 
@@ -22,16 +24,13 @@ class User(BaseModel):
     # items_typed: List[str] # параметризованные типы (generic types)
 
 
-
 @router.page('/basic')
 @base
 async def basic() -> None:
-
     ui.link(text='Назад', target='/')
-    def submit_handler(user):
+
+    async def submit_handler(user: BaseModel) -> None:
         print(f"Пользователь создан: {user}")
 
-
-
-    form = BaseModelForm(User, submit_callback=submit_handler)
+    form = BaseModelForm(User, on_submit=submit_handler)
     form.render()

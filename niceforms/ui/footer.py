@@ -1,18 +1,24 @@
-from typing import Optional
+import logging
+from typing import Optional, Any
 
 from nicegui import ui
 from nicegui.elements.button import Button
-from nicegui.elements.mixins.value_element import ValueElement
 from pydantic import BaseModel
 
+from actions import OnSubmit
 from niceforms import UIComponent, PRIMARY_COLOR_GRADIENT
 from widget import RenderedWidget
 
+logger = logging.getLogger(__name__)
+
 
 class Footer(UIComponent):
-    def __init__(self, elements: list[RenderedWidget], is_nested: bool) -> None:
+    def __init__(self, elements: list[RenderedWidget], is_nested: bool, model: type[BaseModel],
+                 on_submit: Optional[OnSubmit]) -> None:
         self.elements = elements
         self.is_nested = is_nested
+        self.model = model
+        self.on_submit = on_submit
 
         self._write_to_form_button: Optional[Button] = None
         self._submit_button: Optional[Button] = None
@@ -32,9 +38,17 @@ class Footer(UIComponent):
         pass
 
     async def submit(self) -> None:
+        data: dict[str, Any] = {}
+
         for element in self.elements:
-            x = element.collect()
-            print(x)
+            data[element.widget.field_name] = element.collect()
+
+        if self.on_submit is None:
+            logger.warning(f"on_submit function do not provided")
+            return None
+
+        await self.on_submit(self.model(**data))
+        return None
 
     def render(self) -> None:
         with ui.row().classes("w-full justify-end gap-3"):
@@ -45,8 +59,6 @@ class Footer(UIComponent):
             ui.button("Показать json", on_click=self.render_json_viewer_dialog).props(
                 "outlined flat"
             ).classes("px-6 py-2")
-
-
 
             if self.is_nested:
                 self._write_to_form_button = (

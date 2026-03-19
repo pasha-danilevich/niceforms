@@ -29,7 +29,7 @@ async def nested() -> None:
         print(f"Пользователь создан: {user}")
 
 
-    form = BaseModelForm(User, submit_callback=submit_handler)
+    form = BaseModelForm(User, on_submit=submit_handler)
     form.render()
 
 

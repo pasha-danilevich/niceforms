@@ -46,5 +46,5 @@ class RenderedWidget(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def collect(self) -> Any:
+    def collect(self) -> Optional[Any]:
         raise NotImplementedError

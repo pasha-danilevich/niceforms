@@ -45,5 +45,5 @@ async def complex_type() -> None:
     def submit_handler(user):
         print(f"Пользователь создан: {user}")
 
-    form = BaseModelForm(UserForm, submit_callback=submit_handler)
+    form = BaseModelForm(UserForm, on_submit=submit_handler)
     form.render()

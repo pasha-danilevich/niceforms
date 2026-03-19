@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 from nicegui import ui
 
@@ -9,7 +9,7 @@ class RenderedStringWidget(RenderedWidget):
     def clear(self) -> None:
         self.element.set_value('')
 
-    def collect(self) -> str:
+    def collect(self) -> Optional[str]:
         return self.element.value
 
 

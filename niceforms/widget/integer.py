@@ -1,3 +1,5 @@
+from typing import Optional
+
 from nicegui import ui
 
 from niceforms.widget import BaseWidget, RenderedWidget
@@ -7,7 +9,10 @@ class RenderedIntegerWidget(RenderedWidget):
     def clear(self) -> None:
         self.element.set_value(None)
 
-    def collect(self) -> int:
+    def collect(self) -> Optional[int]:
+        if self.element.value is None:
+            return None
+
         return int(self.element.value)
 
 
