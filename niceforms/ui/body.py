@@ -2,14 +2,14 @@ from nicegui import ui
 from nicegui.elements.mixins.value_element import ValueElement
 
 from niceforms import UIComponent
-from widget import BaseWidget
+from widget import BaseWidget, RenderedWidget
 
 
 class Body:
     def __init__(self, widgets: list[BaseWidget]) -> None:
         self.widgets = widgets
 
-    def render(self) -> list[ValueElement]:
+    def render(self) -> list[RenderedWidget]:
         elements = []
 
         with ui.column().classes(f"w-full p-4 space-y-3"):

@@ -1,13 +1,21 @@
 from nicegui import ui
-from nicegui.elements.mixins.value_element import ValueElement
 
-from niceforms.widget import BaseWidget
+from niceforms.widget import BaseWidget, RenderedWidget
+
+
+class RenderedIntegerWidget(RenderedWidget):
+    def clear(self) -> None:
+        self.element.set_value(None)
+
+    def collect(self) -> int:
+        return int(self.element.value)
 
 
 class IntegerWidget(BaseWidget):
-    def render(self) -> ValueElement:
+    def render(self) -> RenderedWidget:
         el = ui.number(
-            value=self.default_value,  # должно быть число, не текст
+            value=self.default_value,
             placeholder=self.placeholder,
         ).props("outlined dense").classes("w-full")
-        return el
+
+        return RenderedIntegerWidget(self, el)

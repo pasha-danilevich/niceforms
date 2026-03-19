@@ -7,8 +7,10 @@ from nicegui.elements.mixins.value_element import ValueElement
 from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
+from niceforms import UIComponent
 
-class BaseWidget(ABC):
+
+class BaseWidget(UIComponent, ABC):
     def __init__(self, field_info: FieldInfo, field_name: str):
         self.field = field_info
         self.field_name = field_name
@@ -30,5 +32,19 @@ class BaseWidget(ABC):
             ui.label(text=self.field.description).classes('mb-1 text-gray-500')  # как сделать это поле серым
 
     @abstractmethod
-    def render(self) -> ValueElement:
+    def render(self) -> "RenderedWidget": # TODO: возможно достаточно будет в RenderedWidget передавать в место BaseWidget "field_name"
+        raise NotImplementedError
+
+
+class RenderedWidget(ABC):
+    def __init__(self, widget: BaseWidget, element: ValueElement) -> None:
+        self.widget = widget
+        self.element = element
+
+    @abstractmethod
+    def clear(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def collect(self) -> Any:
         raise NotImplementedError

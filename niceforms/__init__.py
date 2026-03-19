@@ -43,7 +43,7 @@ class BaseModelForm(UIComponent):
         ):
             Header(title=self.title, description=self.model.__doc__).render()
             elements = Body(widgets).render()
-            Footer(elements).render()
+            Footer(elements, is_nested=False).render()
 
         # self._render_header(schema)
         # self._render_body(properties)
