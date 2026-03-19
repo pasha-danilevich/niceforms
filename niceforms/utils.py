@@ -1,18 +1,17 @@
-"""Вспомогательные функции.""" 
- 
-from typing import List, Optional, Union, Type
+from typing import Type, Union, List
+
+from typing import Union, get_origin, get_args
 
 
-def format_value(value) -> str:
-    """Форматировать значение для отображения.""" 
-    return str(value) 
- 
-def parse_list(text: Optional[str]) -> Optional[List[str]]:
-    """Разобрать текст на список строк.""" 
-    if not text: 
-        return None 
-    return [line.strip() for line in text.split("\n") if line.strip()] 
+def normalize_type(field_type: type):
+    """Приводит различные представления типов к единому виду"""
+    # Если это параметризованный тип (list[str], List[str] и т.д.)
+    origin = get_origin(field_type)
+    if origin is not None:
+        # Для других generic типов можно добавить обработку
+        return origin
 
+    return field_type
 
 class TypeProcessor:
     """Utility class for type processing and validation."""

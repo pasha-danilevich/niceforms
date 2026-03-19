@@ -3,6 +3,7 @@ import logging
 from pydantic.fields import FieldInfo
 
 from utils import normalize_type
+from widget.integer import IntegerWidget
 from widget.string import StringWidget
 from widget import BaseWidget
 
@@ -14,6 +15,7 @@ class WidgetFactory:
     def __init__(self) -> None:
         self._widgets: dict[type, type[BaseWidget]] = {
             str: StringWidget,
+            int: IntegerWidget,
         }
 
     def insert_new_widget(self, field_type: type, widget_type: type[BaseWidget]) -> None:

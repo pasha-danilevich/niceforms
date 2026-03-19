@@ -1,9 +1,9 @@
-from typing import Any, Optional
+from typing import Optional
 
 from nicegui import ui
 
-from ui.components import UIComponent
-from utils import PRIMARY_COLOR_GRADIENT, DEFAULT_PADDING
+from niceforms import UIComponent
+from niceforms.constants import PRIMARY_COLOR_GRADIENT, DEFAULT_PADDING
 
 
 class Header(UIComponent):
@@ -12,7 +12,7 @@ class Header(UIComponent):
         self.description = description
 
     def render(self) -> None:
-        with ui.column().classes(f"w-full {PRIMARY_COLOR_GRADIENT} {DEFAULT_PADDING}  rounded-lg"):
+        with ui.element().classes(f"w-full {PRIMARY_COLOR_GRADIENT} {DEFAULT_PADDING}  rounded-lg"):
             ui.label(self.title).classes("text-2xl font-bold text-white")
 
             if self.description:
