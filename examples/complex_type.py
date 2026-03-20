@@ -42,7 +42,7 @@ async def complex_type() -> None:
 
     ui.link(text='Назад', target='/')
 
-    def submit_handler(user):
+    async def submit_handler(user):
         print(f"Пользователь создан: {user}")
 
     form = BaseModelForm(UserForm, on_submit=submit_handler)

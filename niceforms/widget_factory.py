@@ -4,7 +4,9 @@ from enum import Enum
 from pydantic.fields import FieldInfo
 
 from utils import normalize_type, is_enum_type
+from widget.bool import BoolWidget
 from widget.enum import EnumWidget
+from widget.float import FloatWidget
 from widget.integer import IntegerWidget
 from widget.string import StringWidget
 from widget import BaseWidget
@@ -20,6 +22,8 @@ class WidgetFactory:
             int: IntegerWidget,
             int | None: IntegerWidget,
             Enum: EnumWidget,
+            bool: BoolWidget,
+            float: FloatWidget,
         }
 
     def insert_new_widget(
