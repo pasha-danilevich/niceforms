@@ -96,9 +96,8 @@ class RenderedWidget(ABC):
 
             self.widget.set_none_button.on_click(on_click_set_none)
 
-    @abstractmethod
     def clear(self) -> None:
-        raise NotImplementedError
+        self.element.set_value(None)
 
     @abstractmethod
     def collect(self) -> Optional[Any]:

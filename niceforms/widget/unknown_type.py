@@ -7,12 +7,6 @@ from niceforms.widget import BaseWidget, RenderedWidget
 
 
 class RenderedUnknownTypeWidget(RenderedWidget):
-    def clear(self) -> None:
-        if self.widget.field.default is not None and not PydanticUndefinedType:
-            self.element.set_value(self.widget.field.default)
-
-        if self.widget.is_nullable:
-            self.element.set_value(None)
 
     def collect(self) -> Optional[int]:
         return self.element.value

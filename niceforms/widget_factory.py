@@ -1,8 +1,10 @@
 import logging
+from enum import Enum
 
 from pydantic.fields import FieldInfo
 
-from utils import normalize_type
+from utils import normalize_type, is_enum_type
+from widget.enum import EnumWidget
 from widget.integer import IntegerWidget
 from widget.string import StringWidget
 from widget import BaseWidget
@@ -17,6 +19,7 @@ class WidgetFactory:
             str: StringWidget,
             int: IntegerWidget,
             int | None: IntegerWidget,
+            Enum: EnumWidget,
         }
 
     def insert_new_widget(
@@ -33,6 +36,9 @@ class WidgetFactory:
                 widget = self._widgets[field_type.annotation]
             except KeyError:
                 widget = self._widgets.get(normalized_type.origin_type)
+
+            if is_enum_type(normalized_type.origin_type):
+                widget = self._widgets[Enum]
 
             if widget is None:
                 logger.warning(

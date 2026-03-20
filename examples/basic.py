@@ -25,7 +25,7 @@ class User(BaseModel):
     surname: str = Field(..., description="Фамилия пользователя")
     age: int | None
     height: Optional[int]
-    style: Style
+    style: Style = Style.Yellow
 
     # email: str
     # items: list[str]
