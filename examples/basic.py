@@ -1,5 +1,6 @@
 """Базовый пример использования."""
-from typing import List
+from enum import StrEnum
+from typing import List, Optional
 
 from nicegui import ui, APIRouter
 from pydantic import BaseModel, Field
@@ -13,12 +14,19 @@ from _layout import base
 
 router = APIRouter()
 
+class Style(StrEnum):
+    Red = "red"
+    Green = "green"
+    Yellow = "yellow"
 
 class User(BaseModel):
     """Просто пользователь"""
     name: str = Field(default='Петя', title="Имя")
     surname: str = Field(..., description="Фамилия пользователя")
-    age: int
+    age: int | None
+    height: Optional[int]
+    style: Style
+
     # email: str
     # items: list[str]
     # items_typed: List[str] # параметризованные типы (generic types)

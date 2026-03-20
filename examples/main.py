@@ -1,3 +1,8 @@
+import logging
+
+
+logging.basicConfig(level=logging.DEBUG)
+
 """Базовый пример использования."""
 from nicegui import ui, app
 import basic

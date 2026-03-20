@@ -21,6 +21,7 @@ class BaseModelForm(UIComponent):
             model: Type[BaseModel],
             on_submit: Optional[OnSubmit] = None,
             title: Optional[str] = None,
+            view_annotation_type: bool = True
     ) -> None:
         """Initialize universal form.
 
@@ -32,11 +33,12 @@ class BaseModelForm(UIComponent):
         self.model = model
         self.on_submit = on_submit
         self.title = title or model.__name__
+        self.view_annotation_type = view_annotation_type
 
     def render(self) -> None:
         """Render the form UI."""
         fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore
-        widgets = factory.build(model_fields=fields)
+        widgets = factory.build(model_fields=fields, view_annotation_type=self.view_annotation_type)
 
         with ui.card().classes(
                 f"w-full {DEFAULT_FORM_WIDTH} mx-auto shadow-lg rounded-xl overflow-hidden"

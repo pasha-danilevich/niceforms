@@ -27,7 +27,7 @@ class Footer(UIComponent):
         pass
 
     def clear_form(self) -> None:
-        print('Cleared form')
+        logger.debug('Cleared form')
         for element in self.elements:
             element.clear()
 

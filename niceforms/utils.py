@@ -1,17 +1,44 @@
-from typing import Type, Union, List
-
+import logging
+from types import NoneType, UnionType
+from typing import Type, Any
 from typing import Union, get_origin, get_args
 
+from pydantic import BaseModel
 
-def normalize_type(field_type: type):
-    """Приводит различные представления типов к единому виду"""
-    # Если это параметризованный тип (list[str], List[str] и т.д.)
+logger = logging.getLogger(__name__)
+
+
+class NormalizedType(BaseModel):
+    is_nullable: bool
+    origin_type: Union[type, Any]
+
+
+def normalize_type(field_type: type | UnionType) -> NormalizedType:
     origin = get_origin(field_type)
-    if origin is not None:
-        # Для других generic типов можно добавить обработку
-        return origin
+    args = get_args(field_type)
 
-    return field_type
+    if origin is UnionType:
+
+        if NoneType in args:
+            return NormalizedType(is_nullable=True, origin_type=field_type)
+        else:
+            return NormalizedType(is_nullable=False, origin_type=field_type)
+
+    if origin is None:
+        return NormalizedType(is_nullable=False, origin_type=field_type)
+
+    if origin is Union:
+
+        if NoneType in args:
+            non_nullable = [x for x in args if x is not NoneType]
+            if len(non_nullable) == 1:
+                return NormalizedType(is_nullable=True, origin_type=non_nullable[0])
+            return NormalizedType(is_nullable=True, origin_type=field_type)
+        else:
+            return NormalizedType(is_nullable=False, origin_type=field_type)
+
+    return NormalizedType(is_nullable=False, origin_type=field_type)
+
 
 class TypeProcessor:
     """Utility class for type processing and validation."""
