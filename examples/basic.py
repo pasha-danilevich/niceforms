@@ -26,6 +26,8 @@ class User(BaseModel):
     age: int | None
     height: Optional[int]
     style: Style = Style.Yellow
+    tags: List[str]
+    # tags_2: Optional[List[str]]
 
     # email: str
     # items: list[str]
