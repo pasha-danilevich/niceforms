@@ -41,6 +41,8 @@ class BaseModelForm(UIComponent):
         self.header_bg_color = header_bg_color
         self.view_annotation_type = view_annotation_type
 
+        # style
+        self._card = None # тело всей формы
         self._is_nested = False
 
     def render(self) -> None:
@@ -54,19 +56,19 @@ class BaseModelForm(UIComponent):
             except KeyError:
                 logger.debug(f'Field "{n_model.field_name}" is not defined')
 
-
-
         widgets = factory.build(
             model_fields=fields, view_annotation_type=self.view_annotation_type
         )
 
         with ui.card().classes(
             f"w-full {DEFAULT_FORM_WIDTH} mx-auto shadow-lg rounded-xl overflow-hidden"
-        ):
+        ) as self._card:
             Header(
                 title=self.title,
                 description=self.model.__doc__,
                 bg_color=self.header_bg_color,
+                parent_card=self._card,
+                is_nested=self._is_nested,
             ).render()
 
             elements = Body(widgets).render()
@@ -76,6 +78,7 @@ class BaseModelForm(UIComponent):
                     nested_form = BaseModelForm(n_model.model, header_bg_color='#2eeead')
                     nested_form._is_nested = True
                     nested_form.render()
+                    nested_form._card.style('height: 100px')
 
             Footer(
                 elements=elements,
@@ -83,7 +86,3 @@ class BaseModelForm(UIComponent):
                 model=self.model,
                 on_submit=self.on_submit,
             ).render()
-
-        # self._render_header(schema)
-        # self._render_body(properties)
-        # self._render_footer_buttons()
