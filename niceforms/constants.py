@@ -1,7 +1,7 @@
 """Константы приложения.""" 
 
 DEFAULT_FORM_WIDTH = "max-w-2xl"
-PRIMARY_COLOR_GRADIENT = "bg-gradient-to-r from-blue-500 to-purple-600"
+PRIMARY_COLOR_GRADIENT = "linear-gradient(to right, #3b82f6, #9333ea)"
 ERROR_BACKGROUND_COLOR = "bg-red-50"
 ERROR_BORDER_COLOR = "border-red-200"
 SUCCESS_BACKGROUND_COLOR = "bg-green-50"
