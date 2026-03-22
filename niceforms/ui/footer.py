@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from actions import OnSubmit
 from niceforms import UIComponent, PRIMARY_COLOR_GRADIENT
+from ui.json_viewer import JsonDialog
 from widget import RenderedWidget
 
 logger = logging.getLogger(__name__)
@@ -23,8 +24,13 @@ class Footer(UIComponent):
         self._write_to_form_button: Optional[Button] = None
         self._submit_button: Optional[Button] = None
 
-    def validate_form(self) -> Optional[BaseModel]:
-        pass
+    def init_base_model(self) -> BaseModel:
+        data: dict[str, Any] = {}
+
+        for element in self.elements:
+            data[element.widget.field_name] = element.collect()
+
+        return self.model(**data)
 
     def clear_form(self) -> None:
         logger.debug('Cleared form')
@@ -32,22 +38,18 @@ class Footer(UIComponent):
             element.clear()
 
     def render_json_viewer_dialog(self) -> None:
-        pass
+        JsonDialog(model=self.init_base_model()).render()
 
     def _write_nested_form_to_main_form(self) -> None:
         pass
 
     async def submit(self) -> None:
-        data: dict[str, Any] = {}
-
-        for element in self.elements:
-            data[element.widget.field_name] = element.collect()
 
         if self.on_submit is None:
             logger.warning(f"on_submit function do not provided")
             return None
 
-        await self.on_submit(self.model(**data))
+        await self.on_submit(self.init_base_model())
         return None
 
     def render(self) -> None:
