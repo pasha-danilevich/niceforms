@@ -26,7 +26,6 @@ class UnknownTypeWidget(BaseWidget):
             .props("outlined dense")
         )
 
-        # Добавляем подсказку о формате JSON
         ui.label(
             text=f'Для типа "{self.field.annotation}" не существует виджета. Предоставлен обычный ввод строки.'
         ).classes('text-xs mt-1').style('color: #ff3a3a')

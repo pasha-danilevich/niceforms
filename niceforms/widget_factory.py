@@ -9,7 +9,7 @@ from widget.bool import BoolWidget
 from widget.enum import EnumWidget
 from widget.float import FloatWidget
 from widget.integer import IntegerWidget
-from widget.iterable import IterableWidget
+from widget.list import ListWidget
 from widget.string import StringWidget
 from widget import BaseWidget
 from widget.unknown_type import UnknownTypeWidget
@@ -26,8 +26,10 @@ class WidgetFactory:
             Enum: EnumWidget,
             bool: BoolWidget,
             float: FloatWidget,
-            list[str]: IterableWidget,
-            List[str]: IterableWidget
+            list[str]: ListWidget,
+            List[str]: ListWidget,
+            list[int]: ListWidget,
+            List[int]: ListWidget,
         }
 
     def insert_new_widget(

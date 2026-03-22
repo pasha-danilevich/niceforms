@@ -27,11 +27,8 @@ class User(BaseModel):
     height: Optional[int]
     style: Style = Style.Yellow
     tags: List[str]
-    # tags_2: Optional[List[str]]
+    second_tags: Optional[List[str]] = Field(default=['some', 'name', 'hello'], title="Вторичные теги")
 
-    # email: str
-    # items: list[str]
-    # items_typed: List[str] # параметризованные типы (generic types)
 
 
 @router.page('/basic')
