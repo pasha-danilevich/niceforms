@@ -49,15 +49,35 @@ class NestedModel(BaseModel):
     model: type[BaseModel]
     field_name: str
 
+def extract_model_from_type(attr_type) -> list[tuple[type[BaseModel], str]]:
+    """
+    Рекурсивно извлекает модели BaseModel из типа, обрабатывая Union/Optional.
+    Возвращает список кортежей (модель, field_name) - field_name будет использован позже.
+    """
+    result = []
+
+    # Получаем оригинальный тип и аргументы
+    origin = get_origin(attr_type)
+
+    if origin is Union or origin is UnionType:
+        # Это Union/Optional тип, обрабатываем каждый аргумент
+        for arg in get_args(attr_type):
+            result.extend(extract_model_from_type(arg))
+    elif (
+        isinstance(attr_type, type)
+        and issubclass(attr_type, BaseModel)
+        and attr_type != BaseModel
+    ):
+        # Это непосредственно класс BaseModel
+        result.append(attr_type)
+
+    return result
+
+
 def get_nested_models(model_class: Type[BaseModel]) -> list[NestedModel]:
     """
     Находит все атрибуты переданной модели, которые являются подклассами BaseModel.
-
-    Args:
-        model_class: Класс-модель Pydantic для анализа
-
-    Returns:
-        Список классов-моделей, найденных в атрибутах
+    Работает с Optional и Union типами.
     """
     result: list[NestedModel] = []
 
@@ -65,12 +85,11 @@ def get_nested_models(model_class: Type[BaseModel]) -> list[NestedModel]:
     type_hints = get_type_hints(model_class)
 
     for attr_name, attr_type in type_hints.items():
-        # Проверяем, является ли тип подклассом BaseModel (и не равен самому BaseModel)
-        if (
-            isinstance(attr_type, type)
-            and issubclass(attr_type, BaseModel)
-            and attr_type != BaseModel
-        ):
-            result.append(NestedModel(model=attr_type, field_name=attr_name))
+        # Извлекаем модели из типа (обрабатывая Optional/Union)
+        models = extract_model_from_type(attr_type)
+
+        # Добавляем каждую найденную модель в результат
+        for model in models:
+            result.append(NestedModel(model=model, field_name=attr_name))
 
     return result

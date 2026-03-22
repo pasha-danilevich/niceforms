@@ -1,4 +1,6 @@
 """Базовый пример использования."""
+from typing import Optional
+
 from nicegui import ui, APIRouter
 from pydantic import BaseModel
 from niceforms import BaseModelForm
@@ -14,7 +16,7 @@ class User(BaseModel):
     """Some description"""
     name: str
     age: int
-    address: Address
+    address: Optional[Address]
 
 
 

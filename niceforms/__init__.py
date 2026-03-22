@@ -1,3 +1,4 @@
+import logging
 from pprint import pprint
 from typing import Type, Optional
 
@@ -14,6 +15,7 @@ from ui.header import Header
 from utils import get_nested_models
 from widget_factory import WidgetFactory
 
+logger = logging.getLogger(__name__)
 factory = WidgetFactory()
 
 
@@ -47,7 +49,12 @@ class BaseModelForm(UIComponent):
         fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore
 
         for n_model in nested_models:
-            del fields[n_model.field_name]
+            try:
+                del fields[n_model.field_name]
+            except KeyError:
+                logger.debug(f'Field "{n_model.field_name}" is not defined')
+
+
 
         widgets = factory.build(
             model_fields=fields, view_annotation_type=self.view_annotation_type
