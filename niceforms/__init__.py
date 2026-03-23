@@ -27,6 +27,8 @@ class BaseModelForm(UIComponent):
         title: Optional[str] = None,
         header_bg_color: Optional[str] = None,
         view_annotation_type: bool = True,
+        view_clear_button: bool = True,
+        view_json_button: bool = True,
     ) -> None:
         """Initialize universal form.
 
@@ -40,9 +42,11 @@ class BaseModelForm(UIComponent):
         self.title = title or model.__name__
         self.header_bg_color = header_bg_color
         self.view_annotation_type = view_annotation_type
+        self.view_clear_button = view_clear_button
+        self.view_json_button = view_json_button
 
         # style
-        self._card = None # тело всей формы
+        self._card = None  # тело всей формы
         self._is_nested = False
 
     def render(self) -> None:
@@ -75,14 +79,23 @@ class BaseModelForm(UIComponent):
 
             for n_model in nested_models:
                 if not self._is_nested:
-                    nested_form = BaseModelForm(n_model.model, header_bg_color='#2eeead')
+                    nested_form = BaseModelForm(
+                        model=n_model.model,
+                        header_bg_color='#2eeead',
+                        on_submit=None,
+                        view_json_button=False,
+                        view_annotation_type=self.view_annotation_type,
+                        view_clear_button=False,
+                    )
                     nested_form._is_nested = True
                     nested_form.render()
                     nested_form._card.style('height: 100px')
 
-            Footer(
-                elements=elements,
-                is_nested=self._is_nested,
-                model=self.model,
-                on_submit=self.on_submit,
-            ).render()
+            if not self._is_nested:
+                Footer(
+                    elements=elements,
+                    model=self.model,
+                    on_submit=self.on_submit,
+                    view_clear_button=self.view_clear_button,
+                    view_json_button=self.view_json_button,
+                ).render()

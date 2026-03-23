@@ -28,11 +28,11 @@ async def nested() -> None:
         'min-height: 100vh;'
     )
     ui.link(text='Назад', target='/')
-    def submit_handler(user):
+    async def submit_handler(user):
         print(f"Пользователь создан: {user}")
 
 
-    form = BaseModelForm(User, on_submit=submit_handler)
+    form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False, view_clear_button=False, view_json_button=False)
     form.render()
 
 
