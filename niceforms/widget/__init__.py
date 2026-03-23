@@ -28,7 +28,7 @@ class BaseWidget(UIComponent, ABC):
         self.is_nullable = is_nullable
         self.view_annotation_type = view_annotation_type
 
-        self.set_none_button: Optional[Button] = None
+        self.clear_button: Optional[Button] = None
 
     @property
     def placeholder(self) -> str:
@@ -57,12 +57,12 @@ class BaseWidget(UIComponent, ABC):
                     ui.label(text=f' [{self.field.annotation}]').classes(
                         'text-gray-400 text-md font-normal'
                     )
+            
+            self.clear_button = ui.button(icon='close', color='secondary').props('flat dense round').classes(
+                'text-xs opacity-30 hover:opacity-80 transition-opacity'
+            ).tooltip('Очистить')
 
-            if self.is_nullable:
-
-                self.set_none_button = ui.button('Set None', color='secondary').classes(
-                    'text-xs opacity-70 hover:opacity-100 transition-opacity py-0.7 px-2 min-h-0 h-auto'
-                )
+            
 
         if self.field.description:
             ui.label(text=self.field.description).classes("mb-1 text-gray-500")
@@ -81,20 +81,7 @@ class RenderedWidget(ABC):
         self.widget = widget
         self.element = element
 
-        self._none_is_set = False
-
-        if self.widget.set_none_button:
-
-            def on_click_set_none() -> None:
-                if self._none_is_set:
-                    self.widget.set_none_button.text = 'Set None'
-                    self._none_is_set = False
-                else:
-                    self.element.value = None
-                    self.widget.set_none_button.text = 'None is set'
-                    self._none_is_set = True
-
-            self.widget.set_none_button.on_click(on_click_set_none)
+        self.widget.clear_button.on_click(self.clear)
 
     def clear(self) -> None:
         self.element.set_value(None)

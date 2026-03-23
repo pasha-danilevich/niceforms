@@ -1,4 +1,5 @@
 """Базовый пример использования."""
+
 from typing import Optional
 
 from nicegui import ui, APIRouter
@@ -7,18 +8,20 @@ from niceforms import BaseModelForm
 
 router = APIRouter()
 
+
 class Address(BaseModel):
     """Some description"""
+
     street: str
     city: str
 
 
 class User(BaseModel):
     """Some description"""
+
     name: str
     age: int
     address: Optional[Address]
-
 
 
 @router.page('/nested')
@@ -28,11 +31,15 @@ async def nested() -> None:
         'min-height: 100vh;'
     )
     ui.link(text='Назад', target='/')
+
     async def submit_handler(user):
         print(f"Пользователь создан: {user}")
 
-
-    form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False, view_clear_button=False, view_json_button=False)
+    form = BaseModelForm(
+        User,
+        on_submit=submit_handler,
+        view_annotation_type=False,
+        view_clear_button=False,
+        view_json_button=False,
+    )
     form.render()
-
-
