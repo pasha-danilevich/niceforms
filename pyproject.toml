@@ -7,6 +7,10 @@ authors = [
 ]
 readme = "README.md"
 
+packages = [
+    {include = "niceforms"}
+]
+
 [tool.poetry.dependencies]
 python = ">=3.10, <4"
 pydantic = "^2.12.5"

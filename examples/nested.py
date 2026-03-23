@@ -8,6 +8,7 @@ from niceforms import BaseModelForm
 router = APIRouter()
 
 class Address(BaseModel):
+    """Some description"""
     street: str
     city: str
 

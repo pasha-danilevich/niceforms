@@ -25,16 +25,19 @@ class Header(UIComponent):
 
         self._is_expanded = False
         self._button: Optional[Button] = None
+        self._description: Optional[Element] = None
 
     def toggle_expand_parent(self) -> None:
         if self._is_expanded:
             self.parent_card.style('height: 100px')
             self._is_expanded = False
             self._button.text = 'Развернуть'
+            self._description.set_visibility(False)
         else:
             self.parent_card.style('height: 100%')
             self._is_expanded = True
             self._button.text = 'Свернуть'
+            self._description.set_visibility(True)
 
     def render(self) -> None:
         with ui.element().classes(f"w-full {DEFAULT_PADDING} rounded-lg").style(
@@ -51,4 +54,6 @@ class Header(UIComponent):
                     ).props("outlined flat")
 
             if self.description:
-                ui.label(self.description).classes("text-blue-100 mt-2")
+                self._description = ui.label(self.description).classes("mt-2").style('color: #ffffff')
+                if self.is_nested:
+                    self._description.set_visibility(False)
