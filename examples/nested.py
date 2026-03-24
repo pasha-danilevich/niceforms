@@ -35,8 +35,8 @@ class User(BaseModel):
 
     name: str
     age: int
-    # address: Optional[Address]
-    appearance: Optional[Appearance] = Field(
+    address: Optional[Address]
+    appearance: Appearance = Field(
         ..., title="Внешний вид", description="Отличительные черты персоны"
     )
 

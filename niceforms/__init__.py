@@ -121,6 +121,7 @@ class BaseModelForm(UIComponent):
                 bg_color=self.header_bg_color,
                 parent_card=self._card,
                 is_nested=self._is_nested,
+                is_nullable=self._is_nullable,
             )
             self._header.render()
 
