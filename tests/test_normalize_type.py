@@ -1,10 +1,9 @@
+from types import NoneType
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+
 import pytest
-from types import NoneType, UnionType
-from typing import List, Optional, Union, Dict, Any, Tuple, Set, Callable
-from pydantic import BaseModel
 
-from x import normalize_type, NormalizedType
-
+from utils import normalize_type, NormalizedType
 
 class TestNormalizeType:
     """Тесты для функции normalize_type"""
@@ -181,10 +180,10 @@ class TestNormalizeType:
         assert result.is_nullable is False
         assert result.origin_type == Union[int]
 
-
     def test_normalize_deeply_nested_generic(self):
         """Тест для глубоко вложенных generic типов"""
         from typing import Deque, FrozenSet
+
         complex_type = Optional[Dict[str, List[Tuple[int, Deque[FrozenSet[str]]]]]]
         result = normalize_type(complex_type)
         assert result.is_nullable is True
@@ -193,6 +192,7 @@ class TestNormalizeType:
     def test_normalize_type_var(self):
         """Тест для TypeVar"""
         from typing import TypeVar
+
         T = TypeVar('T')
         result = normalize_type(Optional[T])
         assert result.is_nullable is True
@@ -201,6 +201,7 @@ class TestNormalizeType:
     def test_normalize_literal(self):
         """Тест для Literal"""
         from typing import Literal
+
         result = normalize_type(Literal['a', 'b', 'c'])
         assert result.is_nullable is False
         assert result.origin_type == Literal['a', 'b', 'c']
@@ -208,6 +209,7 @@ class TestNormalizeType:
     def test_normalize_optional_literal(self):
         """Тест для Optional[Literal['a', 'b']]"""
         from typing import Literal
+
         result = normalize_type(Optional[Literal['a', 'b']])
         assert result.is_nullable is True
         assert result.origin_type == Literal['a', 'b']
@@ -226,7 +228,6 @@ class TestNormalizedTypeModel:
         """Тест преобразования в словарь"""
         nt = NormalizedType(is_nullable=False, origin_type=str)
         assert nt.model_dump() == {"is_nullable": False, "origin_type": str}
-
 
 
 if __name__ == "__main__":

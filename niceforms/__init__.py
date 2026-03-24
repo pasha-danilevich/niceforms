@@ -1,13 +1,12 @@
 import logging
 from pprint import pprint
-from typing import Type, Optional
-
-from nicegui import ui
-from pydantic import BaseModel
-from pydantic.fields import FieldInfo
+from typing import Optional, Type
 
 from actions import OnSubmit
 from constants import *
+from nicegui import ui
+from pydantic import BaseModel
+from pydantic.fields import FieldInfo
 from ui import UIComponent
 from ui.body import Body
 from ui.footer import Footer

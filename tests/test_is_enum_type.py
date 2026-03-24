@@ -1,14 +1,11 @@
+from datetime import date, datetime
+from enum import Enum, IntEnum, StrEnum, auto
 from types import UnionType
+from typing import Any, Dict, List, Optional, Union
 
 import pytest
-from enum import Enum, StrEnum, IntEnum, auto
-from typing import Optional, Union, List, Dict, Any
-from datetime import date, datetime
-
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo
-
-from enum import Enum, StrEnum, IntEnum
 
 
 def is_enum_type(field_type: type) -> bool:
@@ -92,8 +89,6 @@ class TestModel(BaseModel):
     birth_date: date
 
 
-
-
 class TestIsEnumType:
     """Тесты для функции is_enum_type"""
 
@@ -150,7 +145,6 @@ class TestIsEnumType:
             result == expected
         ), f"Field '{field_name}' with annotation {annotation} returned {result}, expected {expected}"
 
-
     def test_edge_cases(self):
         """Тестируем граничные случаи"""
         # Не тип
@@ -162,8 +156,6 @@ class TestIsEnumType:
         assert is_enum_type(Color) == True
         assert is_enum_type(Status) == True
         assert is_enum_type(Priority) == True
-
-
 
         # Обычные классы
         class RegularClass:
@@ -184,14 +176,15 @@ class TestIsEnumType:
         assert is_enum_type(typing.Union) == False
         assert is_enum_type(typing.List) == False
 
+
 class NestedModel(BaseModel):
     nested_enum: Color
     nested_optional_enum: Optional[Status]
+
+
 # Дополнительные тесты для более сложных сценариев
 class TestComplexModels:
     """Тесты для сложных моделей"""
-
-
 
     class ComplexModel(BaseModel):
         nested: NestedModel

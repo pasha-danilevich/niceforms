@@ -1,11 +1,12 @@
-from typing import Any, Optional, Union, List
-from datetime import datetime
 import json
+from datetime import datetime
 from json import JSONDecodeError
+from typing import Any, List, Optional, Union
+
 from nicegui import ui
+from utils import normalize_type
 
 from niceforms.widget import BaseWidget, RenderedWidget
-from utils import normalize_type
 
 
 class RenderedListWidget(RenderedWidget):
@@ -26,7 +27,9 @@ class ListWidget(BaseWidget):
     }
 
     def render(self) -> RenderedWidget:
-        default_value = json.dumps(self.default_value) if self.default_value is not None else None
+        default_value = (
+            json.dumps(self.default_value) if self.default_value is not None else None
+        )
 
         el = (
             ui.textarea(value=default_value, placeholder=self.placeholder)

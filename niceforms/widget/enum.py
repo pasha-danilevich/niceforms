@@ -1,8 +1,6 @@
 from typing import Any, Optional
-from enum import EnumMeta, Enum
 
 from nicegui import ui
-from pydantic_core import PydanticUndefinedType
 
 from niceforms.widget import BaseWidget, RenderedWidget
 
@@ -17,12 +15,16 @@ class EnumWidget(BaseWidget):
     """Виджет для полей типа Enum с выплывающим списком"""
 
     def render(self) -> RenderedEnumWidget:
-        options = list(self.field.annotation) # type: ignore
+        options = list(self.field.annotation)  # type: ignore
 
-        s = ui.select(
-            label='Выберите значение',
-            value=self.default_value,
-            options=options,
-        ).props("outlined dense").classes("w-full")
+        s = (
+            ui.select(
+                label='Выберите значение',
+                value=self.default_value,
+                options=options,
+            )
+            .props("outlined dense")
+            .classes("w-full")
+        )
 
         return RenderedEnumWidget(self, s)

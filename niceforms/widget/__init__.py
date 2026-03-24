@@ -21,7 +21,7 @@ class BaseWidget(UIComponent, ABC):
         field_info: FieldInfo,
         field_name: str,
         is_nullable: bool,
-        view_annotation_type: bool
+        view_annotation_type: bool,
     ):
         self.field = field_info
         self.field_name = field_name
@@ -57,12 +57,13 @@ class BaseWidget(UIComponent, ABC):
                     ui.label(text=f' [{self.field.annotation}]').classes(
                         'text-gray-400 text-md font-normal'
                     )
-            
-            self.clear_button = ui.button(icon='close', color='secondary').props('flat dense round').classes(
-                'text-xs opacity-30 hover:opacity-80 transition-opacity'
-            ).tooltip('Очистить')
 
-            
+            self.clear_button = (
+                ui.button(icon='close', color='secondary')
+                .props('flat dense round')
+                .classes('text-xs opacity-30 hover:opacity-80 transition-opacity')
+                .tooltip('Очистить')
+            )
 
         if self.field.description:
             ui.label(text=self.field.description).classes("mb-1 text-gray-500")

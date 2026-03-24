@@ -17,9 +17,13 @@ class RenderedIntegerWidget(RenderedWidget):
 
 class IntegerWidget(BaseWidget):
     def render(self) -> RenderedWidget:
-        el = ui.number(
-            value=self.default_value,
-            placeholder=self.placeholder,
-        ).props("outlined dense").classes("w-full")
+        el = (
+            ui.number(
+                value=self.default_value,
+                placeholder=self.placeholder,
+            )
+            .props("outlined dense")
+            .classes("w-full")
+        )
 
         return RenderedIntegerWidget(self, el)

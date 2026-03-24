@@ -2,8 +2,9 @@
 
 from typing import Optional
 
-from nicegui import ui, APIRouter
+from nicegui import APIRouter, ui
 from pydantic import BaseModel
+
 from niceforms import BaseModelForm
 
 router = APIRouter()
@@ -13,13 +14,13 @@ class Some(BaseModel):
     hello: str
     bye: str
 
+
 class Address(BaseModel):
     """Some description"""
 
     street: str
     city: str
     some: Some
-
 
 
 class User(BaseModel):

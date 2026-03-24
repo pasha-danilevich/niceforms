@@ -1,11 +1,10 @@
 from enum import StrEnum
-from typing import Optional, List
-
-from nicegui import ui, APIRouter
-from pydantic import BaseModel
-from pydantic import Field, StrictInt
+from typing import List, Optional
 
 from _layout import base
+from nicegui import APIRouter, ui
+from pydantic import BaseModel, Field, StrictInt
+
 from niceforms import BaseModelForm
 
 router = APIRouter()
@@ -25,6 +24,7 @@ class Address(BaseModel):
 
 class UserForm(BaseModel):
     """User form model for demonstration."""
+
     name: Optional[str]
     email: str = Field(..., title="Email", description="Введите ваш email")
     age: int = Field(..., title="Возраст", ge=18, le=100)

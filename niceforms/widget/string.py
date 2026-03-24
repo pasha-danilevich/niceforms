@@ -18,5 +18,9 @@ class RenderedStringWidget(RenderedWidget):
 class StringWidget(BaseWidget):
 
     def render(self) -> RenderedWidget:
-        el = ui.input(value=self.default_value, placeholder=self.placeholder).props("outlined dense").classes("w-full")
+        el = (
+            ui.input(value=self.default_value, placeholder=self.placeholder)
+            .props("outlined dense")
+            .classes("w-full")
+        )
         return RenderedStringWidget(self, el)

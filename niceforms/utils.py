@@ -1,8 +1,7 @@
 import logging
 from enum import Enum
 from types import NoneType, UnionType
-from typing import Type, Any, get_type_hints
-from typing import Union, get_origin, get_args
+from typing import Any, Type, Union, get_args, get_origin, get_type_hints
 
 from pydantic import BaseModel
 
@@ -48,6 +47,7 @@ def is_enum_type(field_type: type) -> bool:
 class NestedModel(BaseModel):
     model: type[BaseModel]
     field_name: str
+
 
 def extract_model_from_type(attr_type) -> list[tuple[type[BaseModel], str]]:
     """

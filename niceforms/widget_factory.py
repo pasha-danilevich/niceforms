@@ -3,15 +3,14 @@ from enum import Enum
 from typing import List
 
 from pydantic.fields import FieldInfo
-
-from utils import normalize_type, is_enum_type
+from utils import is_enum_type, normalize_type
+from widget import BaseWidget
 from widget.bool import BoolWidget
 from widget.enum import EnumWidget
 from widget.float import FloatWidget
 from widget.integer import IntegerWidget
 from widget.list import ListWidget
 from widget.string import StringWidget
-from widget import BaseWidget
 from widget.unknown_type import UnknownTypeWidget
 
 logger = logging.getLogger(__name__)
@@ -37,7 +36,9 @@ class WidgetFactory:
     ) -> None:
         self._widgets[field_type] = widget_type
 
-    def build(self, model_fields: dict[str, FieldInfo], view_annotation_type: bool) -> list[BaseWidget]:
+    def build(
+        self, model_fields: dict[str, FieldInfo], view_annotation_type: bool
+    ) -> list[BaseWidget]:
         widgets: list[BaseWidget] = []
 
         for field_name, field_type in model_fields.items():
@@ -61,7 +62,7 @@ class WidgetFactory:
                     field_info=field_type,
                     field_name=field_name,
                     is_nullable=normalized_type.is_nullable,
-                    view_annotation_type=view_annotation_type
+                    view_annotation_type=view_annotation_type,
                 )
             )
 

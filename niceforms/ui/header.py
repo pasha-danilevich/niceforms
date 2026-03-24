@@ -48,12 +48,18 @@ class Header(UIComponent):
                 ui.label(self.title).classes("text-2xl font-bold text-white")
 
                 if self.is_nested:
-                    self._button = ui.button('Развернуть', on_click=self.toggle_expand_parent).classes(
-                        "px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white "
-                        "transition-all duration-200 text-sm font-medium"
-                    ).props("outlined flat")
+                    self._button = (
+                        ui.button('Развернуть', on_click=self.toggle_expand_parent)
+                        .classes(
+                            "px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white "
+                            "transition-all duration-200 text-sm font-medium"
+                        )
+                        .props("outlined flat")
+                    )
 
             if self.description:
-                self._description = ui.label(self.description).classes("mt-2").style('color: #ffffff')
+                self._description = (
+                    ui.label(self.description).classes("mt-2").style('color: #ffffff')
+                )
                 if self.is_nested:
                     self._description.set_visibility(False)
