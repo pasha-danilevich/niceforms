@@ -2,9 +2,10 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from nicegui import ui
+from nicegui.elements.mixins.validation_element import ValidationElement
 from nicegui.elements.mixins.value_element import ValueElement
 from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
@@ -31,6 +32,14 @@ class BaseWidget(UIComponent, ABC):
         self.view_annotation_type = view_annotation_type
 
         self._rendered_element: Optional[ValueElement] = None
+
+        self.default_validations = {}
+        if not normalized_type.is_nullable:
+            self.default_validations = {
+                'Поле не может быть пустым': lambda v: (
+                    False if v is None or v == '' else True
+                )
+            }
 
     def set_element(self, element: ValueElement) -> None:
         self._rendered_element = element

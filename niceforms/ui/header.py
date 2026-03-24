@@ -34,7 +34,7 @@ class Header(UIComponent):
         self._is_expanded = False
         self._button: Optional[Button] = None
         self._description: Optional[Element] = None
-        self._icon: Optional[NameElement] = None
+        self._expand_icon: Optional[NameElement] = None
         self._delete_icon: Optional[NameElement] = None
         self._main_container: Optional[Element] = None
 
@@ -52,11 +52,18 @@ class Header(UIComponent):
         if self._main_container:
             if self._is_none:
                 self._main_container.style('background: #6c757d')  # Серый цвет
+                self._expand_icon.set_visibility(False)
+                if self._is_expanded:
+                    self.parent_card.style('height: 100px')
+                    if self._description:
+                        self._description.set_visibility(False)
                 if self._delete_icon:
                     self._delete_icon.props('name=restore_from_trash')
                     self._delete_icon.tooltip('Восстановить')
             else:
                 self._main_container.style(f'background: {self.bg_color}')
+                self._expand_icon.set_visibility(True)
+
                 if self._delete_icon:
                     self._delete_icon.props('name=delete_outline')
                     self._delete_icon.tooltip('Удалить')
@@ -67,15 +74,15 @@ class Header(UIComponent):
         if self._is_expanded:
             self.parent_card.style('height: 100px')
             self._is_expanded = False
-            self._icon.props('name=unfold_more')  # иконка развернуть
-            self._icon.tooltip('Развернуть')
+            self._expand_icon.props('name=unfold_more')  # иконка развернуть
+            self._expand_icon.tooltip('Развернуть')
             if self._description:
                 self._description.set_visibility(False)
         else:
             self.parent_card.style('height: 100%')
             self._is_expanded = True
-            self._icon.props('name=unfold_less')  # иконка свернуть
-            self._icon.tooltip('Свернуть')
+            self._expand_icon.props('name=unfold_less')  # иконка свернуть
+            self._expand_icon.tooltip('Свернуть')
             if self._description:
                 self._description.set_visibility(True)
 
@@ -115,7 +122,7 @@ class Header(UIComponent):
 
                     # Иконка развернуть/свернуть
                     if self.is_nested:
-                        self._icon = (
+                        self._expand_icon = (
                             ui.icon('unfold_more', size="md")
                             .classes(
                                 "cursor-pointer text-white/70 hover:text-white "
@@ -123,7 +130,7 @@ class Header(UIComponent):
                             )
                             .tooltip('Развернуть')
                         )
-                        self._icon.on('click', self.toggle_expand_parent)
+                        self._expand_icon.on('click', self.toggle_expand_parent)
 
             if self.description:
                 self._description = (

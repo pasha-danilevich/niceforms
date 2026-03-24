@@ -1,9 +1,11 @@
 import logging
-from typing import Any, Optional, Type
+from typing import Any, Optional, Type, cast
 
 from actions import OnSubmit
 from constants import *
+from exceptions import FormError
 from nicegui import ui
+from nicegui.elements.mixins.validation_element import ValidationElement
 from pydantic import BaseModel, ConfigDict
 from pydantic.fields import FieldInfo
 from ui import UIComponent
@@ -67,7 +69,6 @@ class BaseModelForm(UIComponent):
         self._nested_forms: list[NestedForm] = []
         self._header: Optional[Header] = None
 
-
     @property
     def widgets(self) -> list[BaseWidget]:
         """Все виджеты формы"""
@@ -85,13 +86,29 @@ class BaseModelForm(UIComponent):
 
     def collect_form_data(self) -> BaseModel:
         data: dict[str, Any] = {}
+        errors: list[str] = []
 
         for w in self.widgets:
-            data[w.field_name] = w.collect()
+
+            if isinstance(w.element, ValidationElement):
+                el = cast(ValidationElement, w.element)
+                el.validate()
+                if el.error:
+                    errors.append(el.error)
+                else:
+                    data[w.field_name] = w.collect()
 
         for n in self._nested_forms:
-            logger.debug(f'Collecting form data for "{n.form.title}". is_none={n.form._header.is_none}')
-            data[n.model.field_name] = None if n.form._header.is_none else n.form.collect_form_data()
+            logger.debug(
+                f'Collecting form data for "{n.form.title}". is_none={n.form._header.is_none}'
+            )
+            data[n.model.field_name] = (
+                None if n.form._header.is_none else n.form.collect_form_data()
+            )
+
+        if errors:
+            ui.notify("Исправьте ошибки в форме")
+            raise FormError
 
         return self.model(**data)
 
@@ -138,7 +155,7 @@ class BaseModelForm(UIComponent):
                     view_json_button=False,
                     view_annotation_type=self.view_annotation_type,
                     view_clear_button=False,
-                    _is_nullable=normalized_type.is_nullable
+                    _is_nullable=normalized_type.is_nullable,
                 )
                 nested_form._is_nested = True
                 nested_form.render()
@@ -148,6 +165,7 @@ class BaseModelForm(UIComponent):
 
             if not self._is_nested:
                 Footer(
+                    widgets=self._widgets,
                     model=self.model,
                     on_submit=self.on_submit,
                     on_collect=self.collect_form_data,

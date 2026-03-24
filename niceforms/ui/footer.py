@@ -1,9 +1,11 @@
 import logging
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, cast
 
 from actions import Collect, OnSubmit
+from exceptions import FormError
 from nicegui import ui
 from nicegui.elements.button import Button
+from nicegui.elements.mixins.validation_element import ValidationElement
 from pydantic import BaseModel
 from ui.json_viewer import JsonDialog
 from widget import BaseWidget
@@ -16,6 +18,7 @@ logger = logging.getLogger(__name__)
 class Footer(UIComponent):
     def __init__(
         self,
+        widgets: list[BaseWidget],
         model: type[BaseModel],
         on_submit: Optional[OnSubmit],
         on_collect: Collect,
@@ -23,6 +26,7 @@ class Footer(UIComponent):
         view_clear_button: bool = True,
         view_json_button: bool = True,
     ) -> None:
+        self.widgets = widgets
         self.model = model
         self.on_submit = on_submit
         self.collect = on_collect
@@ -40,10 +44,13 @@ class Footer(UIComponent):
 
         if self.on_submit is None:
             logger.warning(f"on_submit function do not provided")
-            return None
+            return
+        try:
+            base_model = self.collect()
+        except FormError:
+            return
 
-        await self.on_submit(self.collect())
-        return None
+        await self.on_submit(base_model)
 
     def render(self) -> None:
         with ui.row().classes("w-full justify-end gap-3"):

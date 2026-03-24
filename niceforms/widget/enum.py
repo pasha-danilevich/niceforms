@@ -20,6 +20,7 @@ class EnumWidget(BaseWidget):
                 label='Выберите значение',
                 value=self.default_value,
                 options=options,
+                validation=self.default_validations,
             )
             .props("outlined dense")
             .classes("w-full")

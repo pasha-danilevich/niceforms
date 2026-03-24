@@ -32,8 +32,8 @@ class UserForm(BaseModel):
     exp: StrictInt
     is_active: bool = Field(True, title="Активный пользователь")
     status: Status = Field(Status.INACTIVE, title="Статус")
-    address: Address = Field(..., title="Адрес")
-    tags: Optional[List[str]] = Field([], title="Теги")
+    address: Optional[Address] = Field(..., title="Адрес")
+    tags: List[str] = Field(title="Теги")
 
 
 @router.page('/complex_type')

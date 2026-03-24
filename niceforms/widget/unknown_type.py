@@ -17,7 +17,6 @@ class UnknownTypeWidget(BaseWidget):
             ui.input(
                 value=self.default_value,
                 placeholder=self.placeholder,
-                # on_change=self._validate_json,
             )
             .classes('w-full font-mono')
             .props("outlined dense")

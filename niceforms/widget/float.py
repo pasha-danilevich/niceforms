@@ -18,6 +18,7 @@ class FloatWidget(BaseWidget):
             ui.number(
                 value=self.default_value,
                 placeholder=self.placeholder,
+                validation=self.default_validations,
             )
             .props("outlined dense")
             .classes("w-full")

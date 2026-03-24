@@ -28,7 +28,11 @@ class ListWidget(BaseWidget):
         )
 
         el = (
-            ui.textarea(value=default_value, placeholder=self.placeholder)
+            ui.textarea(
+                value=default_value,
+                placeholder=self.placeholder,
+                validation=self.default_validations,
+            )
             .props("outlined dense")
             .classes("w-full font-mono")
         )
