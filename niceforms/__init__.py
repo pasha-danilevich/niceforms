@@ -67,8 +67,6 @@ class BaseModelForm(UIComponent):
         self._nested_forms: list[NestedForm] = []
         self._header: Optional[Header] = None
 
-    def set_widgets(self, widgets: list[BaseWidget]) -> None:
-        self._widgets = widgets
 
     @property
     def widgets(self) -> list[BaseWidget]:
@@ -126,7 +124,7 @@ class BaseModelForm(UIComponent):
             self._header.render()
 
             rendered_widgets = Body(widgets).render()
-            self.set_widgets(rendered_widgets)
+            self._widgets = rendered_widgets
 
             for n_model in self.nested_models:
                 title = n_model.field_info.title
