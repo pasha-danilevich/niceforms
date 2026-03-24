@@ -69,7 +69,7 @@ class BaseModelForm(UIComponent):
         )
 
         with ui.card().classes(
-            f"w-full {DEFAULT_FORM_WIDTH} mx-auto shadow-lg rounded-xl overflow-hidden"
+            f"p-2 w-full {DEFAULT_FORM_WIDTH} mx-auto shadow-lg rounded-xl overflow-hidden sm:p-4"
         ) as self._card:
             Header(
                 title=self.title,
