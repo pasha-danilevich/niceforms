@@ -51,12 +51,16 @@ class BaseModelForm(UIComponent):
 
     def render(self) -> None:
         """Render the form UI."""
+        logger.debug(f"Rendering form {self.model.__name__}")
         nested_models = get_nested_models(self.model)
+        print(f'{nested_models=}')
         fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore
+        print(f'{fields=}')
 
         for n_model in nested_models:
             try:
                 del fields[n_model.field_name]
+                logger.debug(f'Field "{n_model.field_name}" is deleted')
             except KeyError:
                 logger.debug(f'Field "{n_model.field_name}" is not defined')
 
@@ -78,18 +82,18 @@ class BaseModelForm(UIComponent):
             elements = Body(widgets).render()
 
             for n_model in nested_models:
-                if not self._is_nested:
-                    nested_form = BaseModelForm(
-                        model=n_model.model,
-                        header_bg_color='#2eeead',
-                        on_submit=None,
-                        view_json_button=False,
-                        view_annotation_type=self.view_annotation_type,
-                        view_clear_button=False,
-                    )
-                    nested_form._is_nested = True
-                    nested_form.render()
-                    nested_form._card.style('height: 100px')
+
+                nested_form = BaseModelForm(
+                    model=n_model.model,
+                    header_bg_color='#2eeead',
+                    on_submit=None,
+                    view_json_button=False,
+                    view_annotation_type=self.view_annotation_type,
+                    view_clear_button=False,
+                )
+                nested_form._is_nested = True
+                nested_form.render()
+                nested_form._card.style('height: 100px')
 
             if not self._is_nested:
                 Footer(
