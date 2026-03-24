@@ -5,13 +5,12 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from nicegui import ui
-from nicegui.elements.button import Button
 from nicegui.elements.mixins.value_element import ValueElement
 from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
+from utils import NormalizedType
 
 from niceforms import UIComponent
-from utils import NormalizedType
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +28,15 @@ class BaseWidget(UIComponent, ABC):
         self.normalized_type = normalized_type
         self.view_annotation_type = view_annotation_type
 
-        self.clear_button: Optional[Button] = None
+        self._rendered_element: Optional[ValueElement] = None
+
+    def set_element(self, element: ValueElement) -> None:
+        self._rendered_element = element
+
+    @property
+    def element(self) -> ValueElement:
+        assert self._rendered_element is not None, 'Widget has not been rendered yet.'
+        return self._rendered_element
 
     @property
     def placeholder(self) -> str:
@@ -47,7 +54,6 @@ class BaseWidget(UIComponent, ABC):
 
     def render_label(self) -> None:
         text = self.field.title if self.field.title else self.field_name.title()
-        logger.debug(f"render label: {text}")
 
         with ui.row().classes('mb-1 items-baseline justify-between w-full gap-1'):
             with ui.row().classes('items-baseline gap-1'):
@@ -59,8 +65,9 @@ class BaseWidget(UIComponent, ABC):
                         'text-gray-400 text-md font-normal'
                     )
 
-            self.clear_button = (
+            (
                 ui.button(icon='close', color='secondary')
+                .on_click(self.clear)
                 .props('flat dense round')
                 .classes('text-xs opacity-30 hover:opacity-80 transition-opacity')
                 .tooltip('Очистить')
@@ -69,25 +76,13 @@ class BaseWidget(UIComponent, ABC):
         if self.field.description:
             ui.label(text=self.field.description).classes("mb-1 text-gray-500")
 
-    @abstractmethod
-    def render(
-        self,
-    ) -> (
-        "RenderedWidget"
-    ):  # TODO: возможно достаточно будет в RenderedWidget передавать в место BaseWidget "field_name"
-        raise NotImplementedError
-
-
-class RenderedWidget(ABC):
-    def __init__(self, widget: BaseWidget, element: ValueElement) -> None:
-        self.widget = widget
-        self.element = element
-
-        self.widget.clear_button.on_click(self.clear)
-
     def clear(self) -> None:
         self.element.set_value(None)
 
     @abstractmethod
     def collect(self) -> Optional[Any]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def render(self) -> ValueElement:
         raise NotImplementedError

@@ -2,8 +2,8 @@ from types import NoneType
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import pytest
+from utils import NormalizedType, normalize_type
 
-from utils import normalize_type, NormalizedType
 
 class TestNormalizeType:
     """Тесты для функции normalize_type"""

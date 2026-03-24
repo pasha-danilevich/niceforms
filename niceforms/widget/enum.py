@@ -1,24 +1,21 @@
 from typing import Any, Optional
 
 from nicegui import ui
+from nicegui.elements.mixins.value_element import ValueElement
 
-from niceforms.widget import BaseWidget, RenderedWidget
-
-
-class RenderedEnumWidget(RenderedWidget):
-
-    def collect(self) -> Optional[Any]:
-        return self.element.value
+from niceforms.widget import BaseWidget
 
 
 class EnumWidget(BaseWidget):
     """Виджет для полей типа Enum с выплывающим списком"""
 
-    def render(self) -> RenderedEnumWidget:
-        print(f'{self.field_name}: {self.normalized_type.origin_type}')
+    def collect(self) -> Optional[Any]:
+        return self.element.value
+
+    def render(self) -> ValueElement:
         options = list(self.normalized_type.origin_type)
 
-        s = (
+        select = (
             ui.select(
                 label='Выберите значение',
                 value=self.default_value,
@@ -28,4 +25,4 @@ class EnumWidget(BaseWidget):
             .classes("w-full")
         )
 
-        return RenderedEnumWidget(self, s)
+        return select

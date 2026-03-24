@@ -1,6 +1,6 @@
 [project]
 name = "niceforms"
-version = "0.1.1"
+version = "1.0.0"
 description = "A dynamic form generator for NiceGUI that automatically creates interactive UI forms from Pydantic models"
 authors = [
     {name = "pasha_danilevich", email = "danilevitch.pasha@yandex.ru"}

@@ -1,5 +1,4 @@
 import logging
-from pprint import pprint
 from typing import Optional, Type
 
 from actions import OnSubmit
@@ -50,11 +49,10 @@ class BaseModelForm(UIComponent):
 
     def render(self) -> None:
         """Render the form UI."""
-        logger.debug(f"Rendering form {self.model.__name__}")
+        logger.debug(f'Rendering form "{self.model.__name__}"')
+
         nested_models = get_nested_models(self.model)
-        print(f'{nested_models=}')
         fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore
-        print(f'{fields=}')
 
         for n_model in nested_models:
             try:
@@ -78,13 +76,13 @@ class BaseModelForm(UIComponent):
                 is_nested=self._is_nested,
             ).render()
 
-            elements = Body(widgets).render()
+            widgets = Body(widgets).render()
 
             for n_model in nested_models:
 
                 nested_form = BaseModelForm(
                     model=n_model.model,
-                    header_bg_color='#2eeead',
+                    header_bg_color=NESTED_FORM_BG_COLOR,
                     on_submit=None,
                     view_json_button=False,
                     view_annotation_type=self.view_annotation_type,
@@ -96,7 +94,7 @@ class BaseModelForm(UIComponent):
 
             if not self._is_nested:
                 Footer(
-                    elements=elements,
+                    widgets=widgets,
                     model=self.model,
                     on_submit=self.on_submit,
                     view_clear_button=self.view_clear_button,

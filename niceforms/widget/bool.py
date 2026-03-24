@@ -1,21 +1,17 @@
 from typing import Any, Optional
 
 from nicegui import ui
+from nicegui.elements.mixins.value_element import ValueElement
 
-from niceforms.widget import BaseWidget, RenderedWidget
-
-
-class RenderedBoolWidget(RenderedWidget):
-
-    def collect(self) -> Optional[Any]:
-        return self.element.value
+from niceforms.widget import BaseWidget
 
 
 class BoolWidget(BaseWidget):
+    def collect(self) -> Optional[Any]:
+        return self.element.value
 
-    def render(self) -> RenderedBoolWidget:
-
-        checkbox = (
+    def render(self) -> ValueElement:
+        el = (
             ui.checkbox(
                 text='Выставьте checkbox',
                 value=self.default_value,
@@ -24,4 +20,4 @@ class BoolWidget(BaseWidget):
             .classes("w-full")
         )
 
-        return RenderedBoolWidget(self, checkbox)
+        return el

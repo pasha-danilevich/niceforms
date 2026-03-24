@@ -2,10 +2,5 @@
 
 DEFAULT_FORM_WIDTH = "max-w-2xl"
 PRIMARY_COLOR_GRADIENT = "linear-gradient(to right, #3b82f6, #9333ea)"
-ERROR_BACKGROUND_COLOR = "bg-red-50"
-ERROR_BORDER_COLOR = "border-red-200"
-SUCCESS_BACKGROUND_COLOR = "bg-green-50"
-SUCCESS_BORDER_COLOR = "border-green-200"
-NULL_OPTION_VALUE = "__null__"
-NULL_OPTION_LABEL = "<Не указано>"
 DEFAULT_PADDING = "p-4"
+NESTED_FORM_BG_COLOR = "#2eeead"

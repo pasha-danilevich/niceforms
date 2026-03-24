@@ -1,22 +1,19 @@
 from typing import Optional
 
 from nicegui import ui
-from pydantic_core import PydanticUndefinedType
+from nicegui.elements.mixins.value_element import ValueElement
 
-from niceforms.widget import BaseWidget, RenderedWidget
+from niceforms.widget import BaseWidget
 
 
-class RenderedIntegerWidget(RenderedWidget):
-
+class IntegerWidget(BaseWidget):
     def collect(self) -> Optional[int]:
         if self.element.value is None:
             return None
 
         return int(self.element.value)
 
-
-class IntegerWidget(BaseWidget):
-    def render(self) -> RenderedWidget:
+    def render(self) -> ValueElement:
         el = (
             ui.number(
                 value=self.default_value,
@@ -26,4 +23,4 @@ class IntegerWidget(BaseWidget):
             .classes("w-full")
         )
 
-        return RenderedIntegerWidget(self, el)
+        return el

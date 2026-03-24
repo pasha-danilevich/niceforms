@@ -1,12 +1,12 @@
-from typing import Any, Optional
+from typing import Optional
 
 from nicegui import ui
-from pydantic_core import PydanticUndefinedType
+from nicegui.elements.mixins.value_element import ValueElement
 
-from niceforms.widget import BaseWidget, RenderedWidget
+from niceforms.widget import BaseWidget
 
 
-class RenderedStringWidget(RenderedWidget):
+class StringWidget(BaseWidget):
 
     def collect(self) -> Optional[str]:
         if self.element.value == '':
@@ -14,13 +14,10 @@ class RenderedStringWidget(RenderedWidget):
 
         return self.element.value
 
-
-class StringWidget(BaseWidget):
-
-    def render(self) -> RenderedWidget:
+    def render(self) -> ValueElement:
         el = (
             ui.input(value=self.default_value, placeholder=self.placeholder)
             .props("outlined dense")
             .classes("w-full")
         )
-        return RenderedStringWidget(self, el)
+        return el

@@ -6,7 +6,7 @@ from nicegui import ui
 from nicegui.elements.button import Button
 from pydantic import BaseModel
 from ui.json_viewer import JsonDialog
-from widget import RenderedWidget
+from widget import BaseWidget
 
 from niceforms import PRIMARY_COLOR_GRADIENT, UIComponent
 
@@ -16,13 +16,13 @@ logger = logging.getLogger(__name__)
 class Footer(UIComponent):
     def __init__(
         self,
-        elements: list[RenderedWidget],
+        widgets: list[BaseWidget],
         model: type[BaseModel],
         on_submit: Optional[OnSubmit],
         view_clear_button: bool = True,
         view_json_button: bool = True,
     ) -> None:
-        self.elements = elements
+        self.widgets = widgets
         self.model = model
         self.on_submit = on_submit
         self.view_clear_button = view_clear_button
@@ -34,15 +34,15 @@ class Footer(UIComponent):
     def init_base_model(self) -> BaseModel:
         data: dict[str, Any] = {}
 
-        for element in self.elements:
-            data[element.widget.field_name] = element.collect()
+        for w in self.widgets:
+            data[w.field_name] = w.collect()
 
         return self.model(**data)
 
     def clear_form(self) -> None:
         logger.debug('Cleared form')
-        for element in self.elements:
-            element.clear()
+        for w in self.widgets:
+            w.clear()
 
     def render_json_viewer_dialog(self) -> None:
         JsonDialog(model=self.init_base_model()).render()

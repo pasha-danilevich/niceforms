@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Union
 import pytest
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo
-
 from utils import is_enum_type
 
 

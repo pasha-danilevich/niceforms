@@ -1,21 +1,11 @@
 import json
-from datetime import datetime
-from json import JSONDecodeError
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from nicegui import ui
+from nicegui.elements.mixins.value_element import ValueElement
 from utils import normalize_type
 
-from niceforms.widget import BaseWidget, RenderedWidget
-
-
-class RenderedListWidget(RenderedWidget):
-
-    def collect(self) -> Optional[Union[list, tuple]]:
-        if self.element.value is not None:
-            return json.loads(self.element.value)
-
-        return None
+from niceforms.widget import BaseWidget
 
 
 class ListWidget(BaseWidget):
@@ -26,7 +16,13 @@ class ListWidget(BaseWidget):
         list[int]: '[423, 324, 983]',
     }
 
-    def render(self) -> RenderedWidget:
+    def collect(self) -> Optional[Union[list, tuple]]:
+        if self.element.value is not None:
+            return json.loads(self.element.value)
+
+        return None
+
+    def render(self) -> ValueElement:
         default_value = (
             json.dumps(self.default_value) if self.default_value is not None else None
         )
@@ -48,4 +44,4 @@ class ListWidget(BaseWidget):
                     f'Пример ввода: {example}'
                 ).style('color: #8989ff')
 
-        return RenderedListWidget(self, el)
+        return el
