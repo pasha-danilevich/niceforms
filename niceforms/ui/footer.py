@@ -1,16 +1,14 @@
 import logging
-from typing import Any, Callable, Optional, cast
+from typing import Callable, Optional
+
+from nicegui import ui
+from nicegui.elements.button import Button
+from pydantic import BaseModel
 
 from actions import Collect, OnSubmit
 from exceptions import FormError
-from nicegui import ui
-from nicegui.elements.button import Button
-from nicegui.elements.mixins.validation_element import ValidationElement
-from pydantic import BaseModel
-from ui.json_viewer import JsonDialog
-from widget import BaseWidget
-
 from niceforms import PRIMARY_COLOR_GRADIENT, UIComponent
+from ui.json_viewer import JsonDialog
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +16,6 @@ logger = logging.getLogger(__name__)
 class Footer(UIComponent):
     def __init__(
         self,
-        widgets: list[BaseWidget],
         model: type[BaseModel],
         on_submit: Optional[OnSubmit],
         on_collect: Collect,
@@ -26,7 +23,6 @@ class Footer(UIComponent):
         view_clear_button: bool = True,
         view_json_button: bool = True,
     ) -> None:
-        self.widgets = widgets
         self.model = model
         self.on_submit = on_submit
         self.collect = on_collect

@@ -3,6 +3,8 @@ from enum import Enum
 from types import NoneType, UnionType
 from typing import Any, Type, Union, get_args, get_origin, get_type_hints
 
+from nicegui.elements.mixins.validation_element import ValidationElement
+from nicegui.elements.mixins.value_element import ValueElement
 from pydantic import BaseModel, ConfigDict
 from pydantic.fields import FieldInfo
 
@@ -102,5 +104,15 @@ def get_nested_models(model_class: Type[BaseModel]) -> list[NestedModel]:
                     field_info=fields[attr_name],
                 )
             )
+
+    return result
+
+
+def only_validation_elements(elements: list[ValueElement]) -> list[ValidationElement]:
+    result: list[ValidationElement] = []
+
+    for el in elements:
+        if isinstance(el, ValidationElement):
+            result.append(el)
 
     return result

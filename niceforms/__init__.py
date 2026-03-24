@@ -12,7 +12,8 @@ from ui import UIComponent
 from ui.body import Body
 from ui.footer import Footer
 from ui.header import Header
-from utils import NestedModel, get_nested_models, normalize_type
+from utils import (NestedModel, get_nested_models, normalize_type,
+                   only_validation_elements)
 from widget import BaseWidget
 from widget_factory import WidgetFactory
 
@@ -83,6 +84,12 @@ class BaseModelForm(UIComponent):
 
         for n in self._nested_forms:
             n.form.clear_form()
+
+        validation_elements: list[ValidationElement] = only_validation_elements(
+            [w.element for w in self.widgets]
+        )
+        for element in validation_elements:
+            element.error = None
 
     def collect_form_data(self) -> BaseModel:
         data: dict[str, Any] = {}
@@ -165,7 +172,6 @@ class BaseModelForm(UIComponent):
 
             if not self._is_nested:
                 Footer(
-                    widgets=self._widgets,
                     model=self.model,
                     on_submit=self.on_submit,
                     on_collect=self.collect_form_data,
