@@ -15,7 +15,8 @@ class EnumWidget(BaseWidget):
     """Виджет для полей типа Enum с выплывающим списком"""
 
     def render(self) -> RenderedEnumWidget:
-        options = list(self.field.annotation)  # type: ignore
+        print(f'{self.field_name}: {self.normalized_type.origin_type}')
+        options = list(self.normalized_type.origin_type)
 
         s = (
             ui.select(

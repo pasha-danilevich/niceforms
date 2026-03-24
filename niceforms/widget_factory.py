@@ -61,7 +61,7 @@ class WidgetFactory:
                 widget(
                     field_info=field_type,
                     field_name=field_name,
-                    is_nullable=normalized_type.is_nullable,
+                    normalized_type=normalized_type,
                     view_annotation_type=view_annotation_type,
                 )
             )

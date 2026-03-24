@@ -32,12 +32,14 @@ class Header(UIComponent):
             self.parent_card.style('height: 100px')
             self._is_expanded = False
             self._button.text = 'Развернуть'
-            self._description.set_visibility(False)
+            if self._description:
+                self._description.set_visibility(False)
         else:
             self.parent_card.style('height: 100%')
             self._is_expanded = True
             self._button.text = 'Свернуть'
-            self._description.set_visibility(True)
+            if self._description:
+                self._description.set_visibility(True)
 
     def render(self) -> None:
         with ui.element().classes(f"w-full {DEFAULT_PADDING} rounded-lg").style(

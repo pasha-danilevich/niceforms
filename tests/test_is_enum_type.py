@@ -7,10 +7,7 @@ import pytest
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo
 
-
-def is_enum_type(field_type: type) -> bool:
-    """Проверяет, является ли тип Enum или его подклассом"""
-    return isinstance(field_type, type) and issubclass(field_type, Enum)
+from utils import is_enum_type
 
 
 # Определяем тестовые Enum классы

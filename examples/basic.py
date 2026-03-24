@@ -30,7 +30,7 @@ class User(BaseModel):
     surname: str = Field(..., description="Фамилия пользователя")
     age: int | None
     height: Optional[int]
-    style: Style = Style.Yellow
+    style: Optional[Style] = Style.Yellow
     tags: List[str]
     second_tags: Optional[List[str]] = Field(
         default=['some', 'name', 'hello'], title="Вторичные теги"

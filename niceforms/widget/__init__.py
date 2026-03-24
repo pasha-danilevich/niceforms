@@ -11,6 +11,7 @@ from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
 from niceforms import UIComponent
+from utils import NormalizedType
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +21,12 @@ class BaseWidget(UIComponent, ABC):
         self,
         field_info: FieldInfo,
         field_name: str,
-        is_nullable: bool,
+        normalized_type: NormalizedType,
         view_annotation_type: bool,
     ):
         self.field = field_info
         self.field_name = field_name
-        self.is_nullable = is_nullable
+        self.normalized_type = normalized_type
         self.view_annotation_type = view_annotation_type
 
         self.clear_button: Optional[Button] = None
