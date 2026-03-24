@@ -28,13 +28,9 @@ class User(BaseModel):
 
     name: str = Field(default='Петя', title="Имя")
     surname: str = Field(..., description="Фамилия пользователя")
-    age: int | None
     height: Optional[int]
-    style: Optional[Style] = Style.Yellow
-    tags: List[str]
-    second_tags: Optional[List[str]] = Field(
-        default=['some', 'name', 'hello'], title="Вторичные теги"
-    )
+    style: Style = Style.Yellow
+
 
 
 @router.page('/basic')
@@ -45,5 +41,5 @@ async def basic() -> None:
     async def submit_handler(user: BaseModel) -> None:
         print(f"Пользователь создан: {user}")
 
-    form = BaseModelForm(User, on_submit=submit_handler)
+    form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
     form.render()

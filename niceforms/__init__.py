@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Type
+from typing import Optional, Type, Any
 
 from actions import OnSubmit
 from constants import *
@@ -11,6 +11,7 @@ from ui.body import Body
 from ui.footer import Footer
 from ui.header import Header
 from utils import get_nested_models
+from widget import BaseWidget
 from widget_factory import WidgetFactory
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,28 @@ class BaseModelForm(UIComponent):
         # style
         self._card = None  # тело всей формы
         self._is_nested = False
+        self._widgets: Optional[list[BaseWidget]] = None
+
+    def set_widgets(self, widgets: list[BaseWidget]) -> None:
+        self._widgets = widgets
+
+    @property
+    def widgets(self) -> list[BaseWidget]:
+        assert self._widgets is not None, 'Form has not been rendered yet.'
+        return self._widgets
+
+    def clear_form(self) -> None:
+        logger.debug(f'Cleared form: {self.title}')
+        for w in self.widgets:
+            w.clear()
+
+    def collect_form_data(self) -> BaseModel:
+        data: dict[str, Any] = {}
+
+        for w in self.widgets:
+            data[w.field_name] = w.collect()
+
+        return self.model(**data)
 
     def render(self) -> None:
         """Render the form UI."""
@@ -76,7 +99,8 @@ class BaseModelForm(UIComponent):
                 is_nested=self._is_nested,
             ).render()
 
-            widgets = Body(widgets).render()
+            rendered_widgets = Body(widgets).render()
+            self.set_widgets(rendered_widgets)
 
             for n_model in nested_models:
 
@@ -94,9 +118,10 @@ class BaseModelForm(UIComponent):
 
             if not self._is_nested:
                 Footer(
-                    widgets=widgets,
                     model=self.model,
                     on_submit=self.on_submit,
+                    on_collect=self.collect_form_data,
+                    on_clear=self.clear_form,
                     view_clear_button=self.view_clear_button,
                     view_json_button=self.view_json_button,
                 ).render()

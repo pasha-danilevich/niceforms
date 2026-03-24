@@ -1,7 +1,7 @@
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, Callable
 
-from actions import OnSubmit
+from actions import OnSubmit, Collect
 from nicegui import ui
 from nicegui.elements.button import Button
 from pydantic import BaseModel
@@ -16,39 +16,25 @@ logger = logging.getLogger(__name__)
 class Footer(UIComponent):
     def __init__(
         self,
-        widgets: list[BaseWidget],
         model: type[BaseModel],
         on_submit: Optional[OnSubmit],
+        on_collect: Collect,
+        on_clear: Callable[[], None],
         view_clear_button: bool = True,
         view_json_button: bool = True,
     ) -> None:
-        self.widgets = widgets
         self.model = model
         self.on_submit = on_submit
+        self.collect = on_collect
+        self.on_clear = on_clear
         self.view_clear_button = view_clear_button
         self.view_json_button = view_json_button
 
         self._write_to_form_button: Optional[Button] = None
         self._submit_button: Optional[Button] = None
 
-    def init_base_model(self) -> BaseModel:
-        data: dict[str, Any] = {}
-
-        for w in self.widgets:
-            data[w.field_name] = w.collect()
-
-        return self.model(**data)
-
-    def clear_form(self) -> None:
-        logger.debug('Cleared form')
-        for w in self.widgets:
-            w.clear()
-
     def render_json_viewer_dialog(self) -> None:
-        JsonDialog(model=self.init_base_model()).render()
-
-    def _write_nested_form_to_main_form(self) -> None:
-        pass
+        JsonDialog(model=self.collect()).render()
 
     async def submit(self) -> None:
 
@@ -56,13 +42,13 @@ class Footer(UIComponent):
             logger.warning(f"on_submit function do not provided")
             return None
 
-        await self.on_submit(self.init_base_model())
+        await self.on_submit(self.collect())
         return None
 
     def render(self) -> None:
         with ui.row().classes("w-full justify-end gap-3"):
             if self.view_clear_button:
-                ui.button("Очистить", on_click=self.clear_form).props(
+                ui.button("Очистить", on_click=self.on_clear).props(
                     "outlined flat"
                 ).classes("px-6 py-2")
 
