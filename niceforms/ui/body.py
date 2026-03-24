@@ -9,7 +9,7 @@ class Body:
     def render(self) -> list[BaseWidget]:
         widgets = []
 
-        with ui.column().classes(f"w-full space-y-3 p-1 sm:p-4"):
+        with ui.column().classes(f"w-full p-1 sm:p-4"):
             for w in self.widgets:
                 with ui.element().classes(f"w-full"):
                     w.render_label()

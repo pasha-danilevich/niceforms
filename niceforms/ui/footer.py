@@ -1,7 +1,7 @@
 import logging
-from typing import Any, Optional, Callable
+from typing import Any, Callable, Optional
 
-from actions import OnSubmit, Collect
+from actions import Collect, OnSubmit
 from nicegui import ui
 from nicegui.elements.button import Button
 from pydantic import BaseModel

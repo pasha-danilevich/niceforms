@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class BaseWidget(UIComponent, ABC):
+    LEFT_PEDDING_PX: int = 7
+
     def __init__(
         self,
         field_info: FieldInfo,
@@ -56,9 +58,11 @@ class BaseWidget(UIComponent, ABC):
         text = self.field.title if self.field.title else self.field_name.title()
 
         with ui.row().classes('mb-1 items-baseline justify-between w-full gap-1'):
-            with ui.row().classes('items-baseline gap-1'):
-                ui.label(text=text).classes('font-bold text-lg')
-                if self.field.is_required():
+            with ui.row().classes('items-baseline gap-1').style(
+                f'padding-left: {self.LEFT_PEDDING_PX}px;'
+            ):
+                ui.label(text=text).classes('font-medium text-base')
+                if not self.normalized_type.is_nullable:
                     ui.label(text='*').classes('text-gray-400 text-md font-normal')
                 if self.view_annotation_type:
                     ui.label(text=f' [{self.field.annotation}]').classes(
@@ -74,7 +78,9 @@ class BaseWidget(UIComponent, ABC):
             )
 
         if self.field.description:
-            ui.label(text=self.field.description).classes("mb-1 text-gray-500")
+            ui.label(text=self.field.description).classes("mb-1 text-gray-500").style(
+                f'padding-left: {self.LEFT_PEDDING_PX}px;'
+            )
 
     def clear(self) -> None:
         self.element.set_value(None)

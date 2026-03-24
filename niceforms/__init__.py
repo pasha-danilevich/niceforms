@@ -1,17 +1,16 @@
 import logging
-from typing import Optional, Type, Any
-
-from nicegui import ui
-from pydantic import BaseModel, ConfigDict
-from pydantic.fields import FieldInfo
+from typing import Any, Optional, Type
 
 from actions import OnSubmit
 from constants import *
+from nicegui import ui
+from pydantic import BaseModel, ConfigDict
+from pydantic.fields import FieldInfo
 from ui import UIComponent
 from ui.body import Body
 from ui.footer import Footer
 from ui.header import Header
-from utils import get_nested_models, NestedModel
+from utils import NestedModel, get_nested_models
 from widget import BaseWidget
 from widget_factory import WidgetFactory
 

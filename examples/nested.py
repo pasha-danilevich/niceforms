@@ -22,10 +22,13 @@ class Address(BaseModel):
     city: str
     coordinates: Coordinates
 
+
 class Appearance(BaseModel):
     """Appearance"""
+
     hair: str
     color: str
+
 
 class User(BaseModel):
     """Some description"""
@@ -33,7 +36,9 @@ class User(BaseModel):
     name: str
     age: int
     address: Optional[Address]
-    appearance: Optional[Appearance] = Field(..., title="Внешний вид", description="Отличительные черты персоны")
+    appearance: Optional[Appearance] = Field(
+        ..., title="Внешний вид", description="Отличительные черты персоны"
+    )
 
 
 @router.page('/nested')

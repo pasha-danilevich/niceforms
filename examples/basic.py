@@ -32,7 +32,6 @@ class User(BaseModel):
     style: Style = Style.Yellow
 
 
-
 @router.page('/basic')
 @base
 async def basic() -> None:
