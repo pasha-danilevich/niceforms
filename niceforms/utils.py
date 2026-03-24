@@ -3,7 +3,8 @@ from enum import Enum
 from types import NoneType, UnionType
 from typing import Any, Type, Union, get_args, get_origin, get_type_hints
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from pydantic.fields import FieldInfo
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +46,11 @@ def is_enum_type(field_type: type) -> bool:
 
 
 class NestedModel(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     model: type[BaseModel]
     field_name: str
+    field_info: FieldInfo
 
 
 def extract_model_from_type(attr_type) -> list[tuple[type[BaseModel], str]]:
@@ -80,6 +84,7 @@ def get_nested_models(model_class: Type[BaseModel]) -> list[NestedModel]:
     Работает с Optional и Union типами.
     """
     result: list[NestedModel] = []
+    fields: dict[str, FieldInfo] = model_class.model_fields  # type: ignore
 
     # Получаем аннотации типов для всех атрибутов модели
     type_hints = get_type_hints(model_class)
@@ -90,6 +95,12 @@ def get_nested_models(model_class: Type[BaseModel]) -> list[NestedModel]:
 
         # Добавляем каждую найденную модель в результат
         for model in models:
-            result.append(NestedModel(model=model, field_name=attr_name))
+            result.append(
+                NestedModel(
+                    model=model,  # type: ignore
+                    field_name=attr_name,
+                    field_info=fields[attr_name],
+                )
+            )
 
     return result

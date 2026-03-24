@@ -3,25 +3,29 @@
 from typing import Optional
 
 from nicegui import APIRouter, ui
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from niceforms import BaseModelForm
 
 router = APIRouter()
 
 
-class Some(BaseModel):
-    hello: str
-    bye: str
+class Coordinates(BaseModel):
+    x: float
+    y: float
 
 
 class Address(BaseModel):
-    """Some description"""
+    """Address"""
 
     street: str
     city: str
-    some: Some
+    coordinates: Coordinates
 
+class Appearance(BaseModel):
+    """Appearance"""
+    hair: str
+    color: str
 
 class User(BaseModel):
     """Some description"""
@@ -29,6 +33,7 @@ class User(BaseModel):
     name: str
     age: int
     address: Optional[Address]
+    appearance: Optional[Appearance] = Field(..., title="Внешний вид", description="Отличительные черты персоны")
 
 
 @router.page('/nested')
@@ -39,14 +44,14 @@ async def nested() -> None:
     )
     ui.link(text='Назад', target='/')
 
-    async def submit_handler(user):
-        print(f"Пользователь создан: {user}")
+    async def submit_handler(user: BaseModel):
+        print(f"Пользователь создан: {user.model_dump()}")
 
     form = BaseModelForm(
         User,
         on_submit=submit_handler,
         view_annotation_type=False,
-        view_clear_button=False,
+        view_clear_button=True,
         view_json_button=False,
     )
     form.render()

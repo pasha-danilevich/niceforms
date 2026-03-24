@@ -86,3 +86,12 @@ class BaseWidget(UIComponent, ABC):
     @abstractmethod
     def render(self) -> ValueElement:
         raise NotImplementedError
+
+    def __repr__(self) -> str:
+        """Возвращает строковое представление виджета."""
+        widget_type = self.__class__.__name__
+        return (
+            f"{widget_type}('{self.field_name}')"
+            f"[{self.normalized_type}]"
+            f"{' = ' + repr(self._rendered_element.value) if self._rendered_element and self._rendered_element.value is not None else ''}"
+        )
