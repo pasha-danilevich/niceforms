@@ -10,7 +10,7 @@ from ui import UIComponent
 from ui.body import Body
 from ui.footer import Footer
 from ui.header import Header
-from utils import NestedModel, get_nested_models
+from utils import NestedModel, get_nested_models, normalize_type
 from widget import BaseWidget
 from widget_factory import WidgetFactory
 
@@ -36,6 +36,7 @@ class BaseModelForm(UIComponent):
         view_annotation_type: bool = True,
         view_clear_button: bool = True,
         view_json_button: bool = True,
+        _is_nullable: bool = False,
     ) -> None:
         """Initialize universal form.
 
@@ -52,6 +53,7 @@ class BaseModelForm(UIComponent):
         self.view_annotation_type = view_annotation_type
         self.view_clear_button = view_clear_button
         self.view_json_button = view_json_button
+        self._is_nullable = _is_nullable
 
         self.nested_models = get_nested_models(self.model)
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore
@@ -63,6 +65,7 @@ class BaseModelForm(UIComponent):
 
         # storage
         self._nested_forms: list[NestedForm] = []
+        self._header: Optional[Header] = None
 
     def set_widgets(self, widgets: list[BaseWidget]) -> None:
         self._widgets = widgets
@@ -89,7 +92,8 @@ class BaseModelForm(UIComponent):
             data[w.field_name] = w.collect()
 
         for n in self._nested_forms:
-            data[n.model.field_name] = n.form.collect_form_data()
+            logger.debug(f'Collecting form data for "{n.form.title}". is_none={n.form._header.is_none}')
+            data[n.model.field_name] = None if n.form._header.is_none else n.form.collect_form_data()
 
         return self.model(**data)
 
@@ -111,19 +115,21 @@ class BaseModelForm(UIComponent):
         with ui.card().classes(
             f"p-2 w-full {DEFAULT_FORM_WIDTH} mx-auto shadow-lg rounded-xl overflow-hidden sm:p-4"
         ) as self._card:
-            Header(
+            self._header = Header(
                 title=self.title,
                 description=self.description,
                 bg_color=self.header_bg_color,
                 parent_card=self._card,
                 is_nested=self._is_nested,
-            ).render()
+            )
+            self._header.render()
 
             rendered_widgets = Body(widgets).render()
             self.set_widgets(rendered_widgets)
 
             for n_model in self.nested_models:
                 title = n_model.field_info.title
+                normalized_type = normalize_type(n_model.field_info.annotation)
                 nested_form = BaseModelForm(
                     model=n_model.model,
                     title=title if title else n_model.field_name,
@@ -133,6 +139,7 @@ class BaseModelForm(UIComponent):
                     view_json_button=False,
                     view_annotation_type=self.view_annotation_type,
                     view_clear_button=False,
+                    _is_nullable=normalized_type.is_nullable
                 )
                 nested_form._is_nested = True
                 nested_form.render()

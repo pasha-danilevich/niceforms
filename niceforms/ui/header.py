@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from nicegui import ui
@@ -8,6 +9,7 @@ from nicegui.elements.mixins.name_element import NameElement
 from niceforms import UIComponent
 from niceforms.constants import DEFAULT_PADDING, PRIMARY_COLOR_GRADIENT
 
+logger = logging.getLogger(__name__)
 
 class Header(UIComponent):
     TIPS: str = "Поля со * (звездочкой) обязательные."
@@ -31,6 +33,17 @@ class Header(UIComponent):
         self._description: Optional[Element] = None
         self._icon: Optional[NameElement] = None
 
+        self._is_none: bool = False
+
+    @property
+    def is_none(self) -> bool:
+        return self._is_none
+
+    def toggle_is_none(self) -> bool:
+        self._is_none = not self._is_none
+        logger.debug(f"do toggle_is_none: {self._is_none=}")
+        return self._is_none
+
     def toggle_expand_parent(self) -> None:
         if self._is_expanded:
             self.parent_card.style('height: 100px')
@@ -51,6 +64,8 @@ class Header(UIComponent):
         with ui.element().classes(f"w-full {DEFAULT_PADDING} rounded-lg").style(
             f'background: {self.bg_color}'
         ):
+            if self.is_nested:
+                ui.button('toggle', on_click=self.toggle_is_none)
             # Контейнер для заголовка и кнопки
             with ui.element().classes("flex justify-between items-start"):
                 ui.label(self.title).classes("text-2xl font-bold text-white")
