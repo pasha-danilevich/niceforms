@@ -36,6 +36,7 @@ class Header(UIComponent):
         self._description: Optional[Element] = None
         self._expand_icon: Optional[NameElement] = None
         self._delete_icon: Optional[NameElement] = None
+        self._error_icon: Optional[NameElement] = None
         self._main_container: Optional[Element] = None
 
         self._is_none: bool = False
@@ -43,6 +44,14 @@ class Header(UIComponent):
     @property
     def is_none(self) -> bool:
         return self._is_none
+
+    def view_error_icon(self) -> None:
+        if self.is_nested:
+            self._error_icon.set_visibility(True)
+
+    def hidde_error_icon(self) -> None:
+        if self.is_nested:
+            self._error_icon.set_visibility(False)
 
     def toggle_is_none(self) -> bool:
         self._is_none = not self._is_none
@@ -53,6 +62,7 @@ class Header(UIComponent):
             if self._is_none:
                 self._main_container.style('background: #6c757d')  # Серый цвет
                 self._expand_icon.set_visibility(False)
+                self.hidde_error_icon()
                 if self._is_expanded:
                     self.parent_card.style('height: 100px')
                     if self._description:
@@ -85,6 +95,8 @@ class Header(UIComponent):
             self._expand_icon.tooltip('Свернуть')
             if self._description:
                 self._description.set_visibility(True)
+
+            self.hidde_error_icon()
 
     def render(self) -> None:
         self._main_container = (
@@ -131,6 +143,16 @@ class Header(UIComponent):
                             .tooltip('Развернуть')
                         )
                         self._expand_icon.on('click', self.toggle_expand_parent)
+
+                    self._error_icon = (
+                        ui.icon('error_outline', size="md")
+                        .classes(
+                            "cursor-help text-red-400 hover:text-red-300 "
+                            "transition-all duration-200"
+                        )
+                        .tooltip('Ошибка в содержимом')
+                    )
+                    self._error_icon.set_visibility(False)
 
             if self.description:
                 self._description = (

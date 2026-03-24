@@ -91,6 +91,8 @@ class BaseModelForm(UIComponent):
         for element in validation_elements:
             element.error = None
 
+        self._header.hidde_error_icon()
+
     def collect_form_data(self) -> BaseModel:
         data: dict[str, Any] = {}
         errors: list[str] = []
@@ -102,6 +104,7 @@ class BaseModelForm(UIComponent):
                 el.validate()
                 if el.error:
                     errors.append(el.error)
+                    self._header.view_error_icon()
                 else:
                     data[w.field_name] = w.collect()
 

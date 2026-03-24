@@ -94,6 +94,9 @@ class BaseWidget(UIComponent, ABC):
     def clear(self) -> None:
         self.element.set_value(None)
 
+        if isinstance(self.element, ValidationElement):
+            self.element.error = None
+
     @abstractmethod
     def collect(self) -> Optional[Any]:
         raise NotImplementedError

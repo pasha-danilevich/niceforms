@@ -1,14 +1,14 @@
 import logging
 from typing import Callable, Optional
 
+from actions import Collect, OnSubmit
+from exceptions import FormError
 from nicegui import ui
 from nicegui.elements.button import Button
 from pydantic import BaseModel
-
-from actions import Collect, OnSubmit
-from exceptions import FormError
-from niceforms import PRIMARY_COLOR_GRADIENT, UIComponent
 from ui.json_viewer import JsonDialog
+
+from niceforms import PRIMARY_COLOR_GRADIENT, UIComponent
 
 logger = logging.getLogger(__name__)
 
