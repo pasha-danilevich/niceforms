@@ -1,6 +1,5 @@
 """Базовый пример использования."""
-
-from enum import StrEnum
+from enum import Enum
 from typing import List, Optional
 
 from nicegui import APIRouter, ui
@@ -17,7 +16,7 @@ from niceforms import BaseModelForm
 router = APIRouter()
 
 
-class Style(StrEnum):
+class Style(str, Enum):
     Red = "red"
     Green = "green"
     Yellow = "yellow"
@@ -35,10 +34,11 @@ class User(BaseModel):
 @router.page('/basic')
 @base
 async def basic() -> None:
-    ui.link(text='Назад', target='/')
-
-    async def submit_handler(user: BaseModel) -> None:
-        print(f"Пользователь создан: {user}")
-
-    form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
-    form.render()
+    with ui.column().classes('w-full max-w-2xl mx-auto'):
+        ui.link(text='Назад', target='/')
+    
+        async def submit_handler(user: BaseModel) -> None:
+            print(f"Пользователь создан: {user}")
+    
+        form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
+        form.render()

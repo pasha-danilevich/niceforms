@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import Enum
 from typing import List, Optional
 
 from _layout import base
@@ -10,7 +10,7 @@ from niceforms import BaseModelForm
 router = APIRouter()
 
 
-class Status(StrEnum):
+class Status(str, Enum):
     SUCCESS = 'success'
     ERROR = 'error'
     WARNING = 'warning'
@@ -39,11 +39,11 @@ class UserForm(BaseModel):
 @router.page('/complex_type')
 @base
 async def complex_type() -> None:
-
-    ui.link(text='Назад', target='/')
-
-    async def submit_handler(user):
-        print(f"Пользователь создан: {user}")
-
-    form = BaseModelForm(UserForm, on_submit=submit_handler)
-    form.render()
+    with ui.column().classes('w-full max-w-2xl mx-auto'):
+        ui.link(text='Назад', target='/')
+    
+        async def submit_handler(user):
+            print(f"Пользователь создан: {user}")
+    
+        form = BaseModelForm(UserForm, on_submit=submit_handler)
+        form.render()

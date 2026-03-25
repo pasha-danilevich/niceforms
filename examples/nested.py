@@ -5,6 +5,7 @@ from typing import Optional
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
+from examples._layout import base
 from niceforms import BaseModelForm
 
 router = APIRouter()
@@ -42,21 +43,20 @@ class User(BaseModel):
 
 
 @router.page('/nested')
+@base
 async def nested() -> None:
-    ui.query('body').style(
-        'background: linear-gradient(160deg, #eff6ff 0%, #93aeff 100%);'
-        'min-height: 100vh;'
-    )
-    ui.link(text='Назад', target='/')
 
-    async def submit_handler(user: BaseModel):
-        print(f"Пользователь создан: {user.model_dump()}")
-
-    form = BaseModelForm(
-        User,
-        on_submit=submit_handler,
-        view_annotation_type=False,
-        view_clear_button=True,
-        view_json_button=False,
-    )
-    form.render()
+    with ui.column().classes('w-full max-w-2xl mx-auto'):
+        ui.link(text='Назад', target='/')
+    
+        async def submit_handler(user: BaseModel):
+            print(f"Пользователь создан: {user.model_dump()}")
+    
+        form = BaseModelForm(
+            User,
+            on_submit=submit_handler,
+            view_annotation_type=False,
+            view_clear_button=True,
+            view_json_button=False,
+        )
+        form.render()

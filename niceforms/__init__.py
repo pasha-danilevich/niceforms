@@ -118,7 +118,7 @@ class BaseModelForm(UIComponent):
 
         if errors:
             ui.notify("Исправьте ошибки в форме")
-            raise FormError
+            raise FormError(form_name=self.title)
 
         return self.model(**data)
 
@@ -138,7 +138,7 @@ class BaseModelForm(UIComponent):
         )
 
         with ui.card().classes(
-            f"p-2 w-full {DEFAULT_FORM_WIDTH} mx-auto shadow-lg rounded-xl overflow-hidden sm:p-4"
+            f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl overflow-hidden sm:p-4"
         ) as self._card:
             self._header = Header(
                 title=self.title,
