@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Type, cast
+from typing import Any, Optional, Type, cast, Generic, TypeVar
 
 from actions import OnSubmit
 from constants import *
@@ -17,6 +17,7 @@ from utils import (NestedModel, get_nested_models, normalize_type,
 from widget import BaseWidget
 from widget_factory import WidgetFactory
 
+T = TypeVar("T", bound=BaseModel)
 logger = logging.getLogger(__name__)
 factory = WidgetFactory()
 
@@ -28,7 +29,7 @@ class NestedForm(BaseModel):
     model: NestedModel
 
 
-class BaseModelForm(UIComponent):
+class BaseModelForm(UIComponent, Generic[T]):
     def __init__(
         self,
         model: Type[BaseModel],
@@ -39,6 +40,7 @@ class BaseModelForm(UIComponent):
         view_annotation_type: bool = True,
         view_clear_button: bool = True,
         view_json_button: bool = True,
+        view_submit_button: bool = True,
         _is_nullable: bool = False,
     ) -> None:
         """Initialize universal form.
@@ -56,6 +58,7 @@ class BaseModelForm(UIComponent):
         self.view_annotation_type = view_annotation_type
         self.view_clear_button = view_clear_button
         self.view_json_button = view_json_button
+        self.view_submit_button = view_submit_button
         self._is_nullable = _is_nullable
 
         self.nested_models = get_nested_models(self.model)
@@ -93,7 +96,7 @@ class BaseModelForm(UIComponent):
 
         self._header.hidde_error_icon()
 
-    def collect_form_data(self) -> BaseModel:
+    def collect_form_data(self) -> T:
         data: dict[str, Any] = {}
         errors: list[str] = []
 
@@ -181,4 +184,5 @@ class BaseModelForm(UIComponent):
                     on_clear=self.clear_form,
                     view_clear_button=self.view_clear_button,
                     view_json_button=self.view_json_button,
+                    view_submit_button=self.view_submit_button,
                 ).render()

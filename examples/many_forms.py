@@ -25,11 +25,12 @@ class Style(str, Enum):
 
 class User(BaseModel):
     """Просто пользователь"""
-    
+
     name: str = Field(default='Петя', title="Имя")
     surname: str = Field(..., description="Фамилия пользователя")
     height: Optional[int]
     style: Style = Style.Yellow
+
 
 class Person(BaseModel):
     id: int
@@ -44,31 +45,39 @@ class ApiDTO(BaseModel):
 @router.page('/many_forms')
 @base
 async def basic() -> None:
-    
-    
+
     async def submit_handler(user: BaseModel) -> None:
         print(f"Пользователь создан: {user}")
-        
+
     with ui.column().classes('w-full max-w-2xl mx-auto'):
         ui.link(text='Назад', target='/')
-        
-        user_form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
+
+        user_form = BaseModelForm[User](
+            User,
+            on_submit=submit_handler,
+            view_annotation_type=False,
+            view_json_button=False,
+            view_submit_button=False,
+        )
         user_form.render()
-        person_form = BaseModelForm(Person, on_submit=submit_handler, view_annotation_type=False)
+        person_form = BaseModelForm[Person](
+            Person,
+            on_submit=submit_handler,
+            view_annotation_type=False,
+            view_json_button=False,
+            view_submit_button=False,
+        )
         person_form.render()
-        
-        
+
         def collect_all_forms() -> None:
             try:
-                user = User(**user_form.collect_form_data().model_dump())
-                person = Person(**person_form.collect_form_data().model_dump())
+                dto = ApiDTO(
+                    user=user_form.collect_form_data(),
+                    person=person_form.collect_form_data(),
+                )
             except FormError:
                 return
-            
-            dto = ApiDTO(
-                user=user,
-                person=person
-            )
+
             print(f'Отправить DTO бэкенду: {dto.model_dump()}')
-        
+
         ui.button('Отправить', on_click=collect_all_forms)
