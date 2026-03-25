@@ -12,8 +12,12 @@ from ui import UIComponent
 from ui.body import Body
 from ui.footer import Footer
 from ui.header import Header
-from utils import (NestedModel, get_nested_models, normalize_type,
-                   only_validation_elements)
+from utils import (
+    NestedModel,
+    get_nested_models,
+    normalize_type,
+    only_validation_elements,
+)
 from widget import BaseWidget
 from widget_factory import WidgetFactory
 
@@ -101,15 +105,15 @@ class BaseModelForm(UIComponent, Generic[T]):
         errors: list[str] = []
 
         for w in self.widgets:
+            error = w.validate()
 
-            if isinstance(w.element, ValidationElement):
-                el = cast(ValidationElement, w.element)
-                el.validate()
-                if el.error:
-                    errors.append(el.error)
-                    self._header.view_error_icon()
-                else:
-                    data[w.field_name] = w.collect()
+            if error:
+                w.view_error(error)
+                errors.append(error)
+                self._header.view_error_icon()
+
+            logger.debug(f'Collecting data from: {w}')
+            data[w.field_name] = w.collect()
 
         for n in self._nested_forms:
             logger.debug(
@@ -120,7 +124,8 @@ class BaseModelForm(UIComponent, Generic[T]):
             )
 
         if errors:
-            ui.notify("Исправьте ошибки в форме")
+            ui.notify(f"Исправьте ошибки в форме: {self.title}")
+            print('\n'.join(errors))
             raise FormError(form_name=self.title)
 
         return self.model(**data)

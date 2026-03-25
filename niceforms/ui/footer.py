@@ -1,7 +1,7 @@
 import logging
 from typing import Callable, Optional
 
-from actions import Collect, OnSubmit
+from actions import CollectFormData, OnSubmit
 from exceptions import FormError
 from nicegui import ui
 from nicegui.elements.button import Button
@@ -18,7 +18,7 @@ class Footer(UIComponent):
         self,
         model: type[BaseModel],
         on_submit: Optional[OnSubmit],
-        on_collect: Collect,
+        on_collect: CollectFormData,
         on_clear: Callable[[], None],
         view_clear_button: bool = True,
         view_json_button: bool = True,
@@ -61,7 +61,7 @@ class Footer(UIComponent):
                 ui.button(
                     "Показать json", on_click=self.render_json_viewer_dialog
                 ).props("outlined flat").classes("px-6 py-2")
-            
+
             if self.view_submit_button:
                 self._submit_button = (
                     ui.button("Отправить", on_click=self.submit, icon="send")

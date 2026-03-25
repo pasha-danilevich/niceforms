@@ -19,6 +19,9 @@ class Body:
                     el = w.render()
                     w.set_element(el)
 
+                    if not w.can_element_validate():
+                        error_el = w.render_error()
+
                     if isinstance(w.element, ValidationElement):
                         el = cast(ValidationElement, w.element)
                         el.on('blur', el.validate)

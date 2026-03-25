@@ -5,6 +5,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional, cast
 
 from nicegui import ui
+from nicegui.element import Element
+from nicegui.elements.mixins.text_element import TextElement
 from nicegui.elements.mixins.validation_element import ValidationElement
 from nicegui.elements.mixins.value_element import ValueElement
 from pydantic.fields import FieldInfo
@@ -32,6 +34,8 @@ class BaseWidget(UIComponent, ABC):
         self.view_annotation_type = view_annotation_type
 
         self._rendered_element: Optional[ValueElement] = None
+        self._error_label: Optional[TextElement] = None
+        self._error_icon: Optional[Element] = None
 
         self.default_validations = {}
         if not normalized_type.is_nullable:
@@ -41,8 +45,41 @@ class BaseWidget(UIComponent, ABC):
                 )
             }
 
+    def view_error(self, error: str) -> None:
+        if self._error_label:
+            self._error_icon.set_visibility(True)
+            self._error_label.set_visibility(True)
+            self._error_label.set_text(error)
+
+    def hide_error(self) -> None:
+        if self._error_label:
+            self._error_icon.set_visibility(False)
+            self._error_label.set_visibility(False)
+
+    def validate(self) -> Optional[str]:
+        """Метод вызывается, когда происходит событие CollectFormData.
+        Работает только у виджетов, чей элемент является ValidationElement.
+        В случаях когда элемент не является ValidationElement, данный метод можно переопределить.
+        """
+
+        if self.can_element_validate():
+            el = cast(ValidationElement, self.element)
+            el.validate()
+            return el.error
+
+        return None
+
+    def can_element_validate(self) -> bool:
+        """Умеет ли виджет валидировать свои значения. Является ли его элемент ValidationElement."""
+        if isinstance(self.element, ValidationElement):
+            return True
+
+        return False
+
     def set_element(self, element: ValueElement) -> None:
-        assert isinstance(element, ValueElement), f'Element must be a ValueElement. "{type(element)}" is no valid. Please check the correctness of the implemented "render" method in your widget "{self.__class__.__name__}"'
+        assert isinstance(
+            element, ValueElement
+        ), f'Element must be a ValueElement. "{type(element)}" is no valid. Please check the correctness of the implemented "render" method in your widget "{self.__class__.__name__}"'
         self._rendered_element = element
 
     @property
@@ -98,6 +135,9 @@ class BaseWidget(UIComponent, ABC):
         if isinstance(self.element, ValidationElement):
             self.element.error = None
 
+        if self._error_label:
+            self.hide_error()
+
     @abstractmethod
     def collect(self) -> Optional[Any]:
         raise NotImplementedError
@@ -112,5 +152,17 @@ class BaseWidget(UIComponent, ABC):
         return (
             f"{widget_type}('{self.field_name}')"
             f"[{self.normalized_type}]"
-            f"{' = ' + repr(self._rendered_element.value) if self._rendered_element and self._rendered_element.value is not None else ''}"
+            f"{' = ' + repr(self._rendered_element.value) if self._rendered_element and self._rendered_element.value is not None else ' None'}"
         )
+
+    def render_error(self) -> None:
+
+        with ui.element().style(
+            'color: #c10015; padding-left: 12px; padding-top: 8px; min-height: 20px;'
+        ):
+            with ui.row().classes('gap-1'):
+                self._error_icon = ui.icon('error').classes('mr-1')
+                self._error_label = ui.label().style('font-size: 11px;')
+
+        self._error_label.set_visibility(False)
+        self._error_icon.set_visibility(False)

@@ -48,10 +48,10 @@ async def nested() -> None:
 
     with ui.column().classes('w-full max-w-2xl mx-auto'):
         ui.link(text='Назад', target='/')
-    
+
         async def submit_handler(user: BaseModel):
             print(f"Пользователь создан: {user.model_dump()}")
-    
+
         form = BaseModelForm(
             User,
             on_submit=submit_handler,

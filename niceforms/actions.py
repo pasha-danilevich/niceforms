@@ -7,5 +7,5 @@ class OnSubmit(Protocol):
     async def __call__(self, model: BaseModel) -> None: ...
 
 
-class Collect(Protocol):
+class CollectFormData(Protocol):
     def __call__(self) -> BaseModel: ...

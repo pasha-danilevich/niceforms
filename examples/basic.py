@@ -1,4 +1,5 @@
 """Базовый пример использования."""
+
 from enum import Enum
 from typing import List, Optional
 
@@ -36,9 +37,9 @@ class User(BaseModel):
 async def basic() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
         ui.link(text='Назад', target='/')
-    
+
         async def submit_handler(user: BaseModel) -> None:
             print(f"Пользователь создан: {user}")
-    
+
         form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
         form.render()

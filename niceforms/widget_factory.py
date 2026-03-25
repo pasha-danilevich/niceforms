@@ -1,11 +1,12 @@
 import logging
 from enum import Enum
 from typing import List
-
+import datetime
 from pydantic.fields import FieldInfo
 from utils import is_enum_type, normalize_type
 from widget import BaseWidget
 from widget.bool import BoolWidget
+from widget.datetime import DateWidget, DateTimeWidget
 from widget.enum import EnumWidget
 from widget.float import FloatWidget
 from widget.integer import IntegerWidget
@@ -29,6 +30,8 @@ class WidgetFactory:
             List[str]: ListWidget,
             list[int]: ListWidget,
             List[int]: ListWidget,
+            datetime.date: DateWidget,
+            datetime.datetime: DateTimeWidget,
         }
 
     def insert_new_widget(
@@ -57,6 +60,7 @@ class WidgetFactory:
                 )
                 widget = UnknownTypeWidget
 
+            logger.debug(f"Adding widget: {widget.__name__}")
             widgets.append(
                 widget(
                     field_info=field_type,
