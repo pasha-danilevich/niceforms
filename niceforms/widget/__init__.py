@@ -42,6 +42,7 @@ class BaseWidget(UIComponent, ABC):
             }
 
     def set_element(self, element: ValueElement) -> None:
+        assert isinstance(element, ValueElement), f'Element must be a ValueElement. "{type(element)}" is no valid. Please check the correctness of the implemented "render" method in your widget "{self.__class__.__name__}"'
         self._rendered_element = element
 
     @property
