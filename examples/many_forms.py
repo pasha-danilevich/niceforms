@@ -67,8 +67,8 @@ async def many_forms() -> None:
         def collect_all_forms() -> None:
             try:
                 dto = ApiDTO(
-                    user=user_form.collect_form_data(),
-                    person=person_form.collect_form_data(),
+                    user=user_form.build_model(),
+                    person=person_form.build_model(),
                 )
             except FormError:
                 return

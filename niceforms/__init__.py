@@ -84,13 +84,13 @@ class BaseModelForm(UIComponent, Generic[T]):
         assert self._widgets is not None, 'Form has not been rendered yet.'
         return self._widgets
 
-    def clear_form(self) -> None:
+    def clear(self) -> None:
         logger.debug(f'Cleared form: {self.title}')
         for w in self.widgets:
             w.clear()
 
         for n in self._nested_forms:
-            n.form.clear_form()
+            n.form.clear()
 
         validation_elements: list[ValidationElement] = only_validation_elements(
             [w.element for w in self.widgets]
@@ -100,7 +100,11 @@ class BaseModelForm(UIComponent, Generic[T]):
 
         self._header.hidde_error_icon()
 
-    def collect_form_data(self) -> T:
+    def collect_data(self, ignore_error: bool = False) -> dict[str, Any]:
+        """Собирать данные введенные в виджетах
+
+        :raise FormError если есть хотя-бы в одном виджете есть ошибка"""
+
         data: dict[str, Any] = {}
         errors: list[str] = []
 
@@ -120,15 +124,21 @@ class BaseModelForm(UIComponent, Generic[T]):
                 f'Collecting form data for "{n.form.title}". is_none={n.form._header.is_none}'
             )
             data[n.model.field_name] = (
-                None if n.form._header.is_none else n.form.collect_form_data()
+                None if n.form._header.is_none else n.form.build_model()
             )
 
-        if errors:
+        if errors and not ignore_error:
             ui.notify(f"Исправьте ошибки в форме: {self.title}")
-            print('\n'.join(errors))
             raise FormError(form_name=self.title)
 
+        return data
+
+    def build_model(self) -> T:
+        """Собирать данные введенные в виджетах с помощью метода .collect_date()
+        и создать BaseModel объект. Не игнорирует ошибки валидации в виджетах"""
+        data = self.collect_data(ignore_error=False)
         return self.model(**data)
+
 
     def render(self) -> None:
         """Render the form UI."""
@@ -185,8 +195,8 @@ class BaseModelForm(UIComponent, Generic[T]):
                 Footer(
                     model=self.model,
                     on_submit=self.on_submit,
-                    on_collect=self.collect_form_data,
-                    on_clear=self.clear_form,
+                    on_collect=self.build_model,
+                    on_clear=self.clear,
                     view_clear_button=self.view_clear_button,
                     view_json_button=self.view_json_button,
                     view_submit_button=self.view_submit_button,
