@@ -9,73 +9,13 @@ from niceforms import UIComponent
 T = TypeVar('T', bound=BaseModel)
 
 
-class AddDialog(UIComponent):
-    def __init__(self, on_save: SaveAction) -> None:
-        self.on_save = on_save
-
-    def render(self) -> Dialog:
-        with ui.dialog() as dialog:
-            with ui.card().classes('w-96'):
-                ui.label("Добавить пользователя").classes('text-xl font-bold mb-4')
-
-                name_input = ui.input('Имя').classes('w-full mb-4')
-
-                with ui.row().classes('justify-end gap-2 mt-4'):
-                    ui.button('Отмена', on_click=dialog.close).props('flat')
-                    ui.button(
-                        'Сохранить', on_click=lambda: self.on_save(name_input.value)
-                    ).props('color=primary')
-
-        return dialog
-
-
-class EditDialog(UIComponent):
-    def __init__(self, on_edit: EditAction, model: BaseModel) -> None:
-        self.on_edit = on_edit
-        self.model = model
-
-    def render(self) -> Dialog:
-        with ui.dialog() as dialog:
-            with ui.card().classes('w-96'):
-                ui.label("Редактировать").classes('text-xl font-bold mb-4')
-
-                with ui.row().classes('justify-end gap-2 mt-4'):
-                    ui.button('Отмена', on_click=dialog.close).props('flat')
-                    ui.button(
-                        # 'Сохранить', on_click=lambda: self.on_edit(name_input.value)
-                    ).props('color=primary')
-
-        return dialog
-
-
-class ConfirmDeleteDialog(UIComponent):
-    def __init__(self, on_confirm, record_title: str) -> None:
-        self.on_confirm = on_confirm
-        self.record_title = record_title
-
-    def render(self) -> Dialog:
-        with ui.dialog() as dialog:
-            with ui.card():
-                ui.label('Подтверждение удаления').classes('text-xl font-bold mb-4')
-                ui.label(
-                    f'Вы уверены, что хотите запись "{self.record_title}"?'
-                ).classes('mb-4')
-                with ui.row().classes('justify-end gap-2'):
-                    ui.button('Отмена', on_click=dialog.close).props('flat')
-                    ui.button('Удалить', on_click=self.on_confirm).props(
-                        'color=negative'
-                    )
-
-        return dialog
-
-
 class VoidRecordLine(UIComponent):
     def render(self) -> None:
         with ui.row().classes(
             'w-full justify-between items-center p-2 rounded border-2 border-dashed border-gray-300 bg-gray-50/50'
         ):
             # Скелетон для текста
-            ui.element('div').classes('h-6 w-48 bg-gray-200 rounded')
+            ui.element('div').classes('h-6 min-w-30 max-w-48 bg-gray-200 rounded')
 
             # Скелетоны для кнопок
             with ui.row().classes('gap-2'):
@@ -87,13 +27,15 @@ class RecordLine(UIComponent):
     def __init__(
         self,
         number: int,
-        title: Optional[str],
-        model,
+        list_index: int,
+        title: str,
+        model: BaseModel,
         on_view,
         on_edit: EditAction,
-        on_delete,
+        on_delete: DeleteAction,
     ) -> None:
         self.number = number
+        self.list_index = list_index
         self.title = title
         self.model = model
 
@@ -123,7 +65,10 @@ class RecordLine(UIComponent):
 
                 # Кнопка "Удалить" с иконкой delete
                 ui.button(
-                    icon='delete', on_click=lambda: self.on_delete(self.model)
+                    icon='delete',
+                    on_click=lambda: self.on_delete(
+                        model=self.model, index=self.list_index
+                    ),
                 ).props('flat color=negative').classes('hover:bg-red-50').tooltip(
                     'Удалить'
                 )
@@ -133,7 +78,7 @@ class ListComponent(UIComponent, Generic[T]):
     def __init__(
         self,
         storage: list[T],
-        record_title_getter: Callable[[T], str],
+        record_title_getter: Callable[[T], Optional[str]],
         model: type[BaseModel],
     ) -> None:
         self.storage: list[T] = storage
@@ -145,6 +90,10 @@ class ListComponent(UIComponent, Generic[T]):
         self.dialog: Optional[Dialog] = None
         self.current_user = None
         self.is_edit_mode: bool = False
+
+    def ensure_title(self, model: BaseModel, number: int) -> str:
+        text = self.record_title_getter(model)
+        return text if text is not None else f'Запись №{number}'
 
     def render(self) -> None:
         """Создание интерфейса"""
@@ -161,13 +110,14 @@ class ListComponent(UIComponent, Generic[T]):
         self.container.clear()
 
         with self.container:
-            for i, record in enumerate(self.storage, 1):
+            for i, record in enumerate(self.storage):
                 RecordLine(
-                    number=i,
-                    title=self.record_title_getter(record),
+                    number=i + 1,
+                    list_index=i,
+                    title=self.ensure_title(record, i + 1),
                     model=record,
                     on_view=self.show_info,
-                    on_edit=lambda x, y: Person(name='', age=0),
+                    on_edit=...,
                     on_delete=self.delete,
                 ).render()
 
@@ -187,13 +137,8 @@ class ListComponent(UIComponent, Generic[T]):
 
     def show_add_dialog(self):
         """Показать диалог добавления пользователя"""
-        pass
-        # self.is_edit_mode = False
-        # self.current_user = None
-        #
-        # self.dialog = AddDialog(on_save=self.save).render()
-        #
-        # self.dialog.open()
+        self.dialog = AddDialog(on_save=self.save, model_type=self.model_type).render()
+        self.dialog.open()
 
     def show_edit_dialog(self, user):
         """Показать диалог редактирования пользователя"""
@@ -206,30 +151,22 @@ class ListComponent(UIComponent, Generic[T]):
         # self.dialog.open()
 
     def save(self, model: BaseModel) -> None:
-        """Сохранить (добавить или обновить)"""
-        pass
-        # if self.is_edit_mode and self.current_user:
-        #     # Редактирование существующего пользователя
-        #     self.current_user['name'] = model.strip()
-        # else:
-        #     # Добавление нового пользователя
-        #     new_user = {"id": self.next_id, "name": model.strip()}
-        #     self.storage.append(new_user)
-        #
-        # self.dialog.close()
-        # self.refresh_list()
+        """Сохранить"""
+        self.storage.append(model)
+        self.dialog.close()
+        self.refresh_list()
 
-    def delete(self, user):
+    def delete(self, model: BaseModel, index: int) -> None:
         """Удалить пользователя с подтверждением"""
-        pass
-        # def confirm_delete():
-        #     self.storage.remove(user)
-        #     self.refresh_list()
-        #     dialog.close()
-        #
-        # dialog = ConfirmDeleteDialog(
-        #     on_confirm=confirm_delete,
-        #     record_title=user["name"],
-        # ).render()
-        #
-        # dialog.open()
+
+        def confirm_delete():
+            self.storage.pop(index)
+            self.refresh_list()
+            dialog.close()
+
+        dialog = ConfirmDeleteDialog(
+            on_confirm=confirm_delete,
+            record_title=self.ensure_title(model, index + 1),
+        ).render()
+
+        dialog.open()

@@ -1,13 +1,14 @@
 import logging
-from typing import Any, Generic, Optional, Type, TypeVar, cast
+from typing import Any, Generic, Optional, Type, TypeVar
 
-from actions import OnSubmit
-from constants import *
-from exceptions import FormError
 from nicegui import ui
 from nicegui.elements.mixins.validation_element import ValidationElement
 from pydantic import BaseModel, ConfigDict
 from pydantic.fields import FieldInfo
+
+from actions import OnSubmit
+from constants import *
+from exceptions import FormError
 from ui import UIComponent
 from ui.body import Body
 from ui.footer import Footer
@@ -34,6 +35,10 @@ class NestedForm(BaseModel):
 
 
 class BaseModelForm(UIComponent, Generic[T]):
+    DEFAULT_CLASSES = (
+        f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl overflow-hidden sm:p-4"
+    )
+
     def __init__(
         self,
         model: Type[BaseModel],
@@ -63,13 +68,14 @@ class BaseModelForm(UIComponent, Generic[T]):
         self.view_clear_button = view_clear_button
         self.view_json_button = view_json_button
         self.view_submit_button = view_submit_button
+
         self._is_nullable = _is_nullable
 
         self.nested_models = get_nested_models(self.model)
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore
 
         # style
-        self._card = None  # тело всей формы
+        self.body_element = None  # тело всей формы
         self._is_nested = False
         self._widgets: Optional[list[BaseWidget]] = None
 
@@ -139,9 +145,18 @@ class BaseModelForm(UIComponent, Generic[T]):
         data = self.collect_data(ignore_error=False)
         return self.model(**data)
 
-    def render(self) -> None:
+    def render(
+        self,
+        as_card: bool = True,
+        body_classes: Optional[str] = None,
+    ) -> None:
         """Render the form UI."""
-        logger.debug(f'Rendering form "{self.model.__name__}"')
+
+        body_classes: str = (
+            body_classes if body_classes is not None else self.DEFAULT_CLASSES
+        )
+
+        logger.debug(f'Rendering form "{self.model.__name__} {as_card=}"')
 
         fields_without_nested: dict[str, FieldInfo] = {}
 
@@ -154,14 +169,14 @@ class BaseModelForm(UIComponent, Generic[T]):
             view_annotation_type=self.view_annotation_type,
         )
 
-        with ui.card().classes(
-            f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl overflow-hidden sm:p-4"
-        ) as self._card:
+        body_element = ui.card if as_card else ui.element
+
+        with body_element().classes(body_classes) as self.body_element:
             self._header = Header(
                 title=self.title,
                 description=self.description,
                 bg_color=self.header_bg_color,
-                parent_card=self._card,
+                parent_card=self.body_element,
                 is_nested=self._is_nested,
                 is_nullable=self._is_nullable,
             )
@@ -186,7 +201,7 @@ class BaseModelForm(UIComponent, Generic[T]):
                 )
                 nested_form._is_nested = True
                 nested_form.render()
-                nested_form._card.style('height: 100px')
+                nested_form.body_element.style('height: 100px')
 
                 self._nested_forms.append(NestedForm(form=nested_form, model=n_model))
 
