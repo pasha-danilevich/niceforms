@@ -159,21 +159,26 @@ class BaseWidget(UIComponent, ABC):
             self._error_icon.set_visibility(False)
             self._error_label.set_visibility(False)
 
-    def set_element(self, element: Element) -> None:
-        target_element_type = Element
+    def _set_element(self, element: Element, expected_type: type) -> None:
         assert isinstance(
-            element, target_element_type
-        ), f'Element must be a {target_element_type}. "{type(element)}" is no valid. Please check the correctness of the implemented "render" method in your widget "{self.__class__.__name__}"'
+            element, expected_type
+        ), f'Element must be a {expected_type}. "{type(element)}" is not valid.'
         self._rendered_element = element
 
+    def set_element(self, element: Element) -> None:
+        self._set_element(element, Element)
+
     def __repr__(self) -> str:
-        """Возвращает строковое представление виджета."""
         widget_type = self.__class__.__name__
-        return (
-            f"{widget_type}('{self.field_name}')"
-            f"[{self.normalized_type}]"
-            f"{' = ' + repr(self._rendered_element.value) if self._rendered_element and self._rendered_element.value is not None else ' None'}"
-        )
+        value_repr = ''
+        if self._rendered_element:
+            try:
+                value = getattr(self._rendered_element, 'value', None)
+                value_repr = f' = {repr(value)}' if value is not None else ' None'
+            except:
+                value_repr = ' <value_error>'
+
+        return f"{widget_type}('{self.field_name}')[{self.normalized_type}]{value_repr}"
 
 
 class BaseValueWidget(BaseWidget, ABC):
@@ -208,11 +213,7 @@ class BaseValueWidget(BaseWidget, ABC):
             self.hide_error()
 
     def set_element(self, element: ValueElement) -> None:
-        target_element_type = ValueElement
-        assert isinstance(
-            element, target_element_type
-        ), f'Element must be a {target_element_type}. "{type(element)}" is no valid. Please check the correctness of the implemented "render" method in your widget "{self.__class__.__name__}"'
-        self._rendered_element = element
+        self._set_element(element, ValueElement)
 
 
 class BaseValidationWidget(BaseValueWidget, ABC):
@@ -223,15 +224,17 @@ class BaseValidationWidget(BaseValueWidget, ABC):
 
     @property
     def default_validations(self) -> dict[str, Callable]:
-        default_validations = {}
+
+        def is_empty(value: Any) -> bool:
+            if value is None:
+                return True
+            if isinstance(value, str) and value == '':
+                return True
+            return False
 
         if not self.normalized_type.is_nullable:
-            default_validations = {
-                'Поле не может быть пустым': lambda v: (
-                    False if v is None or v == '' else True
-                )
-            }
-        return default_validations
+            return {'Поле не может быть пустым': lambda v: not is_empty(v)}
+        return {}
 
     @property
     def element(self) -> ValidationElement:
@@ -246,8 +249,4 @@ class BaseValidationWidget(BaseValueWidget, ABC):
         return self.element.error
 
     def set_element(self, element: ValidationElement) -> None:
-        target_element_type = ValidationElement
-        assert isinstance(
-            element, target_element_type
-        ), f'Element must be a {target_element_type}. "{type(element)}" is no valid. Please check the correctness of the implemented "render" method in your widget "{self.__class__.__name__}"'
-        self._rendered_element = element
+        self._set_element(element, ValidationElement)

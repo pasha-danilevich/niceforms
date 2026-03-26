@@ -1,18 +1,18 @@
 from typing import Any, Optional
 
 from nicegui import ui
-from nicegui.elements.mixins.value_element import ValueElement
+from nicegui.elements.mixins.validation_element import ValidationElement
 
-from niceforms.widget import BaseWidget
+from widget import BaseValidationWidget
 
 
-class UnknownTypeWidget(BaseWidget):
+class UnknownTypeWidget(BaseValidationWidget):
     """Для неизвестных типов предлагается вводить JSON строку"""
 
     def collect(self) -> Optional[Any]:
         return self.element.value
 
-    def render(self) -> ValueElement:
+    def render(self) -> ValidationElement:
         el = (
             ui.input(
                 value=self.default_value,

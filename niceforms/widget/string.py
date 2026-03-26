@@ -1,12 +1,12 @@
 from typing import Optional
 
 from nicegui import ui
-from nicegui.elements.mixins.value_element import ValueElement
+from nicegui.elements.mixins.validation_element import ValidationElement
 
-from niceforms.widget import BaseWidget
+from widget import BaseValidationWidget
 
 
-class StringWidget(BaseWidget):
+class StringWidget(BaseValidationWidget):
 
     def collect(self) -> Optional[str]:
         if self.element.value == '':
@@ -14,7 +14,7 @@ class StringWidget(BaseWidget):
 
         return self.element.value
 
-    def render(self) -> ValueElement:
+    def render(self) -> ValidationElement:
 
         el = (
             ui.input(

@@ -35,19 +35,43 @@ class AddDialog(UIComponent):
 
 
 class EditDialog(UIComponent):
-    def __init__(self, on_edit: EditAction, model: BaseModel) -> None:
+    def __init__(
+        self,
+        on_edit: EditAction,
+        model: BaseModel,
+        index: int,
+        model_type: type[BaseModel],
+    ) -> None:
         self.on_edit = on_edit
         self.model = model
+        self.index = index
+        self.model_type = model_type
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
             with ui.card().classes('w-96'):
                 ui.label("Редактировать").classes('text-xl font-bold mb-4')
+                from niceforms import BaseModelForm
+
+                form = BaseModelForm(
+                    model=self.model_type,
+                    view_annotation_type=False,
+                    view_clear_button=False,
+                    view_json_button=False,
+                    view_submit_button=False,
+                )
+                form.render(as_card=False, body_classes='w-full')
+                data = self.model.model_dump()
+                print(data)
+                form.fill(data=data)
 
                 with ui.row().classes('justify-end gap-2 mt-4'):
                     ui.button('Отмена', on_click=dialog.close).props('flat')
                     ui.button(
-                        # 'Сохранить', on_click=lambda: self.on_edit(name_input.value)
+                        'Сохранить',
+                        on_click=lambda: self.on_edit(
+                            model=form.build_model(), index=self.index
+                        ),
                     ).props('color=primary')
 
         return dialog

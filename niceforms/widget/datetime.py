@@ -2,12 +2,14 @@ from datetime import datetime
 from typing import Any, Optional
 
 from nicegui import ui
+from nicegui.element import Element
 from nicegui.elements.mixins.value_element import ValueElement
 
 from niceforms import BaseWidget
+from widget import BaseValueWidget
 
 
-class DateWidget(BaseWidget):
+class DateWidget(BaseValueWidget):
     def validate(self) -> Optional[str]:
         if not self.normalized_type.is_nullable and not self.element.value:
             return "Поле не может быть пустым"
@@ -48,10 +50,15 @@ class DateWidget(BaseWidget):
 
 
 class DateTimeWidget(BaseWidget):
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._date_input: Optional[ValueElement] = None
         self._time_input: Optional[ValueElement] = None
+
+    def fill(self, data: datetime) -> None:
+        self._date_input.set_value(data.date())
+        self._time_input.set_value(data.time())
 
     def validate(self) -> Optional[str]:
         if not self._date_input.value and not self.normalized_type.is_nullable:
@@ -86,10 +93,10 @@ class DateTimeWidget(BaseWidget):
         self._date_input.set_value(None)
         self._time_input.set_value(None)
 
-    def render(self) -> ValueElement:
+    def render(self) -> Element:
         with ui.row().classes("w-full").style(
             "display: flex; flex-direction: row; flex-wrap: nowrap;"
-        ):
+        ) as row:
             self._date_input = (
                 ui.date_input(placeholder='1990-01-01', on_change=self.hide_error)
                 .props("outlined dense")
@@ -107,4 +114,4 @@ class DateTimeWidget(BaseWidget):
 
             ui.button('Сейчас', on_click=now)
 
-        return ValueElement(value='')
+        return row

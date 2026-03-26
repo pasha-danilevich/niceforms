@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import Optional, Any
 
+from nicegui.element import Element
 from nicegui.elements.mixins.value_element import ValueElement
 from pydantic import BaseModel
 
@@ -9,9 +10,22 @@ from .component import ListComponent
 
 
 class ListBaseModelWidget(BaseWidget):
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.model_type: type[BaseModel]
         self.component: Optional[ListComponent[BaseModel]] = None
+
+    def fill(self, data: Optional[list[dict[str, Any]]]) -> None:
+        self.component.storage = (
+            [self.model_type(**d) for d in data] if data is not None else []
+        )
+        self.component.refresh_list()
+
+    def validate(self) -> Optional[str]:
+        if not self.normalized_type.is_nullable and self.component.storage is None:
+            return 'Не должно быть пусто'
+        return None
 
     def clear(self) -> None:
         self.component.storage = []
@@ -38,13 +52,13 @@ class ListBaseModelWidget(BaseWidget):
 
         return None
 
-    def render(self) -> ValueElement:
-        model_type = extract_inner_type(self.normalized_type.origin_type)
+    def render(self) -> Element:
+        self.model_type = extract_inner_type(self.normalized_type.origin_type)
 
         self.component = ListComponent(
             storage=self.default_value if self.default_value else [],
             record_title_getter=self.get_record_title,
-            model=model_type,
+            model=self.model_type,
         )
-        self.component.render()
-        return ValueElement(value='')
+        el = self.component.render()
+        return el

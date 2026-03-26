@@ -1,19 +1,19 @@
 from typing import Optional
 
 from nicegui import ui
-from nicegui.elements.mixins.value_element import ValueElement
+from nicegui.elements.mixins.validation_element import ValidationElement
 
-from niceforms.widget import BaseWidget
+from widget import BaseValidationWidget
 
 
-class FloatWidget(BaseWidget):
+class FloatWidget(BaseValidationWidget):
     def collect(self) -> Optional[float]:
         if self.element.value is None:
             return None
 
         return self.element.value
 
-    def render(self) -> ValueElement:
+    def render(self) -> ValidationElement:
         el = (
             ui.number(
                 value=self.default_value,

@@ -2,13 +2,15 @@ import json
 from typing import List, Optional, Union
 
 from nicegui import ui
+from nicegui.elements.mixins.validation_element import ValidationElement
 from nicegui.elements.mixins.value_element import ValueElement
 from utils import normalize_type
 
 from niceforms.widget import BaseWidget
+from widget import BaseValidationWidget
 
 
-class ListWidget(BaseWidget):
+class ListWidget(BaseValidationWidget):
     type_tip_map: dict[type, str] = {
         List[str]: '["яблоко", "банан", "апельсин"]',
         List[int]: '[423, 324, 983]',
@@ -22,7 +24,7 @@ class ListWidget(BaseWidget):
 
         return None
 
-    def render(self) -> ValueElement:
+    def render(self) -> ValidationElement:
         default_value = (
             json.dumps(self.default_value) if self.default_value is not None else None
         )

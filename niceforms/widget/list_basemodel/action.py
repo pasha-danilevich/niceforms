@@ -8,7 +8,7 @@ class SaveAction(Protocol):
 
 
 class EditAction(Protocol):
-    def __call__(self, model: BaseModel, index: int) -> BaseModel: ...
+    def __call__(self, model: BaseModel, index: int) -> None: ...
 
 
 class DeleteAction(Protocol):

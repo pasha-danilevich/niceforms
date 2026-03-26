@@ -1,18 +1,18 @@
 from typing import Any, Optional
 
 from nicegui import ui
-from nicegui.elements.mixins.value_element import ValueElement
+from nicegui.elements.mixins.validation_element import ValidationElement
 
-from niceforms.widget import BaseWidget
+from widget import BaseValidationWidget
 
 
-class EnumWidget(BaseWidget):
+class EnumWidget(BaseValidationWidget):
     """Виджет для полей типа Enum с выплывающим списком"""
 
     def collect(self) -> Optional[Any]:
         return self.element.value
 
-    def render(self) -> ValueElement:
+    def render(self) -> ValidationElement:
         options = list(self.normalized_type.origin_type)
 
         select = (

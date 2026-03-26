@@ -4,7 +4,9 @@ from nicegui import ui
 from nicegui.element import Element
 from nicegui.elements.dialog import Dialog
 from .action import *
+
 from niceforms import UIComponent
+from .dialog import AddDialog, ConfirmDeleteDialog, EditDialog
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -60,7 +62,9 @@ class RecordLine(UIComponent):
                 # Кнопка "Редактировать" с иконкой edit
                 ui.button(
                     icon='edit',
-                    on_click=lambda: self.on_edit(model=self.model, index=self.number),
+                    on_click=lambda: self.on_edit(
+                        model=self.model, index=self.list_index
+                    ),
                 ).props('flat').classes('hover:bg-orange-50').tooltip('Редактировать')
 
                 # Кнопка "Удалить" с иконкой delete
@@ -95,15 +99,16 @@ class ListComponent(UIComponent, Generic[T]):
         text = self.record_title_getter(model)
         return text if text is not None else f'Запись №{number}'
 
-    def render(self) -> None:
+    def render(self) -> Element:
         """Создание интерфейса"""
-        with ui.column().classes('w-full max-w-2xl mx-auto'):
+        with ui.column().classes('w-full max-w-2xl mx-auto') as column:
             # Контейнер для списка пользователей
             self.container = ui.column().classes('w-full gap-2')
             self.refresh_list()
 
             # Кнопка добавления
             ui.button('Добавить', on_click=self.show_add_dialog)
+        return column
 
     def refresh_list(self):
         """Обновление отображения списка пользователей"""
@@ -117,7 +122,7 @@ class ListComponent(UIComponent, Generic[T]):
                     title=self.ensure_title(record, i + 1),
                     model=record,
                     on_view=self.show_info,
-                    on_edit=...,
+                    on_edit=self.show_edit_dialog,
                     on_delete=self.delete,
                 ).render()
 
@@ -140,15 +145,20 @@ class ListComponent(UIComponent, Generic[T]):
         self.dialog = AddDialog(on_save=self.save, model_type=self.model_type).render()
         self.dialog.open()
 
-    def show_edit_dialog(self, user):
+    def show_edit_dialog(self, model: BaseModel, index: int):
         """Показать диалог редактирования пользователя"""
-        pass
-        # self.is_edit_mode = True
-        # self.current_user = user
-        #
-        # self.dialog = EditDialog(on_edit=self.save, model=user).render()
-        #
-        # self.dialog.open()
+        self.dialog = EditDialog(
+            on_edit=self.edit,
+            model=model,
+            index=index,
+            model_type=self.model_type,
+        ).render()
+        self.dialog.open()
+
+    def edit(self, model: BaseModel, index: int) -> None:
+        self.storage[index] = model
+        self.dialog.close()
+        self.refresh_list()
 
     def save(self, model: BaseModel) -> None:
         """Сохранить"""
