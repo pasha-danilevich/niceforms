@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Type, cast, Generic, TypeVar
+from typing import Any, Generic, Optional, Type, TypeVar, cast
 
 from actions import OnSubmit
 from constants import *

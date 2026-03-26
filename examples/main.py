@@ -5,8 +5,9 @@ logging.basicConfig(level=logging.DEBUG)
 """Базовый пример использования."""
 import basic
 import complex_type
-import nested
+import list_model
 import many_forms
+import nested
 from _layout import base
 from nicegui import app, ui
 
@@ -18,12 +19,14 @@ async def index() -> None:
     ui.link(text='Вложенная модель', target='/nested')
     ui.link(text='Сложные типы', target='/complex_type')
     ui.link(text='Много форм', target='/many_forms')
+    ui.link(text='Списки', target='/list_model')
 
 
 app.include_router(basic.router)
 app.include_router(nested.router)
 app.include_router(complex_type.router)
 app.include_router(many_forms.router)
+app.include_router(list_model.router)
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(show=False, reload=False)

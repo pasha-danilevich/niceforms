@@ -3,16 +3,11 @@
 from enum import Enum
 from typing import Optional
 
+from _layout import base
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
-from niceforms import constants, FormError
-
-constants.DEFAULT_FORM_WIDTH = "max-w-4xl"
-
-from _layout import base
-
-from niceforms import BaseModelForm
+from niceforms import BaseModelForm, FormError
 
 router = APIRouter()
 
@@ -44,7 +39,7 @@ class ApiDTO(BaseModel):
 
 @router.page('/many_forms')
 @base
-async def basic() -> None:
+async def many_forms() -> None:
 
     async def submit_handler(user: BaseModel) -> None:
         print(f"Пользователь создан: {user}")

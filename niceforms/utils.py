@@ -47,6 +47,26 @@ def is_enum_type(field_type: type) -> bool:
     return isinstance(field_type, type) and issubclass(field_type, Enum)
 
 
+def is_list_basemodel_type(field_type: type) -> bool:
+    """Является ли поле типом list[BaseModel]"""
+
+    origin = get_origin(field_type)
+    if origin is not list:
+        return False
+
+    args = get_args(field_type)
+
+    # Проверяем, что есть ровно один аргумент
+    if len(args) != 1:
+        return False
+
+    inner_type = args[0]
+
+    # Проверяем, что внутренний тип является классом и наследуется от BaseModel
+    # Используем isinstance для проверки, что это класс, а не Union, Optional и т.д.
+    return isinstance(inner_type, type) and issubclass(inner_type, BaseModel)
+
+
 class NestedModel(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 

@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import Optional, Any
+from typing import Any, Optional
 
-from nicegui.elements.mixins.value_element import ValueElement
 from nicegui import ui
+from nicegui.elements.mixins.value_element import ValueElement
+
 from niceforms import BaseWidget
 
 

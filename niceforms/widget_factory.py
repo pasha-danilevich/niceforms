@@ -1,16 +1,19 @@
+import datetime
 import logging
 from enum import Enum
 from typing import List
-import datetime
+
+from pydantic import BaseModel
 from pydantic.fields import FieldInfo
-from utils import is_enum_type, normalize_type
+from utils import is_enum_type, is_list_basemodel_type, normalize_type
 from widget import BaseWidget
 from widget.bool import BoolWidget
-from widget.datetime import DateWidget, DateTimeWidget
+from widget.datetime import DateTimeWidget, DateWidget
 from widget.enum import EnumWidget
 from widget.float import FloatWidget
 from widget.integer import IntegerWidget
 from widget.list import ListWidget
+from widget.list_basemodel import ListBaseModelWidget
 from widget.string import StringWidget
 from widget.unknown_type import UnknownTypeWidget
 
@@ -32,6 +35,7 @@ class WidgetFactory:
             List[int]: ListWidget,
             datetime.date: DateWidget,
             datetime.datetime: DateTimeWidget,
+            list[BaseModel]: ListBaseModelWidget,
         }
 
     def insert_new_widget(
@@ -53,6 +57,9 @@ class WidgetFactory:
 
             if is_enum_type(normalized_type.origin_type):
                 widget = self._widgets[Enum]
+
+            if is_list_basemodel_type(normalized_type.origin_type):
+                widget = self._widgets[list[BaseModel]]
 
             if widget is None:
                 logger.warning(

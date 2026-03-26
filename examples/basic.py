@@ -1,16 +1,11 @@
 """Базовый пример использования."""
 
 from enum import Enum
-from typing import List, Optional
-
-from nicegui import APIRouter, ui
-from pydantic import BaseModel, Field
-
-from niceforms import constants
-
-constants.DEFAULT_FORM_WIDTH = "max-w-4xl"
+from typing import Optional
 
 from _layout import base
+from nicegui import APIRouter, ui
+from pydantic import BaseModel, Field
 
 from niceforms import BaseModelForm
 
