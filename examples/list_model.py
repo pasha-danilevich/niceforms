@@ -6,8 +6,7 @@ from niceforms import BaseModelForm
 router = APIRouter()
 
 
-from pydantic import BaseModel
-
+from pydantic import BaseModel, Field
 
 class Person(BaseModel):
     name: str
@@ -17,7 +16,7 @@ class Person(BaseModel):
 class Room(BaseModel):
     number: int
     floor: int
-    peoples: list[Person]
+    peoples: list[Person] = Field(description='List of people that are on the room.')
 
 
 # вот как, скорее всего, получится отобразить widget list[BaseModel]
@@ -25,6 +24,8 @@ class Room(BaseModel):
 # 1. Коля               [показать] [редактировать] [удалить]
 # 2. Вася               [показать] [редактировать] [удалить]
 # 3. Миша               [показать] [редактировать] [удалить]
+
+# [добавить]
 
 # то есть тут можно попытаться из модели Person получить первый попавшийся строчный атрибут и использовать его в виде title
 
