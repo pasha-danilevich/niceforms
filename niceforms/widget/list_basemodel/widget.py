@@ -16,10 +16,21 @@ class ListBaseModelWidget(BaseWidget):
         self.model_type: type[BaseModel]
         self.component: Optional[ListComponent[BaseModel]] = None
 
-    def fill(self, data: Optional[list[dict[str, Any]]]) -> None:
-        self.component.storage = (
-            [self.model_type(**d) for d in data] if data is not None else []
-        )
+    def fill(self, data: Optional[list[dict[str, Any] | BaseModel]]) -> None:
+        if data is None:
+            self.component.storage = []
+            return
+
+        result = []
+        for item in data:
+            if isinstance(item, BaseModel):
+                # Если это уже модель, используем её напрямую
+                result.append(item)
+            else:
+                # Если это словарь, создаём модель
+                result.append(self.model_type(**item))
+
+        self.component.storage = result
         self.component.refresh_list()
 
     def validate(self) -> Optional[str]:

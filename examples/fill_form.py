@@ -45,8 +45,33 @@ async def list_model() -> None:
                 'number': 2,
                 'floor': 1,
                 'peoples': [
-                    Person(name='Jon', age=24, items=None),
-                    Person(name='Pablo', age=45, items=[Item(size=12, color='red')]),
+                    {
+                        'name': 'Jon',
+                        'age': 24,
+                        'items': None,
+                    },
+                    {
+                        'name': 'Pablo',
+                        'age': 45,
+                        'items': [
+                            {
+                                'size': 12,
+                                'color': 'red',
+                            }
+                        ],
+                    },
                 ],
             }
         )
+
+        # or python types
+        # form.fill(
+        #     data={
+        #         'number': 2,
+        #         'floor': 1,
+        #         'peoples': [
+        #             Person(name='Jon', age=24, items=None),
+        #             Person(name='Pablo', age=45, items=[Item(size=12, color='red')]),
+        #         ],
+        #     }
+        # )
