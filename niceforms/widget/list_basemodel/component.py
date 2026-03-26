@@ -131,7 +131,11 @@ class ListComponent(UIComponent, Generic[T]):
 
     def show_info(self, model: BaseModel):
         """Показать информацию о записи"""
-        self.dialog = ViewDialog(model=model, model_type=self.model_type).render()
+        self.dialog = ViewDialog(
+            model=model,
+            model_type=self.model_type,
+            record_title_getter=self.record_title_getter,
+        ).render()
         self.dialog.open()
 
     def show_add_dialog(self):
@@ -143,6 +147,7 @@ class ListComponent(UIComponent, Generic[T]):
         """Показать диалог редактирования пользователя"""
         self.dialog = EditDialog(
             on_edit=self.edit,
+            record_title_getter=self.record_title_getter,
             model=model,
             index=index,
             model_type=self.model_type,

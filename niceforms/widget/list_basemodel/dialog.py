@@ -1,12 +1,20 @@
+from typing import Callable, Optional, TypeVar
+
 from nicegui import ui
 from nicegui.elements.dialog import Dialog
 
 from niceforms import UIComponent
 from .action import *
 
+T = TypeVar('T', bound=BaseModel)
+
 
 class AddDialog(UIComponent):
-    def __init__(self, on_save: SaveAction, model_type: type[BaseModel]) -> None:
+    def __init__(
+        self,
+        on_save: SaveAction,
+        model_type: type[BaseModel],
+    ) -> None:
         self.on_save = on_save
         self.model_type = model_type
 
@@ -17,6 +25,7 @@ class AddDialog(UIComponent):
 
                 form = BaseModelForm(
                     model=self.model_type,
+                    title='Создать запись',
                     view_annotation_type=False,
                     view_clear_button=False,
                     view_json_button=False,
@@ -35,26 +44,30 @@ class AddDialog(UIComponent):
 
 
 class EditDialog(UIComponent):
+
     def __init__(
         self,
         on_edit: EditAction,
+        record_title_getter: Callable[[T], Optional[str]],
         model: BaseModel,
         index: int,
         model_type: type[BaseModel],
     ) -> None:
         self.on_edit = on_edit
+        self.record_title_getter = record_title_getter
         self.model = model
         self.index = index
         self.model_type = model_type
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
-            with ui.card().classes('w-96'):
+            with ui.card().classes('w-full'):
                 ui.label("Редактировать").classes('text-xl font-bold mb-4')
                 from niceforms import BaseModelForm
 
                 form = BaseModelForm(
                     model=self.model_type,
+                    title=self.record_title_getter(self.model),
                     view_annotation_type=False,
                     view_clear_button=False,
                     view_json_button=False,
@@ -100,10 +113,12 @@ class ViewDialog(UIComponent):
     def __init__(
         self,
         model: BaseModel,
+        record_title_getter: Callable[[T], Optional[str]],
         model_type: type[BaseModel],
     ) -> None:
         self.model = model
         self.model_type = model_type
+        self.record_title_getter = record_title_getter
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
@@ -112,6 +127,7 @@ class ViewDialog(UIComponent):
 
                 form = BaseModelForm(
                     model=self.model_type,
+                    title=self.record_title_getter(self.model),
                     view_annotation_type=False,
                     view_clear_button=False,
                     view_json_button=False,

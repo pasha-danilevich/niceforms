@@ -18,7 +18,7 @@ class Item(BaseModel):
 
 
 class Person(BaseModel):
-    name: str
+    name: int
     age: int
     items: Optional[list[Item]] = Field(description='Person objects')
 
@@ -26,14 +26,14 @@ class Person(BaseModel):
 class Room(BaseModel):
     number: int
     floor: int
-    peoples: list[Person] = Field(
-        default=[
-            Person(name='Jon', age=24, items=None),
-            Person(name='Pablo', age=45, items=[Item(size=12, color='red')]),
-        ],
-        description='List of people that are on the room.',
-    )
-    # peoples: list[Person] = Field(description='List of people that are on the room.')
+    # peoples: list[Person] = Field(
+    #     default=[
+    #         Person(name='Jon', age=24, items=None),
+    #         Person(name='Pablo', age=45, items=[Item(size=12, color='red')]),
+    #     ],
+    #     description='List of people that are on the room.',
+    # )
+    peoples: list[Person] = Field(description='List of people that are on the room.')
 
 
 @router.page('/list_model')
