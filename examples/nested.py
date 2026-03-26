@@ -21,7 +21,7 @@ class Address(BaseModel):
 
     street: str
     city: str
-    # coordinates: Coordinates
+    coordinates: Coordinates
 
 
 class Appearance(BaseModel):

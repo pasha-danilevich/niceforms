@@ -1,7 +1,6 @@
 from typing import Optional, Any
 
 from nicegui.element import Element
-from nicegui.elements.mixins.value_element import ValueElement
 from pydantic import BaseModel
 
 from niceforms import BaseWidget

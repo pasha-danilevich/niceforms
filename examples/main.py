@@ -9,6 +9,7 @@ import list_model
 import many_forms
 import nested
 import fill_form
+import auto_save
 from _layout import base
 from nicegui import app, ui
 
@@ -22,6 +23,7 @@ async def index() -> None:
     ui.link(text='Много форм', target='/many_forms')
     ui.link(text='Списки', target='/list_model')
     ui.link(text='Заполненная форма', target='/fill_from')
+    ui.link(text='Сохранение введенной формы', target='/auto_save')
 
 
 app.include_router(basic.router)
@@ -30,6 +32,7 @@ app.include_router(complex_type.router)
 app.include_router(many_forms.router)
 app.include_router(list_model.router)
 app.include_router(fill_form.router)
+app.include_router(auto_save.router)
 
 if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(show=False, reload=False)
+    ui.run(show=False, reload=False, storage_secret='storage_secret')

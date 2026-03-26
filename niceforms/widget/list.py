@@ -3,10 +3,8 @@ from typing import List, Optional, Union
 
 from nicegui import ui
 from nicegui.elements.mixins.validation_element import ValidationElement
-from nicegui.elements.mixins.value_element import ValueElement
-from utils import normalize_type
 
-from niceforms.widget import BaseWidget
+from utils import normalize_type
 from widget import BaseValidationWidget
 
 
@@ -20,7 +18,10 @@ class ListWidget(BaseValidationWidget):
 
     def collect(self) -> Optional[Union[list, tuple]]:
         if self.element.value is not None:
-            return json.loads(self.element.value)
+            try:
+                return json.loads(self.element.value)
+            except json.decoder.JSONDecodeError:
+                return None
 
         return None
 
@@ -29,11 +30,25 @@ class ListWidget(BaseValidationWidget):
             json.dumps(self.default_value) if self.default_value is not None else None
         )
 
+        def decode_validate(v) -> bool:
+            try:
+                if v:
+                    json.loads(v)
+            except json.decoder.JSONDecodeError:
+                return False
+
+            return True
+
+        validation = {
+            **self.default_validations,
+            'Не валидный JSON': lambda v: decode_validate(v),
+        }
+
         el = (
             ui.textarea(
                 value=default_value,
                 placeholder=self.placeholder,
-                validation=self.default_validations,
+                validation=validation,
             )
             .props("outlined dense")
             .classes("w-full font-mono")

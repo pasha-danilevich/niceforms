@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Any, Optional
 
 from nicegui import ui
@@ -10,6 +10,13 @@ from widget import BaseValueWidget
 
 
 class DateWidget(BaseValueWidget):
+    def fill(self, data: date | str) -> None:
+        assert isinstance(data, date | str), 'incorrect data type: {}'.format(
+            type(data)
+        )
+
+        self.element.set_value(str(data))
+
     def validate(self) -> Optional[str]:
         if not self.normalized_type.is_nullable and not self.element.value:
             return "Поле не может быть пустым"
@@ -56,9 +63,36 @@ class DateTimeWidget(BaseWidget):
         self._date_input: Optional[ValueElement] = None
         self._time_input: Optional[ValueElement] = None
 
-    def fill(self, data: datetime) -> None:
-        self._date_input.set_value(data.date())
-        self._time_input.set_value(data.time())
+    def fill(self, data: datetime | str) -> None:
+        assert isinstance(data, (datetime, str)), 'incorrect data type: {}'.format(
+            type(data)
+        )
+
+        # Преобразуем строку в datetime если нужно
+        if isinstance(data, str):
+            try:
+                # Пробуем парсить ISO формат или формат с пробелом
+                data = datetime.fromisoformat(data.replace('Z', '+00:00'))
+            except ValueError:
+                try:
+                    data = datetime.strptime(data, "%Y-%m-%d %H:%M")
+                except ValueError:
+                    # Если не удалось, оставляем как строку
+                    date_str = data
+                    time_str = data
+                    self._date_input.set_value(date_str)
+                    self._time_input.set_value(time_str)
+                    return
+
+        # Если data - datetime объект
+        if isinstance(data, datetime):
+            # Форматируем дату и время
+            date_str = data.strftime("%Y-%m-%d")
+            time_str = data.strftime("%H:%M")
+
+            # Устанавливаем значения
+            self._date_input.set_value(date_str)
+            self._time_input.set_value(time_str)
 
     def validate(self) -> Optional[str]:
         if not self._date_input.value and not self.normalized_type.is_nullable:

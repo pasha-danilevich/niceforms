@@ -97,9 +97,14 @@ class BaseModelForm(UIComponent, Generic[T]):
 
     def fill(self, data: dict[str, Any]) -> None:
         """Наполнить виджеты данными"""
+
         for field_name, value in data.items():
             if w := self.widgets_by_field.get(field_name):
                 w.fill(value)
+
+        for n in self._nested_forms:
+            if d := data.get(n.model.field_name):
+                n.form.fill(d)
 
     def clear(self) -> None:
         logger.debug(f'Cleared form: {self.title}')
@@ -117,7 +122,7 @@ class BaseModelForm(UIComponent, Generic[T]):
 
         self._header.hidde_error_icon()
 
-    def collect_data(self, ignore_error: bool = False) -> dict[str, Any]:
+    def collect_data(self, validate: bool = True) -> dict[str, Any]:
         """Собирать данные введенные в виджетах
 
         :raise FormError если есть хотя-бы в одном виджете есть ошибка"""
@@ -126,7 +131,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         errors: list[str] = []
 
         for w in self.widgets:
-            error = w.validate()
+            error = w.validate() if validate else None
 
             if error:
                 w.view_error(error)
@@ -140,11 +145,14 @@ class BaseModelForm(UIComponent, Generic[T]):
             logger.debug(
                 f'Collecting form data for "{n.form.title}". is_none={n.form._header.is_none}'
             )
+
             data[n.model.field_name] = (
-                None if n.form._header.is_none else n.form.build_model()
+                None
+                if n.form._header.is_none
+                else n.form.collect_data(validate=validate)
             )
 
-        if errors and not ignore_error:
+        if errors:
             ui.notify(f"Исправьте ошибки в форме: {self.title}")
             raise FormError(form_name=self.title)
 
@@ -153,7 +161,7 @@ class BaseModelForm(UIComponent, Generic[T]):
     def build_model(self) -> T:
         """Собирать данные введенные в виджетах с помощью метода .collect_date()
         и создать BaseModel объект. Не игнорирует ошибки валидации в виджетах"""
-        data = self.collect_data(ignore_error=False)
+        data = self.collect_data()
         return self.model(**data)
 
     def render(
