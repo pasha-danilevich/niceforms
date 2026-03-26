@@ -2,7 +2,7 @@ from typing import cast
 
 from nicegui import ui
 from nicegui.elements.mixins.validation_element import ValidationElement
-from widget import BaseWidget
+from widget import BaseWidget, BaseValidationWidget
 
 
 class Body:
@@ -19,8 +19,8 @@ class Body:
                     el = w.render()
                     w.set_element(el)
 
-                    if not w.can_element_validate():
-                        error_el = w.render_error()
+                    if not isinstance(w, BaseValidationWidget):
+                        w.render_error()
 
                     if isinstance(w.element, ValidationElement):
                         el = cast(ValidationElement, w.element)

@@ -28,13 +28,13 @@ class UserForm(BaseModel):
 
     name: Optional[str]
     email: str = Field(..., title="Email", description="Введите ваш email")
-    # age: int = Field(..., title="Возраст", ge=18, le=100)
-    # summa: float = Field(..., title="Сумма")
-    # exp: StrictInt
-    # is_active: bool = Field(True, title="Активный пользователь")
-    # status: Status = Field(Status.INACTIVE, title="Статус")
-    # address: Optional[Address] = Field(..., title="Адрес")
-    # tags: List[str] = Field(title="Теги")
+    age: int = Field(..., title="Возраст", ge=18, le=100)
+    summa: float = Field(..., title="Сумма")
+    exp: StrictInt
+    is_active: bool = Field(True, title="Активный пользователь")
+    status: Status = Field(Status.INACTIVE, title="Статус")
+    address: Optional[Address] = Field(..., title="Адрес")
+    tags: List[str] = Field(title="Теги")
     date: Optional[datetime.date] = Field(..., title="Дата")
     created_at: datetime.datetime = Field(..., title="Время создания")
 
@@ -50,3 +50,5 @@ async def complex_type() -> None:
 
         form = BaseModelForm(UserForm, on_submit=submit_handler)
         form.render()
+
+        form.fill({'created_at': datetime.datetime.now()})
