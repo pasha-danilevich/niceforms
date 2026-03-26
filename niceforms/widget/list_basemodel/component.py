@@ -6,7 +6,7 @@ from nicegui.elements.dialog import Dialog
 from .action import *
 
 from niceforms import UIComponent
-from .dialog import AddDialog, ConfirmDeleteDialog, EditDialog
+from .dialog import AddDialog, ConfirmDeleteDialog, EditDialog, ViewDialog
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -32,7 +32,7 @@ class RecordLine(UIComponent):
         list_index: int,
         title: str,
         model: BaseModel,
-        on_view,
+        on_view: SaveAction,
         on_edit: EditAction,
         on_delete: DeleteAction,
     ) -> None:
@@ -129,16 +129,10 @@ class ListComponent(UIComponent, Generic[T]):
             if not self.storage:
                 VoidRecordLine().render()
 
-    def show_info(self, user):
+    def show_info(self, model: BaseModel):
         """Показать информацию о записи"""
-        # with ui.dialog() as dialog:
-        #     with ui.card():
-        #         ui.label(f"Информация о записи").classes('text-xl font-bold mb-4')
-        #         ui.label(f"ID: {user['id']}").classes('mb-2')
-        #         ui.label(f"Имя: {user['name']}").classes('mb-4')
-        #         ui.button('Закрыть', on_click=dialog.close)
-        # dialog.open()
-        pass
+        self.dialog = ViewDialog(model=model, model_type=self.model_type).render()
+        self.dialog.open()
 
     def show_add_dialog(self):
         """Показать диалог добавления пользователя"""

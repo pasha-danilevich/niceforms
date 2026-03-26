@@ -61,9 +61,7 @@ class EditDialog(UIComponent):
                     view_submit_button=False,
                 )
                 form.render(as_card=False, body_classes='w-full')
-                data = self.model.model_dump()
-                print(data)
-                form.fill(data=data)
+                form.fill(data=self.model.model_dump())
 
                 with ui.row().classes('justify-end gap-2 mt-4'):
                     ui.button('Отмена', on_click=dialog.close).props('flat')
@@ -94,5 +92,35 @@ class ConfirmDeleteDialog(UIComponent):
                     ui.button('Удалить', on_click=self.on_confirm).props(
                         'color=negative'
                     )
+
+        return dialog
+
+
+class ViewDialog(UIComponent):
+    def __init__(
+        self,
+        model: BaseModel,
+        model_type: type[BaseModel],
+    ) -> None:
+        self.model = model
+        self.model_type = model_type
+
+    def render(self) -> Dialog:
+        with ui.dialog() as dialog:
+            with ui.card().classes('w-full'):
+                from niceforms import BaseModelForm
+
+                form = BaseModelForm(
+                    model=self.model_type,
+                    view_annotation_type=False,
+                    view_clear_button=False,
+                    view_json_button=False,
+                    view_submit_button=False,
+                )
+                form.render(as_card=False, body_classes='w-full')
+                form.fill(data=self.model.model_dump())
+
+                with ui.row().classes('w-full justify-end gap-2 mt-4'):
+                    ui.button('Закрыть', on_click=dialog.close).props('flat')
 
         return dialog
