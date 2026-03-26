@@ -25,6 +25,13 @@ class Person(BaseModel):
 class Room(BaseModel):
     number: int
     floor: int
+    # peoples: list[Person] = Field(
+    #     default=[
+    #         Person(name='f', age=1, items=None),
+    #         Person(name='f', age=1, items=None),
+    #     ],
+    #     description='List of people that are on the room.',
+    # )
     peoples: list[Person] = Field(description='List of people that are on the room.')
 
 

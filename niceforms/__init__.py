@@ -139,7 +139,6 @@ class BaseModelForm(UIComponent, Generic[T]):
         data = self.collect_data(ignore_error=False)
         return self.model(**data)
 
-
     def render(self) -> None:
         """Render the form UI."""
         logger.debug(f'Rendering form "{self.model.__name__}"')

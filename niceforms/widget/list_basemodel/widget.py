@@ -2,8 +2,10 @@ from typing import Optional
 
 from nicegui.elements.mixins.value_element import ValueElement
 from pydantic import BaseModel
+from pyexpat import model
 
 from niceforms import BaseWidget
+from utils import extract_inner_type
 from .component import ListComponent
 
 
@@ -23,10 +25,12 @@ class ListBaseModelWidget(BaseWidget):
         return model.name
 
     def render(self) -> ValueElement:
+        model_type = extract_inner_type(self.normalized_type.origin_type)
 
         self.component = ListComponent(
             storage=self.default_value if self.default_value else [],
             record_title_getter=self.get_record_title,
+            model=model_type,
         )
         self.component.render()
         return ValueElement(value='')

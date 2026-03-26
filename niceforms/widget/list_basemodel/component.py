@@ -69,6 +69,20 @@ class ConfirmDeleteDialog(UIComponent):
         return dialog
 
 
+class VoidRecordLine(UIComponent):
+    def render(self) -> None:
+        with ui.row().classes(
+            'w-full justify-between items-center p-2 rounded border-2 border-dashed border-gray-300 bg-gray-50/50'
+        ):
+            # Скелетон для текста
+            ui.element('div').classes('h-6 w-48 bg-gray-200 rounded')
+
+            # Скелетоны для кнопок
+            with ui.row().classes('gap-2'):
+                for _ in range(3):  # Три скелетона для трех кнопок
+                    ui.element('div').classes('h-[36px] w-[56px] bg-gray-200 rounded')
+
+
 class RecordLine(UIComponent):
     def __init__(
         self,
@@ -94,33 +108,37 @@ class RecordLine(UIComponent):
         ):
             ui.label(f"{self.number}. {self.title}").classes('text-lg')
 
-            # with ui.row().classes('gap-1'):
-            #     # Кнопка "Показать" с иконкой visibility
-            #     ui.button(
-            #         icon='visibility',
-            #         on_click=lambda: self.on_view(self.model),
-            #     ).props('flat').classes('hover:bg-blue-50').tooltip('Показать')
-            #
-            #     # Кнопка "Редактировать" с иконкой edit
-            #     ui.button(
-            #         icon='edit',
-            #         on_click=lambda: self.on_edit(model=self.model, index=self.number),
-            #     ).props('flat').classes('hover:bg-orange-50').tooltip('Редактировать')
-            #
-            #     # Кнопка "Удалить" с иконкой delete
-            #     ui.button(
-            #         icon='delete', on_click=lambda: self.on_delete(self.model)
-            #     ).props('flat color=negative').classes('hover:bg-red-50').tooltip(
-            #         'Удалить'
-            #     )
+            with ui.row().classes('gap-1'):
+                # Кнопка "Показать" с иконкой visibility
+                ui.button(
+                    icon='visibility',
+                    on_click=lambda: self.on_view(self.model),
+                ).props('flat').classes('hover:bg-blue-50').tooltip('Показать')
+
+                # Кнопка "Редактировать" с иконкой edit
+                ui.button(
+                    icon='edit',
+                    on_click=lambda: self.on_edit(model=self.model, index=self.number),
+                ).props('flat').classes('hover:bg-orange-50').tooltip('Редактировать')
+
+                # Кнопка "Удалить" с иконкой delete
+                ui.button(
+                    icon='delete', on_click=lambda: self.on_delete(self.model)
+                ).props('flat color=negative').classes('hover:bg-red-50').tooltip(
+                    'Удалить'
+                )
 
 
 class ListComponent(UIComponent, Generic[T]):
     def __init__(
-        self, storage: list[T], record_title_getter: Callable[[T], str]
+        self,
+        storage: list[T],
+        record_title_getter: Callable[[T], str],
+        model: type[BaseModel],
     ) -> None:
         self.storage: list[T] = storage
         self.record_title_getter = record_title_getter
+        self.model_type = model
 
         self.container: Optional[Element] = None
 
@@ -130,13 +148,13 @@ class ListComponent(UIComponent, Generic[T]):
 
     def render(self) -> None:
         """Создание интерфейса"""
-        with ui.column().classes('w-full max-w-2xl mx-auto p-4'):
+        with ui.column().classes('w-full max-w-2xl mx-auto'):
             # Контейнер для списка пользователей
-            self.container = ui.column().classes('w-full gap-2 mb-4')
+            self.container = ui.column().classes('w-full gap-2')
             self.refresh_list()
 
             # Кнопка добавления
-            ui.button('Добавить', on_click=self.show_add_dialog).classes('mt-2')
+            ui.button('Добавить', on_click=self.show_add_dialog)
 
     def refresh_list(self):
         """Обновление отображения списка пользователей"""
@@ -152,6 +170,9 @@ class ListComponent(UIComponent, Generic[T]):
                     on_edit=lambda x, y: Person(name='', age=0),
                     on_delete=self.delete,
                 ).render()
+
+            if not self.storage:
+                VoidRecordLine().render()
 
     def show_info(self, user):
         """Показать информацию о записи"""

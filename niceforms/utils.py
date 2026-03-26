@@ -1,7 +1,7 @@
 import logging
 from enum import Enum
 from types import NoneType, UnionType
-from typing import Any, Type, Union, get_args, get_origin, get_type_hints
+from typing import Any, Type, Union, get_args, get_origin, get_type_hints, List
 
 from nicegui.elements.mixins.validation_element import ValidationElement
 from nicegui.elements.mixins.value_element import ValueElement
@@ -65,6 +65,32 @@ def is_list_basemodel_type(field_type: type) -> bool:
     # Проверяем, что внутренний тип является классом и наследуется от BaseModel
     # Используем isinstance для проверки, что это класс, а не Union, Optional и т.д.
     return isinstance(inner_type, type) and issubclass(inner_type, BaseModel)
+
+
+def extract_inner_type(type_hint: Any) -> Any:
+    """
+    Извлекает внутренний тип из List[int], List[Item], List[BaseModel]
+    и их вариантов list[int] и т.д.
+
+    Args:
+        type_hint: Тип-подсказка (например, list[int] или List[Item])
+
+    Returns:
+        Внутренний тип (int, Item, BaseModel и т.д.) или None, если это не список
+    """
+    # Получаем оригинал (для List это typing.List, для list это list)
+    origin = get_origin(type_hint)
+
+    # Проверяем, является ли тип списком
+    if origin is list or origin is List:
+        # Получаем аргументы (внутренние типы)
+        args = get_args(type_hint)
+        if args:
+            # Возвращаем первый (и обычно единственный) аргумент
+            return args[0]
+
+    # Если это не список, возвращаем None или исходный тип
+    return None
 
 
 class NestedModel(BaseModel):
