@@ -45,6 +45,15 @@ class BaseWidget(UIComponent, ABC):
                 )
             }
 
+    def fill(self, data: Any) -> None:
+        """Вызывается, когда в BaseModelForm вызывают метод .fill()"""
+        if self.can_set_value():
+            self.element.set_value(data)
+        else:
+            logger.warning(
+                f"Can not set value, widget {self} can't set values. Implement your custom fill() method."
+            )
+
     def view_error(self, error: str) -> None:
         if self._error_label:
             self._error_icon.set_visibility(True)
@@ -68,6 +77,11 @@ class BaseWidget(UIComponent, ABC):
             return el.error
 
         return None
+
+    def can_set_value(self) -> bool:
+        if isinstance(self.element, ValueElement):
+            return True
+        return False
 
     def can_element_validate(self) -> bool:
         """Умеет ли виджет валидировать свои значения. Является ли его элемент ValidationElement."""

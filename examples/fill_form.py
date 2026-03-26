@@ -1,9 +1,8 @@
-from pprint import pprint
 from typing import Optional
 
-from _layout import base
 from nicegui import APIRouter, ui
 
+from _layout import base
 from niceforms import BaseModelForm
 
 router = APIRouter()
@@ -26,17 +25,10 @@ class Person(BaseModel):
 class Room(BaseModel):
     number: int
     floor: int
-    peoples: list[Person] = Field(
-        default=[
-            Person(name='Jon', age=24, items=None),
-            Person(name='Pablo', age=45, items=[Item(size=12, color='red')]),
-        ],
-        description='List of people that are on the room.',
-    )
-    # peoples: list[Person] = Field(description='List of people that are on the room.')
+    peoples: list[Person] = Field(description='List of people that are on the room.')
 
 
-@router.page('/list_model')
+@router.page('/fill_from')
 @base
 async def list_model() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
@@ -47,3 +39,14 @@ async def list_model() -> None:
 
         form = BaseModelForm(Room, on_submit=submit_handler, view_annotation_type=False)
         form.render()
+
+        form.fill(
+            data={
+                'number': 2,
+                'floor': 1,
+                'peoples': [
+                    Person(name='Jon', age=24, items=None),
+                    Person(name='Pablo', age=45, items=[Item(size=12, color='red')]),
+                ],
+            }
+        )

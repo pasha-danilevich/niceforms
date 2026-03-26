@@ -90,6 +90,17 @@ class BaseModelForm(UIComponent, Generic[T]):
         assert self._widgets is not None, 'Form has not been rendered yet.'
         return self._widgets
 
+    @property
+    def widgets_by_field(self) -> dict[str, BaseWidget]:
+        """Словарь виджетов, где ключ — field_name."""
+        return {w.field_name: w for w in self.widgets}
+
+    def fill(self, data: dict[str, Any]) -> None:
+        """Наполнить виджеты данными"""
+        for field_name, value in data.items():
+            if w := self.widgets_by_field.get(field_name):
+                w.fill(value)
+
     def clear(self) -> None:
         logger.debug(f'Cleared form: {self.title}')
         for w in self.widgets:
