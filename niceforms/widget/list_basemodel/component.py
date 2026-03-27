@@ -5,7 +5,7 @@ from nicegui.element import Element
 from nicegui.elements.dialog import Dialog
 from .action import *
 
-from niceforms import UIComponent
+from ...ui.ui_component import UIComponent
 from .dialog import AddDialog, ConfirmDeleteDialog, EditDialog, ViewDialog
 
 T = TypeVar('T', bound=BaseModel)

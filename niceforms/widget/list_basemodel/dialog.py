@@ -3,7 +3,7 @@ from typing import Callable, Optional, TypeVar
 from nicegui import ui
 from nicegui.elements.dialog import Dialog
 
-from niceforms import UIComponent
+from ...ui.ui_component import UIComponent
 from .action import *
 
 T = TypeVar('T', bound=BaseModel)

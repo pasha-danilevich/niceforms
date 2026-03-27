@@ -1,10 +1,5 @@
-"""Компоненты пользовательского интерфейса."""
-
-from abc import ABC, abstractmethod
+from .form import BaseModelForm
 
 
-class UIComponent(ABC):
 
-    @abstractmethod
-    def render(self) -> None:
-        raise NotImplementedError()
+__all__ = ["BaseModelForm"]

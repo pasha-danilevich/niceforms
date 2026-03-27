@@ -3,7 +3,7 @@ from typing import Optional
 from nicegui import ui
 from nicegui.elements.mixins.validation_element import ValidationElement
 
-from widget import BaseValidationWidget
+from niceforms import BaseValidationWidget
 
 
 class FloatWidget(BaseValidationWidget):

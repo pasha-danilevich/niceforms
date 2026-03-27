@@ -6,7 +6,7 @@ from nicegui.element import Element
 from nicegui.elements.button import Button
 from nicegui.elements.mixins.name_element import NameElement
 
-from niceforms import UIComponent
+from .ui_component import UIComponent
 from niceforms.constants import DEFAULT_PADDING, PRIMARY_COLOR_GRADIENT
 
 logger = logging.getLogger(__name__)

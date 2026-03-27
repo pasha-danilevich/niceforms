@@ -3,7 +3,7 @@ from typing import Any, Optional
 from nicegui import ui
 from nicegui.elements.mixins.value_element import ValueElement
 
-from widget import BaseValueWidget
+from niceforms import BaseValueWidget
 
 
 class BoolWidget(BaseValueWidget):

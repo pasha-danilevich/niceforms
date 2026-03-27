@@ -1,9 +1,23 @@
-from niceforms import UIComponent, factory
+from typing import Optional, Any
+
+from niceforms import factory, BaseWidget
 
 print(factory._widgets)
 
 
-class MyNewWidget(UIComponent):
+class MyNewWidget(BaseWidget):
+    def fill(self, data: Any) -> None:
+        pass
+    
+    def validate(self) -> Optional[str]:
+        pass
+    
+    def clear(self) -> None:
+        pass
+    
+    def collect(self) -> Optional[Any]:
+        pass
+    
     def render(self) -> None:
         pass
 

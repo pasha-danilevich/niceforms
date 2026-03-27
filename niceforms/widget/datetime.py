@@ -5,8 +5,7 @@ from nicegui import ui
 from nicegui.element import Element
 from nicegui.elements.mixins.value_element import ValueElement
 
-from niceforms import BaseWidget
-from widget import BaseValueWidget
+from niceforms import BaseWidget, BaseValueWidget
 
 
 class DateWidget(BaseValueWidget):

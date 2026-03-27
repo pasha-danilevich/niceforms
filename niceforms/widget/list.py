@@ -4,8 +4,8 @@ from typing import List, Optional, Union
 from nicegui import ui
 from nicegui.elements.mixins.validation_element import ValidationElement
 
-from utils import normalize_type
-from widget import BaseValidationWidget
+from niceforms import BaseValidationWidget
+from niceforms.utils import normalize_type
 
 
 class ListWidget(BaseValidationWidget):

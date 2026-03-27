@@ -7,7 +7,8 @@ from _layout import base
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
-from niceforms import BaseModelForm, FormError
+from niceforms import BaseModelForm
+from niceforms.exceptions import FormError
 
 router = APIRouter()
 

@@ -5,17 +5,18 @@ from typing import List
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
-from utils import is_enum_type, is_list_basemodel_type, normalize_type
-from widget import BaseWidget
-from widget.bool import BoolWidget
-from widget.datetime import DateTimeWidget, DateWidget
-from widget.enum import EnumWidget
-from widget.float import FloatWidget
-from widget.integer import IntegerWidget
-from widget.list import ListWidget
-from widget.list_basemodel import ListBaseModelWidget
-from widget.string import StringWidget
-from widget.unknown_type import UnknownTypeWidget
+
+from .widget import BaseWidget
+from .widget.bool import BoolWidget
+from .widget.datetime import DateTimeWidget, DateWidget
+from .widget.enum import EnumWidget
+from .widget.float import FloatWidget
+from .widget.integer import IntegerWidget
+from .widget.list import ListWidget
+from .widget.list_basemodel import ListBaseModelWidget
+from .widget.string import StringWidget
+from .widget.unknown_type import UnknownTypeWidget
+from .utils import is_enum_type, is_list_basemodel_type, normalize_type
 
 logger = logging.getLogger(__name__)
 

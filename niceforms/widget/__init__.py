@@ -2,7 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Optional, cast, Callable, Union
+from typing import Any, Optional, Callable, Union
 
 from nicegui import ui
 from nicegui.element import Element
@@ -11,9 +11,9 @@ from nicegui.elements.mixins.validation_element import ValidationElement
 from nicegui.elements.mixins.value_element import ValueElement
 from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
-from utils import NormalizedType
 
-from niceforms import UIComponent
+from ..ui.ui_component import UIComponent
+from ..utils import NormalizedType
 
 logger = logging.getLogger(__name__)
 UnionElement = Union[Element, ValueElement, ValidationElement]

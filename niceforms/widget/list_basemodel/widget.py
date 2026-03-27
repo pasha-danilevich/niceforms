@@ -4,7 +4,7 @@ from nicegui.element import Element
 from pydantic import BaseModel
 
 from niceforms import BaseWidget
-from utils import extract_inner_type
+from ...utils import extract_inner_type
 from .component import ListComponent
 
 

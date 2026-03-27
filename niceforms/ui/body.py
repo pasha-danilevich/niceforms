@@ -2,7 +2,7 @@ from typing import cast
 
 from nicegui import ui
 from nicegui.elements.mixins.validation_element import ValidationElement
-from widget import BaseWidget, BaseValidationWidget
+from niceforms.widget import BaseWidget, BaseValidationWidget
 
 
 class Body:

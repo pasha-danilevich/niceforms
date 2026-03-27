@@ -1,7 +1,7 @@
 from nicegui import ui
 from pydantic import BaseModel
 
-from niceforms import UIComponent
+from .ui_component import UIComponent
 
 
 class JsonDialog(UIComponent):
