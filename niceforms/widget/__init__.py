@@ -72,13 +72,14 @@ class BaseWidget(UIComponent, ABC):
         field_info: FieldInfo,
         field_name: str,
         normalized_type: NormalizedType,
-        view_annotation_type: bool,
     ):
         self.field = field_info
         self.field_name = field_name
         self.normalized_type = normalized_type
-        self.view_annotation_type = view_annotation_type
-
+        
+        self.view_annotation_type: bool = True
+        self.custom_field_widget: Optional[dict[str, type[BaseWidget]]] = None
+        
         self._rendered_element: Optional[Element] = None
         self._error_label: Optional[TextElement] = None
         self._error_icon: Optional[Element] = None

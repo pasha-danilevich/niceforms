@@ -2,7 +2,6 @@ import logging
 from typing import Any, Generic, Optional, Type, TypeVar
 
 from nicegui import ui
-from nicegui.elements.mixins.validation_element import ValidationElement
 from pydantic import BaseModel, ConfigDict
 from pydantic.fields import FieldInfo
 
@@ -21,7 +20,6 @@ from ..utils import (
     only_validation_elements,
 )
 from ..widget import BaseWidget
-
 
 T = TypeVar("T", bound=BaseModel)
 logger = logging.getLogger(__name__)
@@ -50,6 +48,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         view_clear_button: bool = True,
         view_json_button: bool = True,
         view_submit_button: bool = True,
+        custom_field_widget: Optional[dict[str, type[BaseWidget]]] = None,
         _is_nullable: bool = False,
     ) -> None:
         """Initialize universal form.
@@ -68,6 +67,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         self.view_clear_button = view_clear_button
         self.view_json_button = view_json_button
         self.view_submit_button = view_submit_button
+        self._custom_field_widget = custom_field_widget if custom_field_widget else {}
 
         self._is_nullable = _is_nullable
 
@@ -113,12 +113,6 @@ class BaseModelForm(UIComponent, Generic[T]):
 
         for n in self._nested_forms:
             n.form.clear()
-
-        validation_elements: list[ValidationElement] = only_validation_elements(
-            [w.element for w in self.widgets]
-        )
-        for element in validation_elements:
-            element.error = None
 
         self._header.hidde_error_icon()
 
@@ -170,6 +164,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         body_classes: Optional[str] = None,
     ) -> None:
         """Render the form UI."""
+        from .. import factory
 
         body_classes: str = (
             body_classes if body_classes is not None else self.DEFAULT_CLASSES
@@ -182,13 +177,21 @@ class BaseModelForm(UIComponent, Generic[T]):
         for field_name, field_info in self.fields.items():
             if field_name not in [n.field_name for n in self.nested_models]:
                 fields_without_nested[field_name] = field_info
-                
-        from .. import factory
 
-        widgets = factory.build(
-            model_fields=fields_without_nested,
-            view_annotation_type=self.view_annotation_type,
-        )
+        widgets = []
+
+        for field_name, field_type in fields_without_nested.items():
+            w = factory.build(
+                field_name=field_name,
+                field_info=field_type,
+                model_name=self.model.__name__,
+                custom_field_widget=self._custom_field_widget,
+            )
+
+            w.view_annotation_type = self.view_annotation_type
+            w.custom_field_widget = self._custom_field_widget
+
+            widgets.append(w)
 
         body_element = ui.card if as_card else ui.element
 
@@ -218,6 +221,7 @@ class BaseModelForm(UIComponent, Generic[T]):
                     view_json_button=False,
                     view_annotation_type=self.view_annotation_type,
                     view_clear_button=False,
+                    custom_field_widget=self._custom_field_widget,
                     _is_nullable=normalized_type.is_nullable,
                 )
                 nested_form._is_nested = True
@@ -236,3 +240,25 @@ class BaseModelForm(UIComponent, Generic[T]):
                     view_json_button=self.view_json_button,
                     view_submit_button=self.view_submit_button,
                 ).render()
+
+    def custom_widgets(
+        self, data: dict[str, type[BaseWidget]]
+    ) -> dict[str, type[BaseWidget]]:
+        """
+        Extract fields that belong to a specific model from the input dictionary.
+
+        Args:
+            data: Dictionary with keys in format '{model_name}:{field_name}'
+
+        Returns:
+            Dictionary with field names as keys and their values, without the model prefix
+        """
+        prefix = f"{self.model.__name__}:"
+        result = {}
+
+        for key, value in data.items():
+            if key.startswith(prefix):
+                field_name = key[len(prefix) :]  # Remove the prefix
+                result[field_name] = value
+
+        return result

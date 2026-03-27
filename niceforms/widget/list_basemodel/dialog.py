@@ -3,6 +3,7 @@ from typing import Callable, Optional, TypeVar
 from nicegui import ui
 from nicegui.elements.dialog import Dialog
 
+from ... import BaseWidget
 from ...ui.ui_component import UIComponent
 from .action import *
 
@@ -14,9 +15,11 @@ class AddDialog(UIComponent):
         self,
         on_save: SaveAction,
         model_type: type[BaseModel],
+        custom_field_widget: Optional[dict[str, BaseWidget]]
     ) -> None:
         self.on_save = on_save
         self.model_type = model_type
+        self.custom_field_widget = custom_field_widget
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
@@ -30,6 +33,7 @@ class AddDialog(UIComponent):
                     view_clear_button=False,
                     view_json_button=False,
                     view_submit_button=False,
+                    custom_field_widget=self.custom_field_widget,
                 )
                 form.render(as_card=False, body_classes='w-full')
 

@@ -4,6 +4,7 @@ from nicegui import ui
 from nicegui.element import Element
 from nicegui.elements.dialog import Dialog
 from .action import *
+from ... import BaseWidget
 
 from ...ui.ui_component import UIComponent
 from .dialog import AddDialog, ConfirmDeleteDialog, EditDialog, ViewDialog
@@ -79,15 +80,18 @@ class RecordLine(UIComponent):
 
 
 class ListComponent(UIComponent, Generic[T]):
+
     def __init__(
         self,
         storage: list[T],
         record_title_getter: Callable[[T], Optional[str]],
         model: type[BaseModel],
+        custom_field_widget: Optional[dict[str, BaseWidget]] = None,
     ) -> None:
         self.storage: list[T] = storage
         self.record_title_getter = record_title_getter
         self.model_type = model
+        self.custom_field_widget = custom_field_widget
 
         self.container: Optional[Element] = None
 
@@ -140,7 +144,11 @@ class ListComponent(UIComponent, Generic[T]):
 
     def show_add_dialog(self):
         """Показать диалог добавления пользователя"""
-        self.dialog = AddDialog(on_save=self.save, model_type=self.model_type).render()
+        self.dialog = AddDialog(
+            on_save=self.save,
+            model_type=self.model_type,
+            custom_field_widget=self.custom_field_widget,
+        ).render()
         self.dialog.open()
 
     def show_edit_dialog(self, model: BaseModel, index: int):

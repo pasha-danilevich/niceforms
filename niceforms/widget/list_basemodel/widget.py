@@ -12,9 +12,17 @@ class ListBaseModelWidget(BaseWidget):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.model_type: type[BaseModel]
+        self._model_type: Optional[type[BaseModel]] = None
         self.component: Optional[ListComponent[BaseModel]] = None
 
+        
+    @property
+    def model_type(self) -> type[BaseModel]:
+        if self._model_type is None:
+            raise ValueError('Не установлен тип модели')
+        
+        return self._model_type
+    
     def fill(self, data: Optional[list[dict[str, Any] | BaseModel]]) -> None:
         if data is None:
             self.component.storage = []
@@ -63,12 +71,13 @@ class ListBaseModelWidget(BaseWidget):
         return None
 
     def render(self) -> Element:
-        self.model_type = extract_inner_type(self.normalized_type.origin_type)
+        self._model_type = extract_inner_type(self.normalized_type.origin_type)
 
         self.component = ListComponent(
             storage=self.default_value if self.default_value else [],
             record_title_getter=self.get_record_title,
             model=self.model_type,
+            custom_field_widget=self.custom_field_widget,
         )
         el = self.component.render()
         return el
