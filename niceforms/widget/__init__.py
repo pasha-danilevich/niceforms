@@ -72,6 +72,7 @@ class BaseWidget(UIComponent, ABC):
         self,
         field_info: FieldInfo,
         field_name: str,
+        view_annotation: bool,
         **kwargs: dict,
     ):
         self.kwargs = kwargs
@@ -80,7 +81,7 @@ class BaseWidget(UIComponent, ABC):
         self.field_name = field_name
         self.normalized_type = normalize_type(field_info.annotation)
 
-        self.view_annotation_type: bool = True
+        self.view_annotation_type = view_annotation
 
         self._rendered_element: Optional[Element] = None
         self._error_label: Optional[TextElement] = None

@@ -6,7 +6,12 @@ from typing import List, Optional
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 
-from .utils import is_enum_type, is_list_basemodel_type, normalize_type
+from .utils import (
+    is_enum_type,
+    is_list_basemodel_type,
+    normalize_type,
+    is_basemodel_type,
+)
 from .widget import BaseWidget
 from .widget.bool import BoolWidget
 from .widget.datetime import DateTimeWidget, DateWidget
@@ -15,6 +20,7 @@ from .widget.float import FloatWidget
 from .widget.integer import IntegerWidget
 from .widget.list import ListWidget
 from .widget.list_basemodel import ListBaseModelWidget
+from .widget.nested import NestedWidget
 from .widget.string import StringWidget
 from .widget.unknown_type import UnknownTypeWidget
 
@@ -36,10 +42,12 @@ class WidgetFactory:
         datetime.date: DateWidget,
         datetime.datetime: DateTimeWidget,
         list[BaseModel]: ListBaseModelWidget,
+        BaseModel: NestedWidget,
     }
 
-    def __init__(self, model: type[BaseModel]) -> None:
+    def __init__(self, model: type[BaseModel], view_annotation: bool) -> None:
         self.model = model
+        self.view_annotation_type = view_annotation
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore # field_name: FieldInfo
 
     def insert_new_widget(
@@ -69,6 +77,9 @@ class WidgetFactory:
         if is_list_basemodel_type(normalized_type.origin_type):
             widget_type = self.widgets.get(list[BaseModel])
 
+        if is_basemodel_type(normalized_type.origin_type):
+            widget_type = self.widgets.get(BaseModel)
+
         if widget_type is None:
             logger.warning(
                 f'No widget for field "{field_name}". Type {field_info.annotation}. Creating default <UnknownTypeWidget>'
@@ -87,9 +98,19 @@ class WidgetFactory:
         field_info = self.fields[field_name]
 
         if widget_type:
-            return widget_type(field_info=field_info, field_name=field_name, **kwargs)
+            return widget_type(
+                field_info=field_info,
+                field_name=field_name,
+                view_annotation=self.view_annotation_type,
+                **kwargs,
+            )
 
         return self.ensure_widget_type(
             field_name,
             field_info,
-        )(field_info=field_info, field_name=field_name, **kwargs)
+        )(
+            field_info=field_info,
+            field_name=field_name,
+            view_annotation=self.view_annotation_type,
+            **kwargs,
+        )

@@ -57,14 +57,13 @@ class BaseModelForm(UIComponent, Generic[T]):
         """
         from ..widget_factory import WidgetFactory
 
-        self.factory = WidgetFactory(model)
+        self.factory = WidgetFactory(model, view_annotation_type)
 
         self.model = model
         self.on_submit = on_submit
         self.title = title or model.__name__
         self.description = description or self.model.__doc__
         self.header_bg_color = header_bg_color
-        self.view_annotation_type = view_annotation_type
         self.view_clear_button = view_clear_button
         self.view_json_button = view_json_button
         self.view_submit_button = view_submit_button
@@ -72,7 +71,6 @@ class BaseModelForm(UIComponent, Generic[T]):
         self._is_nullable = _is_nullable
         self._is_rendered: bool = False
 
-        self.nested_models = get_nested_models(self.model)
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore # field_name: FieldInfo
 
         # style
@@ -80,20 +78,12 @@ class BaseModelForm(UIComponent, Generic[T]):
         self._is_nested = False
         self.widgets: dict[str, BaseWidget] = {}  # field_name: BaseWidget
 
-        fields_without_nested: dict[str, FieldInfo] = {}
-
-        for field_name, field_info in self.fields.items():
-            if field_name not in [n.field_name for n in self.nested_models]:
-                fields_without_nested[field_name] = field_info
-
-        for field_name, field_type in fields_without_nested.items():
+        for field_name, field_type in self.fields.items():
             w = self.factory.build(field_name=field_name)
 
             self.widgets[field_name] = w
 
-        # storage
-        self._nested_forms: list[NestedForm] = []
-        self._header: Optional[Header] = None
+        self.header: Optional[Header] = None
 
     def custom_widget(
         self,
@@ -120,19 +110,12 @@ class BaseModelForm(UIComponent, Generic[T]):
             if w := self.widgets.get(field_name):
                 w.fill(value)
 
-        for n in self._nested_forms:
-            if d := data.get(n.model.field_name):
-                n.form.fill(d)
-
     def clear(self) -> None:
         logger.debug(f'Cleared form: {self.title}')
         for w in self.widgets.values():
             w.clear()
 
-        for n in self._nested_forms:
-            n.form.clear()
-
-        self._header.hidde_error_icon()
+        self.header.hidde_error_icon()
 
     def collect_data(self, validate: bool = True) -> dict[str, Any]:
         """Собирать данные введенные в виджетах
@@ -148,21 +131,10 @@ class BaseModelForm(UIComponent, Generic[T]):
             if error:
                 w.view_error(error)
                 errors.append(error)
-                self._header.view_error_icon()
+                self.header.view_error_icon()
 
             logger.debug(f'Collecting data from: {w}')
             data[w.field_name] = w.collect()
-
-        for n in self._nested_forms:
-            logger.debug(
-                f'Collecting form data for "{n.form.title}". is_none={n.form._header.is_none}'
-            )
-
-            data[n.model.field_name] = (
-                None
-                if n.form._header.is_none
-                else n.form.collect_data(validate=validate)
-            )
 
         if errors:
             ui.notify(f"Исправьте ошибки в форме: {self.title}")
@@ -192,7 +164,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         body_element = ui.card if as_card else ui.element
 
         with body_element().classes(body_classes) as self.body_element:
-            self._header = Header(
+            self.header = Header(
                 title=self.title,
                 description=self.description,
                 bg_color=self.header_bg_color,
@@ -200,32 +172,11 @@ class BaseModelForm(UIComponent, Generic[T]):
                 is_nested=self._is_nested,
                 is_nullable=self._is_nullable,
             )
-            self._header.render()
+            self.header.render()
 
             Body(
                 widgets=list(self.widgets.values()),
-                view_annotation=self.view_annotation_type,
             ).render()
-
-            for n_model in self.nested_models:
-                title = n_model.field_info.title
-                normalized_type = normalize_type(n_model.field_info.annotation)
-                nested_form = BaseModelForm(
-                    model=n_model.model,
-                    title=title if title else n_model.field_name,
-                    description=n_model.field_info.description,
-                    header_bg_color=NESTED_FORM_BG_COLOR,
-                    on_submit=None,
-                    view_json_button=False,
-                    view_annotation_type=self.view_annotation_type,
-                    view_clear_button=False,
-                    _is_nullable=normalized_type.is_nullable,
-                )
-                nested_form._is_nested = True
-                nested_form.render()
-                nested_form.body_element.style('height: 100px')
-
-                self._nested_forms.append(NestedForm(form=nested_form, model=n_model))
 
             if not self._is_nested:
                 Footer(

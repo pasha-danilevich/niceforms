@@ -47,6 +47,13 @@ def is_enum_type(field_type: type) -> bool:
     return isinstance(field_type, type) and issubclass(field_type, Enum)
 
 
+def is_basemodel_type(field_type: type) -> bool:
+    try:
+        return issubclass(field_type, BaseModel)
+    except TypeError:
+        return False
+
+
 def is_list_basemodel_type(field_type: type) -> bool:
     """Является ли поле типом list[BaseModel]"""
 

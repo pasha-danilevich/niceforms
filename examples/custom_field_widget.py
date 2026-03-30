@@ -2,6 +2,7 @@ from typing import Optional
 
 from nicegui import APIRouter, ui
 from nicegui.elements.mixins.validation_element import ValidationElement
+from pydantic import BaseModel, Field
 
 from _layout import base
 from niceforms import BaseModelForm
@@ -10,18 +11,21 @@ from niceforms.widget.list_basemodel import ListBaseModelWidget
 
 router = APIRouter()
 
-
-from pydantic import BaseModel, Field
-
 # Model
 
 FAKE_DB = {'available_manufacturers': [4, 55, 3, 10, 48, 44]}
+
+
+class Some(BaseModel):
+    id: int = Field(...)
+    manufacturer_id: int = Field()
 
 
 class Address(BaseModel):
     street: str
     city: str
     manufacturer_id: int = Field()
+    some: Some
 
 
 class Item(BaseModel):
@@ -87,11 +91,25 @@ async def list_model() -> None:
             title_getter=get_record_title,
         )
 
-        form.render()
-
         items_list_widget = form.widgets['items']
         items_list_widget.form.custom_widget(
             field_name='manufacturer_id',
             widget=MyCustomManufacturerWidget,
             available_manufacturers=FAKE_DB['available_manufacturers'],
         )
+
+        address_widget = form.widgets['address']
+        address_widget.form.custom_widget(
+            field_name='manufacturer_id',
+            widget=MyCustomManufacturerWidget,
+            available_manufacturers=FAKE_DB['available_manufacturers'],
+        )
+
+        some_widget = address_widget.form.widgets['some']
+        some_widget.form.custom_widget(
+            field_name='manufacturer_id',
+            widget=MyCustomManufacturerWidget,
+            available_manufacturers=FAKE_DB['available_manufacturers'],
+        )
+
+        form.render()

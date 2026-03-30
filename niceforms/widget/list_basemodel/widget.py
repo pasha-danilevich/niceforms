@@ -18,6 +18,19 @@ class ListBaseModelWidget(BaseWidget):
         self._model_type = None
         self._component: Optional[ListComponent[BaseModel]] = None
 
+        self._model_type = extract_inner_type(self.normalized_type.origin_type)
+
+        from niceforms import BaseModelForm
+
+        self._form = BaseModelForm(
+            model=self.model_type,
+            title=None,
+            view_annotation_type=False,
+            view_clear_button=False,
+            view_json_button=False,
+            view_submit_button=False,
+        )
+
     @property
     def form(self):
         assert (
@@ -34,9 +47,7 @@ class ListBaseModelWidget(BaseWidget):
 
     @property
     def model_type(self) -> type[BaseModel]:
-        if self._model_type is None:
-            raise ValueError('Не установлен тип модели')
-
+        assert self._model_type is not None, 'Model type has not been set.'
         return self._model_type
 
     def fill(self, data: Optional[list[dict[str, Any] | BaseModel]]) -> None:
@@ -87,18 +98,6 @@ class ListBaseModelWidget(BaseWidget):
         return None
 
     def render(self) -> Element:
-        self._model_type = extract_inner_type(self.normalized_type.origin_type)
-
-        from niceforms import BaseModelForm
-
-        self._form = BaseModelForm(
-            model=self.model_type,
-            title=None,
-            view_annotation_type=False,
-            view_clear_button=False,
-            view_json_button=False,
-            view_submit_button=False,
-        )
 
         self._component = ListComponent(
             storage=self.default_value if self.default_value else [],

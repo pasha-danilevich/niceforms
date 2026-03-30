@@ -22,10 +22,18 @@ class Person(BaseModel):
     items: Optional[list[Item]] = Field(description='Person objects')
 
 
+class Address(BaseModel):
+    """Address"""
+
+    street: str
+    city: str
+
+
 class Room(BaseModel):
     number: int
     floor: int
     peoples: list[Person] = Field(description='List of people that are on the room.')
+    address: Address = Field(description='Address of room.')
 
 
 @router.page('/fill_from')
@@ -61,6 +69,10 @@ async def list_model() -> None:
                         ],
                     },
                 ],
+                'address': {
+                    'street': 'St.',
+                    'city': 'St.',
+                },
             }
         )
 
