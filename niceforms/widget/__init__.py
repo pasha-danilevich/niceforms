@@ -13,7 +13,7 @@ from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
 from ..ui.ui_component import UIComponent
-from ..utils import NormalizedType
+from ..utils import NormalizedType, normalize_type
 
 logger = logging.getLogger(__name__)
 UnionElement = Union[Element, ValueElement, ValidationElement]
@@ -66,23 +66,28 @@ class WidgetLabel(UIComponent):
 
 
 class BaseWidget(UIComponent, ABC):
+    NO_ASSEMBLED_ERROR_MESSAGE = 'The widget is not assembled yet. Use BaseModelForm .custom_widget() instead to correct usage.'
 
     def __init__(
         self,
         field_info: FieldInfo,
         field_name: str,
-        normalized_type: NormalizedType,
+        **kwargs: dict,
     ):
+        self.kwargs = kwargs
+
         self.field = field_info
         self.field_name = field_name
-        self.normalized_type = normalized_type
-        
+        self.normalized_type = normalize_type(field_info.annotation)
+
         self.view_annotation_type: bool = True
-        self.custom_field_widget: Optional[dict[str, type[BaseWidget]]] = None
-        
+
         self._rendered_element: Optional[Element] = None
         self._error_label: Optional[TextElement] = None
         self._error_icon: Optional[Element] = None
+        from .. import BaseModelForm
+
+        self._form: Optional[BaseModelForm] = None
 
     @abstractmethod
     def fill(self, data: Any) -> None:
@@ -108,6 +113,13 @@ class BaseWidget(UIComponent, ABC):
     @abstractmethod
     def render(self) -> Element:
         raise NotImplementedError
+
+    @property
+    def form(self):
+        assert (
+            self._form is not None
+        ), f"Current widget {self.__class__.__name__} does not support form within himself"
+        return self._form
 
     @property
     def element(self) -> Element:

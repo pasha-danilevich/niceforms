@@ -5,7 +5,6 @@ from nicegui.elements.mixins.validation_element import ValidationElement
 
 from _layout import base
 from niceforms import BaseModelForm
-from niceforms.widget.float import FloatWidget
 from niceforms.widget.integer import IntegerWidget
 from niceforms.widget.list_basemodel import ListBaseModelWidget
 
@@ -16,7 +15,7 @@ from pydantic import BaseModel, Field
 
 # Model
 
-fake_db = {'available_manufacturers': [4, 55, 3, 10, 48, 44]}
+FAKE_DB = {'available_manufacturers': [4, 55, 3, 10, 48, 44]}
 
 
 class Address(BaseModel):
@@ -46,16 +45,19 @@ class Person(BaseModel):
 # Widget
 
 
-class MyCustomItemListWidget(ListBaseModelWidget):
-    def get_record_title(self, model: Item) -> Optional[str]:
-        return f'{model.name} - {model.price}$'
+def get_record_title(model: Item) -> Optional[str]:
+    return f'{model.name} - {model.price}$'
 
 
 class MyCustomManufacturerWidget(IntegerWidget):
+    def __init__(self, available_manufacturers: list[int], **kwargs):
+        super().__init__(**kwargs)
+        self.available_manufacturers = available_manufacturers
+
     def render(self) -> ValidationElement:
         el = super().render()
         ui.label(
-            text=f'Доступные ID производителей на текущий момент: {fake_db['available_manufacturers']}.'
+            text=f'Доступные ID производителей на текущий момент: {self.available_manufacturers}.'
         ).classes('text-xs').style('color: #26a69a')
 
         return el
@@ -77,10 +79,19 @@ async def list_model() -> None:
             Person,
             on_submit=submit_handler,
             view_annotation_type=False,
-            custom_field_widget={
-                'Person:items': MyCustomItemListWidget,
-                'Address:manufacturer_id': MyCustomManufacturerWidget,
-                'Item:manufacturer_id': MyCustomManufacturerWidget,
-            },
         )
+
+        form.custom_widget(
+            field_name='items',
+            widget=ListBaseModelWidget,
+            title_getter=get_record_title,
+        )
+
         form.render()
+
+        items_list_widget = form.widgets['items']
+        items_list_widget.form.custom_widget(
+            field_name='manufacturer_id',
+            widget=MyCustomManufacturerWidget,
+            available_manufacturers=FAKE_DB['available_manufacturers'],
+        )

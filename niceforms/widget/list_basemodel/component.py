@@ -82,22 +82,20 @@ class RecordLine(UIComponent):
 class ListComponent(UIComponent, Generic[T]):
 
     def __init__(
-        self,
-        storage: list[T],
-        record_title_getter: Callable[[T], Optional[str]],
-        model: type[BaseModel],
-        custom_field_widget: Optional[dict[str, BaseWidget]] = None,
+        self, storage: list[T], record_title_getter: Callable[[T], Optional[str]], form
     ) -> None:
         self.storage: list[T] = storage
         self.record_title_getter = record_title_getter
-        self.model_type = model
-        self.custom_field_widget = custom_field_widget
 
         self.container: Optional[Element] = None
 
         self.dialog: Optional[Dialog] = None
         self.current_user = None
         self.is_edit_mode: bool = False
+
+        from niceforms import BaseModelForm
+
+        self.form: BaseModelForm[T] = form
 
     def ensure_title(self, model: BaseModel, number: int) -> str:
         text = self.record_title_getter(model)
@@ -137,9 +135,8 @@ class ListComponent(UIComponent, Generic[T]):
         """Показать информацию о записи"""
         self.dialog = ViewDialog(
             model=model,
-            model_type=self.model_type,
             record_title_getter=self.record_title_getter,
-            custom_field_widget=self.custom_field_widget,
+            form=self.form,
         ).render()
         self.dialog.open()
 
@@ -147,8 +144,7 @@ class ListComponent(UIComponent, Generic[T]):
         """Показать диалог добавления пользователя"""
         self.dialog = AddDialog(
             on_save=self.save,
-            model_type=self.model_type,
-            custom_field_widget=self.custom_field_widget,
+            form=self.form,
         ).render()
         self.dialog.open()
 
@@ -159,8 +155,7 @@ class ListComponent(UIComponent, Generic[T]):
             record_title_getter=self.record_title_getter,
             model=model,
             index=index,
-            model_type=self.model_type,
-            custom_field_widget=self.custom_field_widget,
+            form=self.form,
         ).render()
         self.dialog.open()
 

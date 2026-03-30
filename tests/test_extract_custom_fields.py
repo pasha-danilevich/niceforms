@@ -12,6 +12,7 @@ case = {
     'Item:manufacturer_id': 3,
 }
 
+
 class Item(BaseModel):
     name: str
     price: float = Field(ge=0, description='Price in USD')
@@ -25,8 +26,10 @@ class Person(BaseModel):
     age: int
     items: list[Item] = Field(description='Person objects')
 
+
 person_form = BaseModelForm(model=Person)
 item_form = BaseModelForm(model=Item)
+
 
 def test_extract_person_fields():
     """Test extracting fields for Person model"""
@@ -42,7 +45,6 @@ def test_extract_item_fields():
     expected = {'manufacturer_id': 3}
     assert result == expected
     assert len(result) == 1
-
 
 
 def test_empty_data():
@@ -98,8 +100,6 @@ def test_returns_new_dict():
     assert 'new_field' not in data
 
 
-
-
 def test_mixed_data_types():
     """Test with various data types in values"""
     mixed_data = {
@@ -121,7 +121,3 @@ def test_mixed_data_types():
     assert isinstance(result['profile'], dict)
     assert isinstance(result['score'], float)
     assert isinstance(result['is_verified'], bool)
-
-
-
-

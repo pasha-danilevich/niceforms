@@ -6,14 +6,17 @@ from niceforms.widget import BaseWidget, BaseValidationWidget
 
 
 class Body:
-    def __init__(self, widgets: list[BaseWidget]) -> None:
+    def __init__(self, widgets: list[BaseWidget], view_annotation: bool) -> None:
         self.widgets = widgets
+        self.view_annotation = view_annotation
 
     def render(self) -> list[BaseWidget]:
         widgets = []
 
         with ui.column().classes(f"w-full p-1 sm:p-4 gap-[0px]"):
             for w in self.widgets:
+                w.view_annotation_type = self.view_annotation
+
                 with ui.element().classes(f"w-full"):
                     w.render_label()
                     el = w.render()

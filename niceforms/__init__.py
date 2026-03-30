@@ -2,9 +2,6 @@ from . import exceptions
 from .ui import BaseModelForm
 from . import widget
 from .widget import BaseWidget, BaseValueWidget, BaseValidationWidget
-from .widget_factory import WidgetFactory
-
-factory = WidgetFactory()
 
 __all__ = [
     "BaseModelForm",
@@ -13,5 +10,4 @@ __all__ = [
     "BaseValidationWidget",
     "exceptions",
     "widget",
-    "factory",
 ]

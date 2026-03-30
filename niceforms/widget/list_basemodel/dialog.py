@@ -3,9 +3,8 @@ from typing import Callable, Optional, TypeVar
 from nicegui import ui
 from nicegui.elements.dialog import Dialog
 
-from ... import BaseWidget
-from ...ui.ui_component import UIComponent
 from .action import *
+from ...ui.ui_component import UIComponent
 
 T = TypeVar('T', bound=BaseModel)
 
@@ -14,34 +13,24 @@ class AddDialog(UIComponent):
     def __init__(
         self,
         on_save: SaveAction,
-        model_type: type[BaseModel],
-        custom_field_widget: Optional[dict[str, BaseWidget]]
+        form,
     ) -> None:
         self.on_save = on_save
-        self.model_type = model_type
-        self.custom_field_widget = custom_field_widget
+        from niceforms import BaseModelForm
+
+        self.form: BaseModelForm = form
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
             with ui.card().classes('w-full'):
-                from niceforms import BaseModelForm
-
-                form = BaseModelForm(
-                    model=self.model_type,
-                    title='Создать запись',
-                    view_annotation_type=False,
-                    view_clear_button=False,
-                    view_json_button=False,
-                    view_submit_button=False,
-                    custom_field_widget=self.custom_field_widget,
-                )
-                form.render(as_card=False, body_classes='w-full')
+                self.form.title = 'Создать запись'
+                self.form.render(as_card=False, body_classes='w-full')
 
                 with ui.row().classes('w-full justify-end gap-2 mt-4'):
                     ui.button('Отмена', on_click=dialog.close).props('flat')
                     ui.button(
                         'Сохранить',
-                        on_click=lambda: self.on_save(model=form.build_model()),
+                        on_click=lambda: self.on_save(model=self.form.build_model()),
                     ).props('color=primary')
 
         return dialog
@@ -55,40 +44,31 @@ class EditDialog(UIComponent):
         record_title_getter: Callable[[T], Optional[str]],
         model: BaseModel,
         index: int,
-        model_type: type[BaseModel],
-        custom_field_widget: Optional[dict[str, BaseWidget]],
+        form,
     ) -> None:
         self.on_edit = on_edit
         self.record_title_getter = record_title_getter
         self.model = model
         self.index = index
-        self.model_type = model_type
-        self.custom_field_widget = custom_field_widget
+        from niceforms import BaseModelForm
+
+        self.form: BaseModelForm = form
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
             with ui.card().classes('w-full'):
                 ui.label("Редактировать").classes('text-xl font-bold mb-4')
-                from niceforms import BaseModelForm
 
-                form = BaseModelForm(
-                    model=self.model_type,
-                    title=self.record_title_getter(self.model),
-                    view_annotation_type=False,
-                    view_clear_button=False,
-                    view_json_button=False,
-                    view_submit_button=False,
-                    custom_field_widget=self.custom_field_widget,
-                )
-                form.render(as_card=False, body_classes='w-full')
-                form.fill(data=self.model.model_dump())
+                self.form.title = self.record_title_getter(self.model)
+                self.form.render(as_card=False, body_classes='w-full')
+                self.form.fill(data=self.model.model_dump())
 
                 with ui.row().classes('justify-end gap-2 mt-4'):
                     ui.button('Отмена', on_click=dialog.close).props('flat')
                     ui.button(
                         'Сохранить',
                         on_click=lambda: self.on_edit(
-                            model=form.build_model(), index=self.index
+                            model=self.form.build_model(), index=self.index
                         ),
                     ).props('color=primary')
 
@@ -122,30 +102,21 @@ class ViewDialog(UIComponent):
         self,
         model: BaseModel,
         record_title_getter: Callable[[T], Optional[str]],
-        model_type: type[BaseModel],
-        custom_field_widget: Optional[dict[str, BaseWidget]],
+        form,
     ) -> None:
         self.model = model
-        self.model_type = model_type
         self.record_title_getter = record_title_getter
-        self.custom_field_widget = custom_field_widget
+        from niceforms import BaseModelForm
+
+        self.form: BaseModelForm = form
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
             with ui.card().classes('w-full'):
-                from niceforms import BaseModelForm
 
-                form = BaseModelForm(
-                    model=self.model_type,
-                    title=self.record_title_getter(self.model),
-                    view_annotation_type=False,
-                    view_clear_button=False,
-                    view_json_button=False,
-                    view_submit_button=False,
-                    custom_field_widget=self.custom_field_widget,
-                )
-                form.render(as_card=False, body_classes='w-full')
-                form.fill(data=self.model.model_dump())
+                self.form.title = self.record_title_getter(self.model)
+                self.form.render(as_card=False, body_classes='w-full')
+                self.form.fill(data=self.model.model_dump())
 
                 with ui.row().classes('w-full justify-end gap-2 mt-4'):
                     ui.button('Закрыть', on_click=dialog.close).props('flat')

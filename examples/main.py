@@ -11,6 +11,7 @@ import nested
 import fill_form
 import auto_save
 import custom_field_widget
+import select_widget
 from _layout import base
 from nicegui import app, ui
 
@@ -26,6 +27,7 @@ async def index() -> None:
     ui.link(text='Заполненная форма', target='/fill_from')
     ui.link(text='Сохранение введенной формы', target='/auto_save')
     ui.link(text='Кастомизация виджета по полю', target='/custom_field_widget')
+    ui.link(text='Select widget', target='/select')
 
 
 app.include_router(basic.router)
@@ -36,6 +38,7 @@ app.include_router(list_model.router)
 app.include_router(fill_form.router)
 app.include_router(auto_save.router)
 app.include_router(custom_field_widget.router)
+app.include_router(select_widget.router)
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(show=False, reload=False, storage_secret='storage_secret')

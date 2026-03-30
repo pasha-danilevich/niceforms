@@ -5,11 +5,10 @@ from nicegui import ui
 from pydantic import BaseModel, ConfigDict
 from pydantic.fields import FieldInfo
 
-
+from .ui_component import UIComponent
 from ..actions import OnSubmit
 from ..constants import *
-from ..exceptions import FormError
-from .ui_component import UIComponent
+from ..exceptions import FormError, FieldNotFound, CustomizationError
 from ..ui.body import Body
 from ..ui.footer import Footer
 from ..ui.header import Header
@@ -17,7 +16,6 @@ from ..utils import (
     NestedModel,
     get_nested_models,
     normalize_type,
-    only_validation_elements,
 )
 from ..widget import BaseWidget
 
@@ -48,7 +46,6 @@ class BaseModelForm(UIComponent, Generic[T]):
         view_clear_button: bool = True,
         view_json_button: bool = True,
         view_submit_button: bool = True,
-        custom_field_widget: Optional[dict[str, type[BaseWidget]]] = None,
         _is_nullable: bool = False,
     ) -> None:
         """Initialize universal form.
@@ -58,6 +55,10 @@ class BaseModelForm(UIComponent, Generic[T]):
             on_submit: Callback function for form submission
             title: Form title (if None, uses model name)
         """
+        from ..widget_factory import WidgetFactory
+
+        self.factory = WidgetFactory(model)
+
         self.model = model
         self.on_submit = on_submit
         self.title = title or model.__name__
@@ -67,39 +68,56 @@ class BaseModelForm(UIComponent, Generic[T]):
         self.view_clear_button = view_clear_button
         self.view_json_button = view_json_button
         self.view_submit_button = view_submit_button
-        self._custom_field_widget = custom_field_widget if custom_field_widget else {}
 
         self._is_nullable = _is_nullable
+        self._is_rendered: bool = False
 
         self.nested_models = get_nested_models(self.model)
-        self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore
+        self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore # field_name: FieldInfo
 
         # style
         self.body_element = None  # тело всей формы
         self._is_nested = False
-        self._widgets: Optional[list[BaseWidget]] = None
+        self.widgets: dict[str, BaseWidget] = {}  # field_name: BaseWidget
+
+        fields_without_nested: dict[str, FieldInfo] = {}
+
+        for field_name, field_info in self.fields.items():
+            if field_name not in [n.field_name for n in self.nested_models]:
+                fields_without_nested[field_name] = field_info
+
+        for field_name, field_type in fields_without_nested.items():
+            w = self.factory.build(field_name=field_name)
+
+            self.widgets[field_name] = w
 
         # storage
         self._nested_forms: list[NestedForm] = []
         self._header: Optional[Header] = None
 
-    @property
-    def widgets(self) -> list[BaseWidget]:
-        """Все виджеты формы"""
+    def custom_widget(
+        self,
+        field_name: str,
+        widget: type[BaseWidget],
+        **kwargs,
+    ) -> None:
+        if self._is_rendered:
+            raise CustomizationError()
 
-        assert self._widgets is not None, 'Form has not been rendered yet.'
-        return self._widgets
+        if field_name not in self.fields.keys():
+            raise FieldNotFound(field_name)
 
-    @property
-    def widgets_by_field(self) -> dict[str, BaseWidget]:
-        """Словарь виджетов, где ключ — field_name."""
-        return {w.field_name: w for w in self.widgets}
+        self.widgets[field_name] = self.factory.build(
+            widget_type=widget,
+            field_name=field_name,
+            kwargs=kwargs,
+        )
 
     def fill(self, data: dict[str, Any]) -> None:
         """Наполнить виджеты данными"""
 
         for field_name, value in data.items():
-            if w := self.widgets_by_field.get(field_name):
+            if w := self.widgets.get(field_name):
                 w.fill(value)
 
         for n in self._nested_forms:
@@ -108,7 +126,7 @@ class BaseModelForm(UIComponent, Generic[T]):
 
     def clear(self) -> None:
         logger.debug(f'Cleared form: {self.title}')
-        for w in self.widgets:
+        for w in self.widgets.values():
             w.clear()
 
         for n in self._nested_forms:
@@ -124,7 +142,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         data: dict[str, Any] = {}
         errors: list[str] = []
 
-        for w in self.widgets:
+        for w in self.widgets.values():
             error = w.validate() if validate else None
 
             if error:
@@ -164,34 +182,12 @@ class BaseModelForm(UIComponent, Generic[T]):
         body_classes: Optional[str] = None,
     ) -> None:
         """Render the form UI."""
-        from .. import factory
 
         body_classes: str = (
             body_classes if body_classes is not None else self.DEFAULT_CLASSES
         )
 
         logger.debug(f'Rendering form "{self.model.__name__} {as_card=}"')
-
-        fields_without_nested: dict[str, FieldInfo] = {}
-
-        for field_name, field_info in self.fields.items():
-            if field_name not in [n.field_name for n in self.nested_models]:
-                fields_without_nested[field_name] = field_info
-
-        widgets = []
-
-        for field_name, field_type in fields_without_nested.items():
-            w = factory.build(
-                field_name=field_name,
-                field_info=field_type,
-                model_name=self.model.__name__,
-                custom_field_widget=self._custom_field_widget,
-            )
-
-            w.view_annotation_type = self.view_annotation_type
-            w.custom_field_widget = self._custom_field_widget
-
-            widgets.append(w)
 
         body_element = ui.card if as_card else ui.element
 
@@ -206,8 +202,10 @@ class BaseModelForm(UIComponent, Generic[T]):
             )
             self._header.render()
 
-            rendered_widgets = Body(widgets).render()
-            self._widgets = rendered_widgets
+            Body(
+                widgets=list(self.widgets.values()),
+                view_annotation=self.view_annotation_type,
+            ).render()
 
             for n_model in self.nested_models:
                 title = n_model.field_info.title
@@ -221,7 +219,6 @@ class BaseModelForm(UIComponent, Generic[T]):
                     view_json_button=False,
                     view_annotation_type=self.view_annotation_type,
                     view_clear_button=False,
-                    custom_field_widget=self._custom_field_widget,
                     _is_nullable=normalized_type.is_nullable,
                 )
                 nested_form._is_nested = True
@@ -241,24 +238,4 @@ class BaseModelForm(UIComponent, Generic[T]):
                     view_submit_button=self.view_submit_button,
                 ).render()
 
-    def custom_widgets(
-        self, data: dict[str, type[BaseWidget]]
-    ) -> dict[str, type[BaseWidget]]:
-        """
-        Extract fields that belong to a specific model from the input dictionary.
-
-        Args:
-            data: Dictionary with keys in format '{model_name}:{field_name}'
-
-        Returns:
-            Dictionary with field names as keys and their values, without the model prefix
-        """
-        prefix = f"{self.model.__name__}:"
-        result = {}
-
-        for key, value in data.items():
-            if key.startswith(prefix):
-                field_name = key[len(prefix) :]  # Remove the prefix
-                result[field_name] = value
-
-        return result
+            self._is_rendered = True
