@@ -29,7 +29,7 @@ class Item(BaseModel):
     name: str
     manufacturer_id: int = Field()
     price: float = Field(ge=0, description='Price in USD')
-    
+
     color: Optional[str]
 
 
@@ -37,7 +37,10 @@ class Person(BaseModel):
     name: str
     age: int
     address: Address
-    items: list[Item] = Field(description='Person objects')
+    items: list[Item] = Field(
+        default=[Item(name='Phone', manufacturer_id=10, price=50.3, color=None)],
+        description='Person objects',
+    )
 
 
 # Widget
@@ -53,9 +56,10 @@ class MyCustomManufacturerWidget(IntegerWidget):
         el = super().render()
         ui.label(
             text=f'Доступные ID производителей на текущий момент: {fake_db['available_manufacturers']}.'
-        ).classes('text-xs mt-1').style('color: #26a69a')
+        ).classes('text-xs').style('color: #26a69a')
 
         return el
+
 
 # Page
 

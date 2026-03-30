@@ -56,12 +56,14 @@ class EditDialog(UIComponent):
         model: BaseModel,
         index: int,
         model_type: type[BaseModel],
+        custom_field_widget: Optional[dict[str, BaseWidget]],
     ) -> None:
         self.on_edit = on_edit
         self.record_title_getter = record_title_getter
         self.model = model
         self.index = index
         self.model_type = model_type
+        self.custom_field_widget = custom_field_widget
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
@@ -76,6 +78,7 @@ class EditDialog(UIComponent):
                     view_clear_button=False,
                     view_json_button=False,
                     view_submit_button=False,
+                    custom_field_widget=self.custom_field_widget,
                 )
                 form.render(as_card=False, body_classes='w-full')
                 form.fill(data=self.model.model_dump())
@@ -114,15 +117,18 @@ class ConfirmDeleteDialog(UIComponent):
 
 
 class ViewDialog(UIComponent):
+
     def __init__(
         self,
         model: BaseModel,
         record_title_getter: Callable[[T], Optional[str]],
         model_type: type[BaseModel],
+        custom_field_widget: Optional[dict[str, BaseWidget]],
     ) -> None:
         self.model = model
         self.model_type = model_type
         self.record_title_getter = record_title_getter
+        self.custom_field_widget = custom_field_widget
 
     def render(self) -> Dialog:
         with ui.dialog() as dialog:
@@ -136,6 +142,7 @@ class ViewDialog(UIComponent):
                     view_clear_button=False,
                     view_json_button=False,
                     view_submit_button=False,
+                    custom_field_widget=self.custom_field_widget,
                 )
                 form.render(as_card=False, body_classes='w-full')
                 form.fill(data=self.model.model_dump())

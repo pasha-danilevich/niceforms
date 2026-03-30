@@ -139,6 +139,7 @@ class ListComponent(UIComponent, Generic[T]):
             model=model,
             model_type=self.model_type,
             record_title_getter=self.record_title_getter,
+            custom_field_widget=self.custom_field_widget,
         ).render()
         self.dialog.open()
 
@@ -159,6 +160,7 @@ class ListComponent(UIComponent, Generic[T]):
             model=model,
             index=index,
             model_type=self.model_type,
+            custom_field_widget=self.custom_field_widget,
         ).render()
         self.dialog.open()
 
