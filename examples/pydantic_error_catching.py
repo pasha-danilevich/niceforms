@@ -3,8 +3,14 @@ from pydantic import BaseModel, Field
 
 from _layout import base
 from niceforms import BaseModelForm
+from niceforms.i18n import tr
 
 router = APIRouter()
+
+
+tr.add_custom_translations(
+    {'string_too_short': 'Минимальная длина {min_length}. Это мой кастомный перевод!!!'},
+)
 
 
 class User(BaseModel):
