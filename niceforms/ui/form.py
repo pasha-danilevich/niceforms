@@ -2,7 +2,7 @@ import logging
 from typing import Any, Generic, Optional, Type, TypeVar
 
 from nicegui import ui
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
 from pydantic.fields import FieldInfo
 
 from .ui_component import UIComponent
@@ -146,7 +146,17 @@ class BaseModelForm(UIComponent, Generic[T]):
         """Собирать данные введенные в виджетах с помощью метода .collect_date()
         и создать BaseModel объект. Не игнорирует ошибки валидации в виджетах"""
         data = self.collect_data()
-        return self.model(**data)
+        try:
+            return self.model(**data)
+        except ValidationError as e:
+            for err in e.errors():
+                w = self.widgets.get(err['loc'][0])
+                if w:
+                    w.view_error(err['msg'])
+                    w.element.error = err['msg']
+
+            ui.notify(f"Исправьте ошибки в форме: {self.title}")
+            raise FormError(form_name=self.title)
 
     def render(
         self,

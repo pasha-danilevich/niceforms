@@ -167,6 +167,8 @@ class BaseWidget(UIComponent, ABC):
             self._error_icon.set_visibility(True)
             self._error_label.set_visibility(True)
             self._error_label.set_text(error)
+        # else:
+        #     self.element.error = error
 
     def hide_error(self) -> None:
         if self._error_label:
