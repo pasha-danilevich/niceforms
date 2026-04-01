@@ -9,6 +9,7 @@ from .ui_component import UIComponent
 from ..actions import OnSubmit
 from ..constants import *
 from ..exceptions import FormError, FieldNotFound, CustomizationError
+from ..i18n import tr
 from ..ui.body import Body
 from ..ui.footer import Footer
 from ..ui.header import Header
@@ -149,11 +150,14 @@ class BaseModelForm(UIComponent, Generic[T]):
         try:
             return self.model(**data)
         except ValidationError as e:
+            e: ValidationError
             for err in e.errors():
+
+                err_msg = tr.translate(code=err['type'], ctx=err['ctx'], default=err['msg'])
                 w = self.widgets.get(err['loc'][0])
                 if w:
-                    w.view_error(err['msg'])
-                    w.element.error = err['msg']
+                    w.view_error(err_msg)
+                    w.element.error = err_msg
 
             ui.notify(f"Исправьте ошибки в форме: {self.title}")
             raise FormError(form_name=self.title)

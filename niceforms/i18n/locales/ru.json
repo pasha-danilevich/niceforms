@@ -1,0 +1,9 @@
+{
+  "missing": "Обязательное поле",
+  "string_too_short": "Минимальная длина {min_length}",
+  "string_too_long": "Максимальная длина {max_length}",
+  "greater_than": "Должно быть больше {gt}",
+  "value_error.email": "Неверный email",
+  "greater_than_equal": "Ввод должен быть больше или равен {ge}",
+  "too_short": "Список должен быть не меньше {min_length}, сейчас его длина составляет {actual_length}"
+}
