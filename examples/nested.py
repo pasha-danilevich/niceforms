@@ -1,11 +1,24 @@
-"""Базовый пример использования."""
+"""Пример вложенных моделей (nested forms).
+
+Что происходит:
+
+User содержит:
+Address
+Coordinates
+Appearance
+Всё это автоматически превращается в вложенную форму
+
+Что полезного показывает:
+
+Как niceforms строит иерархию форм
+Работа с Optional вложенными объектами"""
 
 from typing import Optional
 
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
-from examples._layout import base
+from examples._layout import base, TheNavigation
 from niceforms import BaseModelForm
 
 router = APIRouter()
@@ -47,7 +60,7 @@ class User(BaseModel):
 async def nested() -> None:
 
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(description='Когда структура данных сложная и вложенная').render()
 
         async def submit_handler(user: BaseModel):
             print(f"Пользователь создан: {user.model_dump()}")

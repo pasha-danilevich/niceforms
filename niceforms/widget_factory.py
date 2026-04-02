@@ -27,6 +27,10 @@ from .widget.unknown_type import UnknownTypeWidget
 logger = logging.getLogger(__name__)
 
 
+from collections import defaultdict
+from typing import get_origin, get_args
+
+
 class WidgetFactory:
     widgets: dict[type, type[BaseWidget]] = {
         str: StringWidget,
@@ -45,19 +49,29 @@ class WidgetFactory:
         BaseModel: NestedWidget,
     }
 
+    _base_widgets = widgets.copy()
+    _insert_history: list[tuple[type, type[BaseWidget]]] = []
+
     def __init__(self, model: type[BaseModel], view_annotation: bool) -> None:
         self.model = model
         self.view_annotation_type = view_annotation
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore # field_name: FieldInfo
 
+    @classmethod
     def insert_new_widget(
-        self, field_type: type, widget_type: type[BaseWidget]
+        cls, field_type: type, widget_type: type[BaseWidget]
     ) -> None:
         assert issubclass(
             widget_type, BaseWidget
         ), 'Widget must be a subclass of BaseWidget'
+        logger.info(f'Inserting new widget type {widget_type}')
+        cls.widgets[field_type] = widget_type
 
-        self.widgets[field_type] = widget_type
+    @classmethod
+    def register_widget(cls, field_type: type, widget: type[BaseWidget]) -> None:
+        """Добавляет новый виджет и пишет в историю."""
+        cls.widgets[field_type] = widget
+        cls._insert_history.append((field_type, widget))
 
     def ensure_widget_type(
         self,
@@ -114,3 +128,53 @@ class WidgetFactory:
             view_annotation=self.view_annotation_type,
             **kwargs,
         )
+
+
+    @classmethod
+    def _type_name(cls, t: type) -> str:
+        return repr(t)
+
+    @classmethod
+    def print_widget_registry(cls) -> None:
+        # --- подготовка ---
+        rows: list[tuple[str, str, str]] = []
+
+        for field_type, widget in cls.widgets.items():
+            marker = " "
+
+            if field_type not in cls._base_widgets:
+                marker = "+"
+            elif cls._base_widgets.get(field_type) != widget:
+                marker = "~"
+
+            rows.append(
+                (
+                    marker,
+                    cls._type_name(field_type),
+                    widget.__name__,
+                )
+            )
+
+        # считаем ширину колонок
+        type_width = max(len(r[1]) for r in rows) if rows else 0
+        widget_width = max(len(r[2]) for r in rows) if rows else 0
+
+        # --- пользовательские ---
+        if cls._insert_history:
+            print("\nUser-added widgets")
+            print("-" * 60)
+
+            for field_type, widget in cls._insert_history:
+                type_name = cls._type_name(field_type)
+                print(f"  + {type_name:<{type_width}}  ->  {widget.__name__}")
+
+        # --- текущие ---
+        print("\nCurrent widgets")
+        print("-" * 60)
+
+        for marker, type_name, widget_name in sorted(rows, key=lambda x: x[1]):
+            print(
+                f"{marker} {type_name:<{type_width}}  ->  {widget_name:<{widget_width}}"
+            )
+
+        print("\n" + "=" * 60 + "\n")

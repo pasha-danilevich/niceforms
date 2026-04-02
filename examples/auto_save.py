@@ -1,12 +1,21 @@
 """
-Автоматическое сохранение данных, которые ввел пользователь.
-В случае перезагрузки страницы или закрытия браузера, данные сохраняются
+Что происходит:
+
+Пользователь заполняет форму
+Каждые 5 секунд данные сохраняются в app.storage.user
+Если страницу перезагрузить — форма восстановится из сохранённых данных
+
+Что полезного показывает:
+
+Как реализовать черновики формы
+Как использовать form.collect_data() без валидации
+Как заполнять форму через form.fill()
 """
 
 from enum import Enum
 from typing import Optional
 
-from _layout import base
+from _layout import base, TheNavigation
 from nicegui import APIRouter, ui, app
 from pydantic import BaseModel, Field
 
@@ -35,7 +44,9 @@ class User(BaseModel):
 @base
 async def basic() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Когда не хочется терять введённые данные (длинные формы, анкеты и т.д.)'
+        ).render()
 
         async def submit_handler(user: BaseModel) -> None:
             print(f"Пользователь создан: {user}")

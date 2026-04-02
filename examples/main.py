@@ -11,6 +11,7 @@ import nested
 import fill_form
 import auto_save
 import custom_field_widget
+import custom_type_widget
 import select_widget
 import pydantic_error_catching
 from _layout import base
@@ -28,6 +29,7 @@ async def index() -> None:
     ui.link(text='Заполненная форма', target='/fill_from')
     ui.link(text='Сохранение введенной формы', target='/auto_save')
     ui.link(text='Кастомизация виджета по полю', target='/custom_field_widget')
+    ui.link(text='Кастомизация виджета по типу', target='/custom_type_widget')
     ui.link(text='Select widget', target='/select')
     ui.link(text='Отлавливание Pydantic ошибок', target='/pydantic_error_catching')
 
@@ -40,6 +42,7 @@ app.include_router(list_model.router)
 app.include_router(fill_form.router)
 app.include_router(auto_save.router)
 app.include_router(custom_field_widget.router)
+app.include_router(custom_type_widget.router)
 app.include_router(select_widget.router)
 app.include_router(pydantic_error_catching.router)
 

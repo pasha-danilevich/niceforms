@@ -1,9 +1,21 @@
-"""Базовый пример использования."""
+"""Пример использования нескольких форм на одной странице.
+
+Что происходит:
+
+Есть две независимые формы (User и Person)
+Они рендерятся отдельно
+По кнопке собираются в один DTO (ApiDTO)
+
+Что полезного показывает:
+
+Как комбинировать формы
+Как вручную собрать итоговую модель
+Обработку ошибок через FormError"""
 
 from enum import Enum
 from typing import Optional
 
-from _layout import base
+from _layout import base, TheNavigation
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
@@ -46,7 +58,9 @@ async def many_forms() -> None:
         print(f"Пользователь создан: {user}")
 
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Когда UI разбит на части, но отправка должна быть одной'
+        ).render()
 
         user_form = BaseModelForm[User](
             User,

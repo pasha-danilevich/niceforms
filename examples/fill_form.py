@@ -1,8 +1,23 @@
+"""Пример заполнения формы готовыми данными.
+
+Что происходит:
+
+Форма создаётся
+Затем вызывается form.fill(...)
+Данные могут быть:
+dict
+или Pydantic объекты
+
+Что полезного показывает:
+
+Как загружать данные (например из API)
+Как работать с вложенными структурами и списками"""
+
 from typing import Optional
 
 from nicegui import APIRouter, ui
 
-from _layout import base
+from _layout import base, TheNavigation
 from niceforms import BaseModelForm
 
 router = APIRouter()
@@ -40,7 +55,9 @@ class Room(BaseModel):
 @base
 async def list_model() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Заполнение формы с помощью метода формы .fill()'
+        ).render()
 
         async def submit_handler(model: BaseModel) -> None:
             print(f"{model}")

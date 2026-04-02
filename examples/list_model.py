@@ -1,7 +1,18 @@
-from pprint import pprint
+"""Пример работы со списками вложенных моделей.
+
+Что происходит:
+
+В модели есть list[Person]
+У каждого Person есть список Item
+
+Что полезного показывает:
+
+Как niceforms автоматически строит формы для списков
+Как добавляются/удаляются элементы списка"""
+
 from typing import Optional
 
-from _layout import base
+from _layout import base, TheNavigation
 from nicegui import APIRouter, ui
 
 from niceforms import BaseModelForm
@@ -33,7 +44,9 @@ class Room(BaseModel):
 @base
 async def list_model() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Когда нужно редактировать массивы объектов (например список товаров)'
+        ).render()
 
         async def submit_handler(model: BaseModel) -> None:
             print(f"{model}")

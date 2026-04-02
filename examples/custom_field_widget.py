@@ -1,10 +1,25 @@
+"""Пример кастомизации конкретных полей формы.
+
+Что происходит:
+
+Создаётся свой виджет MyCustomManufacturerWidget
+Он расширяет стандартный IntegerWidget
+Подменяется отображение для отдельных полей (manufacturer_id)
+Работает даже во вложенных структурах и списках
+
+Что полезного показывает:
+
+Как менять UI точечно для конкретного поля
+Как работать с вложенными формами (items, address, some)
+Как передавать параметры в виджет"""
+
 from typing import Optional
 
 from nicegui import APIRouter, ui
 from nicegui.elements.mixins.validation_element import ValidationElement
 from pydantic import BaseModel, Field
 
-from _layout import base
+from _layout import base, TheNavigation
 from niceforms import BaseModelForm
 from niceforms.widget.integer import IntegerWidget
 from niceforms.widget.list_basemodel import ListBaseModelWidget
@@ -74,7 +89,9 @@ class MyCustomManufacturerWidget(IntegerWidget):
 @base
 async def list_model() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Когда стандартный виджет не подходит и нужен кастомный UI'
+        ).render()
 
         async def submit_handler(model: BaseModel) -> None:
             print(f"{model}")

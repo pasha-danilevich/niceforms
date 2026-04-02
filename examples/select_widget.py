@@ -1,5 +1,21 @@
 """Пример, когда в PydanticModel нужно записать число, например ID записи в БД,
-а пользователю отобразить человеку понятный текст"""
+а пользователю отобразить человеку понятный текст
+
+Пример использования select (dropdown) вместо обычного input.
+
+Что происходит:
+
+В модели хранятся id (int)
+Пользователю показываются человекочитаемые значения
+Используется SelectWidget
+Поддерживается множественный выбор
+
+Что полезного показывает:
+
+Разделение:
+UI → текст
+модель → id
+Как работать с внешними данными (например из БД)"""
 
 from enum import Enum
 from typing import Optional
@@ -7,7 +23,7 @@ from typing import Optional
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
-from _layout import base
+from _layout import base, TheNavigation
 from niceforms import BaseModelForm
 from niceforms.widget.select import SelectWidget
 
@@ -47,7 +63,9 @@ class Item(BaseModel):
 @base
 async def select() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Поле "manufacturer_id" и "equipments_id" — это ссылка на сущность (foreign key)'
+        ).render()
 
         async def submit_handler(model: BaseModel) -> None:
             print(model)

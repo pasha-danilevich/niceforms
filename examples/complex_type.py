@@ -1,8 +1,23 @@
+"""Пример формы со сложными типами данных.
+
+Что внутри:
+
+Enum (статусы)
+Вложенные модели (Address)
+Списки (tags)
+Даты (date, datetime)
+Валидации (ge, le, StrictInt и т.д.)
+
+Что полезного показывает:
+
+Что niceforms умеет работать не только с простыми полями
+Как автоматически рендерятся разные типы данных"""
+
 import datetime
 from enum import Enum
 from typing import List, Optional
 
-from _layout import base
+from _layout import base, TheNavigation
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field, StrictInt
 
@@ -43,7 +58,9 @@ class UserForm(BaseModel):
 @base
 async def complex_type() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Когда форма уже не “имя + возраст”, а нормальный DTO с кучей полей'
+        ).render()
 
         async def submit_handler(user):
             print(f"Пользователь создан: {user}")

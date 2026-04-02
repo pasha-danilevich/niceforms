@@ -1,7 +1,19 @@
+"""Пример работы с валидацией и ошибками Pydantic.
+
+Что происходит:
+
+Заданы ограничения (min_length, pattern, ge, и т.д.)
+Добавлен кастомный перевод ошибок через tr.add_custom_translations
+
+Что полезного показывает:
+
+Как отображаются ошибки пользователю
+Как кастомизировать тексты ошибок"""
+
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
-from _layout import base
+from _layout import base, TheNavigation
 from niceforms import BaseModelForm
 from niceforms.i18n import tr
 
@@ -9,7 +21,11 @@ router = APIRouter()
 
 
 tr.add_custom_translations(
-    {'string_too_short': 'Минимальная длина {min_length}. Это мой кастомный перевод!!!'},
+    {
+        'string_too_short': (
+            'Минимальная длина {min_length}. Это мой кастомный перевод!!!'
+        )
+    },
 )
 
 
@@ -33,7 +49,9 @@ class User(BaseModel):
 @base
 async def pydantic_error_catching() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Когда важен UX и понятные ошибки для пользователя'
+        ).render()
 
         async def submit_handler(user: BaseModel) -> None:
             print(f"Пользователь создан: {user}")

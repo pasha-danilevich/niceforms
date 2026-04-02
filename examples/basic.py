@@ -1,9 +1,20 @@
-"""Базовый пример использования."""
+"""Самый простой пример использования niceforms.
+
+Что происходит:
+
+Есть Pydantic-модель User
+На её основе строится форма
+При отправке выводится результат
+
+Что полезного показывает:
+
+Базовый сценарий: модель → форма → submit
+Как подключить BaseModelForm"""
 
 from enum import Enum
 from typing import Optional
 
-from _layout import base
+from _layout import base, TheNavigation
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
@@ -31,7 +42,9 @@ class User(BaseModel):
 @base
 async def basic() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
-        ui.link(text='Назад', target='/')
+        TheNavigation(
+            description='Это твоя точка входа. С этого нужно начинать.'
+        ).render()
 
         async def submit_handler(user: BaseModel) -> None:
             print(f"Пользователь создан: {user}")
