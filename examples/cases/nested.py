@@ -18,7 +18,7 @@ from typing import Optional
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
-from examples._layout import base, TheNavigation
+from ._layout import base, TheNavigation
 from niceforms import BaseModelForm
 
 router = APIRouter()

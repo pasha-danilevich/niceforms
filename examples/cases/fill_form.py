@@ -17,7 +17,7 @@ from typing import Optional
 
 from nicegui import APIRouter, ui
 
-from _layout import base, TheNavigation
+from ._layout import base, TheNavigation
 from niceforms import BaseModelForm
 
 router = APIRouter()

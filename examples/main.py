@@ -3,23 +3,22 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 """Базовый пример использования."""
-import basic
-import complex_type
-import list_model
-import many_forms
-import nested
-import fill_form
-import auto_save
-import custom_field_widget
-import custom_type_widget
-import select_widget
-import pydantic_error_catching
-from _layout import base
+from cases import basic
+from cases import complex_type
+from cases import list_model
+from cases import many_forms
+from cases import nested
+from cases import fill_form
+from cases import auto_save
+from cases import custom_field_widget
+from cases import custom_type_widget
+from cases import select_widget
+from cases import pydantic_error_catching
+
 from nicegui import app, ui
 
 
 @ui.page('/')
-@base
 async def index() -> None:
     ui.link(text='Обычное использование', target='/basic')
     ui.link(text='Вложенная модель', target='/nested')

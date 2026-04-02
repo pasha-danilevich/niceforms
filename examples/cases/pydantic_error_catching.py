@@ -13,7 +13,7 @@
 from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
-from _layout import base, TheNavigation
+from ._layout import base, TheNavigation
 from niceforms import BaseModelForm
 from niceforms.i18n import tr
 

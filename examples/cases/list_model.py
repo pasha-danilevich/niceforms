@@ -12,7 +12,7 @@
 
 from typing import Optional
 
-from _layout import base, TheNavigation
+from ._layout import base, TheNavigation
 from nicegui import APIRouter, ui
 
 from niceforms import BaseModelForm

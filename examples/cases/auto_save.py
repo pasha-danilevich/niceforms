@@ -15,7 +15,7 @@
 from enum import Enum
 from typing import Optional
 
-from _layout import base, TheNavigation
+from ._layout import base, TheNavigation
 from nicegui import APIRouter, ui, app
 from pydantic import BaseModel, Field
 
