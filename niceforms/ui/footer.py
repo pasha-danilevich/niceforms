@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from niceforms.constants import PRIMARY_COLOR_GRADIENT
 from .json_viewer import JsonDialog
 from .ui_component import UIComponent
-from ..actions import CollectFormData, OnSubmit
+from ..actions import BuildModel, OnSubmit
 from ..exceptions import FormError
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class Footer(UIComponent):
         self,
         model: type[BaseModel],
         on_submit: Optional[OnSubmit],
-        on_collect: CollectFormData,
+        on_collect: BuildModel,
         on_clear: Callable[[], None],
         view_clear_button: bool = True,
         view_json_button: bool = True,

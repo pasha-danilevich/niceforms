@@ -1,7 +1,7 @@
 import logging
 from enum import Enum
 from types import NoneType, UnionType
-from typing import Any, Type, Union, get_args, get_origin, get_type_hints, List
+from typing import Any, Type, Union, get_args, get_origin, get_type_hints, List, TypeVar
 
 from nicegui.elements.mixins.validation_element import ValidationElement
 from nicegui.elements.mixins.value_element import ValueElement
@@ -10,6 +10,7 @@ from pydantic.fields import FieldInfo
 
 logger = logging.getLogger(__name__)
 
+T = TypeVar("T", bound=BaseModel)
 
 class NormalizedType(BaseModel):
     is_nullable: bool

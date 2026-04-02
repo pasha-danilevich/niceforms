@@ -1,15 +1,13 @@
-from typing import Optional, Protocol, Callable, TypeVar, Generic
+from typing import Optional, Callable, Generic
 
 from nicegui import ui
 from nicegui.element import Element
 from nicegui.elements.dialog import Dialog
+
 from .action import *
-from ... import BaseWidget
-
-from ...ui.ui_component import UIComponent
 from .dialog import AddDialog, ConfirmDeleteDialog, EditDialog, ViewDialog
-
-T = TypeVar('T', bound=BaseModel)
+from ...ui.ui_component import UIComponent
+from ...utils import T
 
 
 class VoidRecordLine(UIComponent):

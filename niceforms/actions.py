@@ -1,11 +1,11 @@
 from typing import Protocol
 
-from pydantic import BaseModel
+from .utils import T
 
-# TODO: сделать T типом
+
 class OnSubmit(Protocol):
-    async def __call__(self, model: BaseModel) -> None: ...
+    async def __call__(self, model: T) -> None: ...
 
 
-class CollectFormData(Protocol):
-    def __call__(self) -> BaseModel: ...
+class BuildModel(Protocol):
+    def __call__(self) -> T: ...

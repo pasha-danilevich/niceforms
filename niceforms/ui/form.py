@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Generic, Optional, Type, TypeVar
+from typing import Any, Generic, Optional, Type
 
 from nicegui import ui
 from pydantic import BaseModel, ConfigDict, ValidationError
@@ -13,14 +13,9 @@ from ..i18n import tr
 from ..ui.body import Body
 from ..ui.footer import Footer
 from ..ui.header import Header
-from ..utils import (
-    NestedModel,
-    get_nested_models,
-    normalize_type,
-)
+from ..utils import NestedModel, T
 from ..widget import BaseWidget
 
-T = TypeVar("T", bound=BaseModel)
 logger = logging.getLogger(__name__)
 
 
@@ -153,7 +148,9 @@ class BaseModelForm(UIComponent, Generic[T]):
             e: ValidationError
             for err in e.errors():
 
-                err_msg = tr.translate(code=err['type'], ctx=err['ctx'], default=err['msg'])
+                err_msg = tr.translate(
+                    code=err['type'], ctx=err['ctx'], default=err['msg']
+                )
                 w = self.widgets.get(err['loc'][0])
                 if w:
                     w.view_error(err_msg)

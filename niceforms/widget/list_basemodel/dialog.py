@@ -5,8 +5,7 @@ from nicegui.elements.dialog import Dialog
 
 from .action import *
 from ...ui.ui_component import UIComponent
-
-T = TypeVar('T', bound=BaseModel)
+from ...utils import T
 
 
 class AddDialog(UIComponent):
