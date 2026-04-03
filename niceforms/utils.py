@@ -18,6 +18,9 @@ class NormalizedType(BaseModel):
 
 
 def normalize_type(field_type: type | UnionType) -> NormalizedType:
+    if not field_type:
+        raise TypeError("field_type cannot be NoneType")
+    
     origin = get_origin(field_type)
     args = get_args(field_type)
 

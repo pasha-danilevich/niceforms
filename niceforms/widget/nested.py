@@ -31,7 +31,10 @@ class NestedWidget(BaseWidget):
             return None
 
         return self.form.build_model()
-
+    
+    def set_enabled(self, value: bool) -> None:
+        self.form.set_enabled(value)
+    
     def render(self) -> Element:
         self.form.render()
         self.form.body_element.style('height: 100px')

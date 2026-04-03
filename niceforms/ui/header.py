@@ -40,7 +40,10 @@ class Header(UIComponent):
         self._main_container: Optional[Element] = None
 
         self._is_none: bool = False
-
+    
+    def set_enabled(self, value: bool) -> None:
+        raise NotImplementedError()
+    
     @property
     def is_none(self) -> bool:
         return self._is_none

@@ -9,7 +9,7 @@ from .component import ListComponent
 
 
 class ListBaseModelWidget(BaseWidget):
-
+    
     def __init__(
         self, title_getter: Optional[Callable[[BaseModel], str]] = None, **kwargs: dict
     ) -> None:
@@ -106,3 +106,6 @@ class ListBaseModelWidget(BaseWidget):
         )
         el = self.component.render()
         return el
+    
+    def set_enabled(self, value: bool) -> None:
+        pass

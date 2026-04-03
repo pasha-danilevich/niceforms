@@ -6,6 +6,7 @@ from typing import Any, Optional, Callable, Union
 
 from nicegui import ui
 from nicegui.element import Element
+from nicegui.elements.mixins.disableable_element import DisableableElement
 from nicegui.elements.mixins.text_element import TextElement
 from nicegui.elements.mixins.validation_element import ValidationElement
 from nicegui.elements.mixins.value_element import ValueElement
@@ -102,7 +103,11 @@ class BaseWidget(UIComponent, ABC):
         В случаях когда элемент не является ValidationElement, данный метод можно переопределить.
         """
         raise NotImplementedError()
-
+    
+    @abstractmethod
+    def set_enabled(self, value: bool) -> None:
+        raise NotImplementedError()
+    
     @abstractmethod
     def clear(self) -> None:
         raise NotImplementedError()
@@ -210,7 +215,15 @@ class BaseValueWidget(BaseWidget, ABC):
         В случаях когда элемент не является ValidationElement, данный метод можно переопределить.
         """
         raise NotImplementedError()
-
+    
+    def set_enabled(self, value: bool) -> None:
+        if not isinstance(self.element, DisableableElement):
+            raise NotImplementedError('Widget does not support set_enabled(), because it does not have DisableableElement. Implement method set_enabled() in widget')
+        
+        el: DisableableElement = self.element  # type: ignore
+        el.set_enabled(value)
+        
+        
     @property
     def element(self) -> ValueElement:
         return super().element  # type: ignore

@@ -113,6 +113,10 @@ class BaseModelForm(UIComponent, Generic[T]):
 
         self.header.hidde_error_icon()
 
+    def set_enabled(self, value: bool) -> None:
+        for w in self.widgets.values():
+            w.set_enabled(value)
+
     def collect_data(self, validate: bool = True) -> dict[str, Any]:
         """Собирать данные введенные в виджетах
 

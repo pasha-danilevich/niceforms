@@ -3,12 +3,24 @@ from typing import Any, Optional
 
 from nicegui import ui
 from nicegui.element import Element
+from nicegui.elements.button import Button
+from nicegui.elements.date_input import DateInput
 from nicegui.elements.mixins.value_element import ValueElement
+from nicegui.elements.time_input import TimeInput
 
 from niceforms import BaseWidget, BaseValueWidget
 
 
 class DateWidget(BaseValueWidget):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._btn: Optional[Button] = None
+    
+    @property
+    def btn(self) -> Button:
+        assert self._btn is not None, 'btn is not initialized'
+        return self._btn
+    
     def fill(self, data: date | str) -> None:
         assert isinstance(data, date | str), 'incorrect data type: {}'.format(
             type(data)
@@ -37,7 +49,11 @@ class DateWidget(BaseValueWidget):
             return datetime.strptime(self.element.value, "%Y-%m-%d").date()
         except ValueError:
             return None
-
+    
+    def set_enabled(self, value: bool) -> None:
+        super().set_enabled(value)
+        self.btn.set_enabled(value)
+    
     def render(self) -> ValueElement:
         with ui.row().classes("w-full").style(
             "display: flex; flex-direction: row; flex-wrap: nowrap;"
@@ -51,7 +67,7 @@ class DateWidget(BaseValueWidget):
             def now():
                 el.set_value(datetime.now().strftime("%Y-%m-%d"))
 
-            ui.button('Сегодня', on_click=now)
+            self._btn = ui.button('Сегодня', on_click=now)
         return el
 
 
@@ -59,9 +75,25 @@ class DateTimeWidget(BaseWidget):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._date_input: Optional[ValueElement] = None
-        self._time_input: Optional[ValueElement] = None
-
+        self._date_input: Optional[DateInput] = None
+        self._time_input: Optional[TimeInput] = None
+        self._btn: Optional[Button] = None
+    
+    @property
+    def date_input(self) -> DateInput:
+        assert self._date_input is not None, 'date_input is not initialized'
+        return self._date_input
+    
+    @property
+    def time_input(self) -> TimeInput:
+        assert self._time_input is not None, 'time_input is not initialized'
+        return self._time_input
+    
+    @property
+    def btn(self) -> Button:
+        assert self._btn is not None, 'btn is not initialized'
+        return self._btn
+    
     def fill(self, data: datetime | str) -> None:
         assert isinstance(data, (datetime, str)), 'incorrect data type: {}'.format(
             type(data)
@@ -79,8 +111,8 @@ class DateTimeWidget(BaseWidget):
                     # Если не удалось, оставляем как строку
                     date_str = data
                     time_str = data
-                    self._date_input.set_value(date_str)
-                    self._time_input.set_value(time_str)
+                    self.date_input.set_value(date_str)
+                    self.time_input.set_value(time_str)
                     return
 
         # Если data - datetime объект
@@ -90,19 +122,19 @@ class DateTimeWidget(BaseWidget):
             time_str = data.strftime("%H:%M")
 
             # Устанавливаем значения
-            self._date_input.set_value(date_str)
-            self._time_input.set_value(time_str)
+            self.date_input.set_value(date_str)
+            self.time_input.set_value(time_str)
 
     def validate(self) -> Optional[str]:
-        if not self._date_input.value and not self.normalized_type.is_nullable:
+        if not self.date_input.value and not self.normalized_type.is_nullable:
             return "Поле Дата не может быть пустым"
-        if not self._time_input.value and not self.normalized_type.is_nullable:
+        if not self.time_input.value and not self.normalized_type.is_nullable:
             return "Поле Время не может быть пустым"
 
-        if self._date_input.value and self._time_input.value:
+        if self.date_input.value and self.time_input.value:
             try:
                 datetime.strptime(
-                    f"{self._date_input.value} {self._time_input.value}",
+                    f"{self.date_input.value} {self.time_input.value}",
                     "%Y-%m-%d %H:%M",
                 )
             except ValueError:
@@ -111,10 +143,10 @@ class DateTimeWidget(BaseWidget):
         return None
 
     def collect(self) -> Optional[datetime]:
-        if self._date_input.value and self._time_input.value:
+        if self.date_input.value and self.time_input.value:
             try:
                 return datetime.strptime(
-                    f"{self._date_input.value} {self._time_input.value}",
+                    f"{self.date_input.value} {self.time_input.value}",
                     "%Y-%m-%d %H:%M",
                 )
             except ValueError:
@@ -123,9 +155,14 @@ class DateTimeWidget(BaseWidget):
         return None
 
     def clear(self) -> None:
-        self._date_input.set_value(None)
-        self._time_input.set_value(None)
+        self.date_input.set_value(None)
+        self.time_input.set_value(None)
 
+    def set_enabled(self, value: bool) -> None:
+        self.date_input.set_enabled(value)
+        self.time_input.set_enabled(value)
+        self.btn.set_enabled(value)
+    
     def render(self) -> Element:
         with ui.row().classes("w-full").style(
             "display: flex; flex-direction: row; flex-wrap: nowrap;"
@@ -142,9 +179,10 @@ class DateTimeWidget(BaseWidget):
             )
 
             def now():
-                self._date_input.set_value(datetime.now().strftime("%Y-%m-%d"))
-                self._time_input.set_value(datetime.now().strftime("%H:%M"))
+                self.date_input.set_value(datetime.now().strftime("%Y-%m-%d"))
+                self.time_input.set_value(datetime.now().strftime("%H:%M"))
 
-            ui.button('Сейчас', on_click=now)
+            self._btn = ui.button('Сейчас', on_click=now)
 
         return row
+    
