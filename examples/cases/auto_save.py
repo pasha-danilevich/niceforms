@@ -48,8 +48,8 @@ async def basic() -> None:
             description='Когда не хочется терять введённые данные (длинные формы, анкеты и т.д.)'
         ).render()
 
-        async def submit_handler(user: BaseModel) -> None:
-            print(f"Пользователь создан: {user}")
+        async def submit_handler(model: User) -> None:
+            print(f"Пользователь создан: {model}")
 
         form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
         form.render()

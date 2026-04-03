@@ -55,8 +55,8 @@ async def basic() -> None:
             description='Когда у тебя много моделей и не хочется настраивать каждое поле вручную'
         ).render()
 
-        async def submit_handler(user: BaseModel) -> None:
-            print(f"Пользователь создан: {user}")
+        async def submit_handler(model: CreateUserDTO) -> None:
+            print(f"Пользователь создан: {model}")
 
         form = BaseModelForm(
             CreateUserDTO, on_submit=submit_handler, view_annotation_type=False

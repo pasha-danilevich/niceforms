@@ -54,8 +54,8 @@ class ApiDTO(BaseModel):
 @base
 async def many_forms() -> None:
 
-    async def submit_handler(user: BaseModel) -> None:
-        print(f"Пользователь создан: {user}")
+    async def submit_handler(model: User) -> None:
+        print(f"Пользователь создан: {model}")
 
     with ui.column().classes('w-full max-w-2xl mx-auto'):
         TheNavigation(

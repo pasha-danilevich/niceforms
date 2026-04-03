@@ -46,8 +46,8 @@ async def basic() -> None:
             description='Это твоя точка входа. С этого нужно начинать.'
         ).render()
 
-        async def submit_handler(user: BaseModel) -> None:
-            print(f"Пользователь создан: {user}")
+        async def submit_handler(model: User) -> None:
+            print(f"Пользователь создан: {model}")
 
         form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
         form.render()

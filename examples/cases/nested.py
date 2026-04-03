@@ -62,10 +62,10 @@ async def nested() -> None:
     with ui.column().classes('w-full max-w-2xl mx-auto'):
         TheNavigation(description='Когда структура данных сложная и вложенная').render()
 
-        async def submit_handler(user: BaseModel):
-            print(f"Пользователь создан: {user.model_dump()}")
+        async def submit_handler(model: User) -> None:
+            print(f"Пользователь создан: {model.model_dump()}")
 
-        form = BaseModelForm(
+        form = BaseModelForm[User](
             User,
             on_submit=submit_handler,
             view_annotation_type=False,

@@ -59,10 +59,10 @@ async def list_model() -> None:
             description='Заполнение формы с помощью метода формы .fill()'
         ).render()
 
-        async def submit_handler(model: BaseModel) -> None:
+        async def submit_handler(model: Room) -> None:
             print(f"{model}")
 
-        form = BaseModelForm(Room, on_submit=submit_handler, view_annotation_type=False)
+        form = BaseModelForm[Room](Room, on_submit=submit_handler, view_annotation_type=False)
         form.render()
 
         form.fill(

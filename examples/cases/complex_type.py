@@ -62,8 +62,8 @@ async def complex_type() -> None:
             description='Когда форма уже не “имя + возраст”, а нормальный DTO с кучей полей'
         ).render()
 
-        async def submit_handler(user):
-            print(f"Пользователь создан: {user}")
+        async def submit_handler(model: UserForm):
+            print(f"Пользователь создан: {model}")
 
         form = BaseModelForm(UserForm, on_submit=submit_handler)
         form.render()

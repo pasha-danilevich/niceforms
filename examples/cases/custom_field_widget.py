@@ -93,7 +93,7 @@ async def list_model() -> None:
             description='Когда стандартный виджет не подходит и нужен кастомный UI'
         ).render()
 
-        async def submit_handler(model: BaseModel) -> None:
+        async def submit_handler(model: Person) -> None:
             print(f"{model}")
 
         form = BaseModelForm(

@@ -67,7 +67,7 @@ async def select() -> None:
             description='Поле "manufacturer_id" и "equipments_id" — это ссылка на сущность (foreign key)'
         ).render()
 
-        async def submit_handler(model: BaseModel) -> None:
+        async def submit_handler(model: Item) -> None:
             print(model)
 
         form = BaseModelForm[Item](

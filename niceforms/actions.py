@@ -3,7 +3,7 @@ from typing import Protocol
 from .utils import T
 
 
-class OnSubmit(Protocol):
+class OnSubmit(Protocol[T]):
     async def __call__(self, model: T) -> None: ...
 
 

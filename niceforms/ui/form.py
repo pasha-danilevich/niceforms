@@ -33,8 +33,8 @@ class BaseModelForm(UIComponent, Generic[T]):
 
     def __init__(
         self,
-        model: Type[BaseModel],
-        on_submit: Optional[OnSubmit] = None,
+        model: Type[T],
+        on_submit: Optional[OnSubmit[T]] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
         header_bg_color: Optional[str] = None,

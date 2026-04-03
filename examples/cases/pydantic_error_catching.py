@@ -53,8 +53,8 @@ async def pydantic_error_catching() -> None:
             description='Когда важен UX и понятные ошибки для пользователя'
         ).render()
 
-        async def submit_handler(user: BaseModel) -> None:
-            print(f"Пользователь создан: {user}")
+        async def submit_handler(model: User) -> None:
+            print(f"Пользователь создан: {model}")
 
-        form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
+        form = BaseModelForm[User](User, on_submit=submit_handler, view_annotation_type=False)
         form.render()
