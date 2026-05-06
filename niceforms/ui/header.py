@@ -41,6 +41,12 @@ class Header(UIComponent):
 
         self._is_none: bool = False
     
+    @property
+    def delete_icon(self) -> NameElement:
+        if not self._delete_icon:
+            raise ValueError("Not rendered yet")
+        return self._delete_icon
+    
     def set_enabled(self, value: bool) -> None:
         raise NotImplementedError()
     
