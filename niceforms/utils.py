@@ -12,39 +12,124 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=BaseModel)
 
+
 class NormalizedType(BaseModel):
     is_nullable: bool
     origin_type: Union[type, Any]
 
 
 def normalize_type(field_type: type | UnionType) -> NormalizedType:
+    """Избавиться от None и Optional, выставив is_nullable в NormalizedType."""
+    logger.debug("normalize_type: start | field_type=%r", field_type)
+
     if not field_type:
+        logger.error("normalize_type: field_type is None or falsy")
         raise TypeError("field_type cannot be NoneType")
-    
+
     origin = get_origin(field_type)
     args = get_args(field_type)
 
+    logger.debug(
+        "normalize_type: parsed | origin=%r args=%r",
+        origin,
+        args,
+    )
+
+    # --- PEP 604: int | None ---
     if origin is UnionType:
+        logger.debug("normalize_type: detected UnionType (PEP 604)")
 
         if NoneType in args:
-            return NormalizedType(is_nullable=True, origin_type=field_type)
-        else:
-            return NormalizedType(is_nullable=False, origin_type=field_type)
+            
+            logger.debug("normalize_type: nullable UnionType detected")
+            if len(args) == 2:
+                logger.debug("normalize_type: one type origin and NoneType. Return without NoneType")
+                args = [x for x in args if x is not NoneType]
 
+                result = NormalizedType(
+                    is_nullable=True,
+                    origin_type=args[0],
+                )
+            else:
+                logger.debug("normalize_type: return it as it is")
+                result = NormalizedType(
+                    is_nullable=True,
+                    origin_type=field_type,
+                )
+        else:
+            logger.debug("normalize_type: non-nullable UnionType")
+            result = NormalizedType(
+                is_nullable=False,
+                origin_type=field_type,
+            )
+
+        logger.debug("normalize_type: result=%s", result)
+        return result
+
+    # --- обычный тип ---
     if origin is None:
-        return NormalizedType(is_nullable=False, origin_type=field_type)
+        logger.debug("normalize_type: simple type detected")
 
+        result = NormalizedType(
+            is_nullable=False,
+            origin_type=field_type,
+        )
+
+        logger.debug("normalize_type: result=%s", result)
+        return result
+
+    # --- typing.Union ---
     if origin is Union:
+        logger.debug("normalize_type: typing.Union detected")
 
         if NoneType in args:
-            non_nullable = [x for x in args if x is not NoneType]
-            if len(non_nullable) == 1:
-                return NormalizedType(is_nullable=True, origin_type=non_nullable[0])
-            return NormalizedType(is_nullable=True, origin_type=field_type)
-        else:
-            return NormalizedType(is_nullable=False, origin_type=field_type)
+            logger.debug("normalize_type: nullable typing.Union detected")
 
-    return NormalizedType(is_nullable=False, origin_type=field_type)
+            non_nullable = [x for x in args if x is not NoneType]
+            logger.debug(
+                "normalize_type: filtered non-nullable args=%r",
+                non_nullable,
+            )
+
+            if len(non_nullable) == 1:
+                logger.debug("normalize_type: Optional[T] detected")
+
+                result = NormalizedType(
+                    is_nullable=True,
+                    origin_type=non_nullable[0],
+                )
+            else:
+                logger.debug("normalize_type: complex Union with None")
+
+                result = NormalizedType(
+                    is_nullable=True,
+                    origin_type=field_type,
+                )
+        else:
+            logger.debug("normalize_type: non-nullable typing.Union")
+
+            result = NormalizedType(
+                is_nullable=False,
+                origin_type=field_type,
+            )
+
+        logger.debug("normalize_type: result=%s", result)
+        return result
+
+    # --- fallback ---
+    logger.debug(
+        "normalize_type: fallback branch | origin=%r field_type=%r",
+        origin,
+        field_type,
+    )
+
+    result = NormalizedType(
+        is_nullable=False,
+        origin_type=field_type,
+    )
+
+    logger.debug("normalize_type: result=%s", result)
+    return result
 
 
 def is_enum_type(field_type: type) -> bool:

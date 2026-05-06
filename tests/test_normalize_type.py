@@ -1,8 +1,9 @@
+import logging
 from types import NoneType
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import pytest
-from utils import NormalizedType, normalize_type
+from niceforms.utils import normalize_type, NormalizedType
 
 
 class TestNormalizeType:
@@ -20,7 +21,7 @@ class TestNormalizeType:
         """Тест для int | None"""
         result = normalize_type(int | None)
         assert result.is_nullable is True
-        assert result.origin_type == (int | None)
+        assert result.origin_type == int
 
     def test_normalize_int(self):
         """Тест для обычного int"""
@@ -33,6 +34,12 @@ class TestNormalizeType:
         result = normalize_type(Optional[List[int]])
         assert result.is_nullable is True
         assert result.origin_type == List[int]
+        
+    def test_normalize_optional_dict(self):
+        """Тест для Optional[List[int]]"""
+        result = normalize_type(Optional[dict[int, int | None]])
+        assert result.is_nullable is True
+        assert result.origin_type == dict[int, int | None]
 
     def test_normalize_none_or_list_dict(self):
         """Тест для None | List[Dict[str, int]]"""
@@ -46,6 +53,24 @@ class TestNormalizeType:
         assert result.is_nullable is True
         assert result.origin_type == List[Dict[str, int]]
 
+    def test_normalize_optional_list_dict_2(self):
+        """Тест для Optional[List[Dict[str, int]]]"""
+        result = normalize_type(Optional[list[dict[str, int]]])
+        assert result.is_nullable is True
+        assert result.origin_type == list[dict[str, int]]
+
+    def test_normalize_optional_list_dict_3(self):
+        """Тест для Optional[List[Dict[str, int]]]"""
+        result = normalize_type(None | list[dict[str, int]])
+        assert result.is_nullable is True
+        assert result.origin_type == list[dict[str, int]]
+
+    def test_normalize_optional_list_dict_4(self):
+        """Тест для Optional[List[Dict[str, int]]]"""
+        result = normalize_type(list[dict[str, int]] | None)
+        assert result.is_nullable is True
+        assert result.origin_type == list[dict[str, int]]
+        
     # === Дополнительные тесты ===
 
     def test_normalize_str(self):
@@ -64,7 +89,7 @@ class TestNormalizeType:
         """Тест для str | None"""
         result = normalize_type(str | None)
         assert result.is_nullable is True
-        assert result.origin_type == (str | None)
+        assert result.origin_type == str
 
     def test_normalize_optional_complex_type(self):
         """Тест для Optional[Dict[str, List[int]]]"""
@@ -77,7 +102,13 @@ class TestNormalizeType:
         result = normalize_type(Union[int, str])
         assert result.is_nullable is False
         assert result.origin_type == Union[int, str]
-
+    
+    def test_normalize_union_with_multiple_types_2(self):
+        """Тест для Union[int, str]"""
+        result = normalize_type(int | str)
+        assert result.is_nullable is False
+        assert result.origin_type == int | str
+    
     def test_normalize_union_with_none(self):
         """Тест для Union[int, str, None]"""
         result = normalize_type(Union[int, str, None])
@@ -188,6 +219,24 @@ class TestNormalizeType:
         result = normalize_type(complex_type)
         assert result.is_nullable is True
         assert result.origin_type == Dict[str, List[Tuple[int, Deque[FrozenSet[str]]]]]
+
+    def test_normalize_deeply_nested_generic_2(self):
+        """Тест для глубоко вложенных generic типов"""
+        from typing import Deque, FrozenSet
+
+        complex_type = None | Dict[str, List[Tuple[int, Deque[FrozenSet[str]]]]]
+        result = normalize_type(complex_type)
+        assert result.is_nullable is True
+        assert result.origin_type == Dict[str, List[Tuple[int, Deque[FrozenSet[str]]]]]
+
+    def test_normalize_deeply_nested_generic_3(self):
+        """Тест для глубоко вложенных generic типов"""
+        from typing import Deque, FrozenSet
+
+        complex_type = dict[str, List[Tuple[int, Deque[FrozenSet[str]]]]] | None
+        result = normalize_type(complex_type)
+        assert result.is_nullable is True
+        assert result.origin_type == dict[str, List[Tuple[int, Deque[FrozenSet[str]]]]]
 
     def test_normalize_type_var(self):
         """Тест для TypeVar"""

@@ -48,7 +48,7 @@ class UserForm(BaseModel):
     exp: StrictInt
     is_active: bool = Field(True, title="Активный пользователь")
     status: Status = Field(Status.INACTIVE, title="Статус")
-    address: Optional[Address] = Field(..., title="Адрес")
+    address: Address | None = Field(..., title="Адрес")
     tags: List[str] = Field(title="Теги")
     date: Optional[datetime.date] = Field(..., title="Дата")
     created_at: datetime.datetime = Field(..., title="Время создания")
