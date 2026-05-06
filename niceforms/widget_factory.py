@@ -52,9 +52,10 @@ class WidgetFactory:
     _base_widgets = widgets.copy()
     _insert_history: list[tuple[type, type[BaseWidget]]] = []
 
-    def __init__(self, model: type[BaseModel], view_annotation: bool) -> None:
+    def __init__(self, model: type[BaseModel], view_annotation: bool, view_type_error_message: bool) -> None:
         self.model = model
         self.view_annotation_type = view_annotation
+        self.view_type_error_message = view_type_error_message
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore # field_name: FieldInfo
 
     @classmethod
@@ -95,10 +96,17 @@ class WidgetFactory:
             widget_type = self.widgets.get(BaseModel)
 
         if widget_type is None:
-            logger.warning(
-                f'No widget for field "{field_name}". Type {field_info.annotation}. Creating default <UnknownTypeWidget>'
-            )
-            widget_type = UnknownTypeWidget
+
+            if self.view_type_error_message:
+                widget_type = UnknownTypeWidget
+                logger.warning(
+                    f'No widget for field "{field_name}". Type {field_info.annotation}. Creating default {widget_type.__name__}'
+                )
+            else:
+                widget_type = StringWidget
+                logger.warning(
+                    f'No widget for field "{field_name}". Type {field_info.annotation}. Creating default {widget_type.__name__}'
+                )
 
         return widget_type
 
@@ -128,7 +136,6 @@ class WidgetFactory:
             view_annotation=self.view_annotation_type,
             **kwargs,
         )
-
 
     @classmethod
     def _type_name(cls, t: type) -> str:

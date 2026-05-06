@@ -48,6 +48,7 @@ class UserForm(BaseModel):
     email: str = Field(..., title="Email", description="Введите ваш email")
     age: int = Field(..., title="Возраст", ge=18, le=100)
     summa: float = Field(..., title="Сумма")
+    index: str | int
     is_active: bool = Field(True, title="Активный пользователь")
     status: Status = Field(Status.INACTIVE, title="Статус")
     address: Optional[Address] = Field(..., title="Адрес")
@@ -68,7 +69,7 @@ async def disable_widget() -> None:
         async def submit_handler(model: UserForm):
             print(f"Пользователь создан: {model}")
 
-        form = BaseModelForm(UserForm, on_submit=submit_handler)
+        form = BaseModelForm(UserForm, on_submit=submit_handler, view_type_error_message=False)
         form.render()
         form.set_enabled(False)
         form.fill({'created_at': datetime.datetime.now()})

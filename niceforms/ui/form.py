@@ -42,6 +42,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         view_clear_button: bool = True,
         view_json_button: bool = True,
         view_submit_button: bool = True,
+        view_type_error_message: bool = True,
         _is_nullable: bool = False,
     ) -> None:
         """Initialize universal form.
@@ -53,7 +54,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         """
         from ..widget_factory import WidgetFactory
 
-        self.factory = WidgetFactory(model, view_annotation_type)
+        self.factory = WidgetFactory(model, view_annotation_type, view_type_error_message)
 
         self.model = model
         self.on_submit = on_submit
