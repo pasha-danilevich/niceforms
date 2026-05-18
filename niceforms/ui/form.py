@@ -156,7 +156,7 @@ class BaseModelForm(UIComponent, Generic[T]):
             for err in e.errors():
 
                 err_msg = tr.translate(
-                    code=err['type'], ctx=err['ctx'], default=err['msg']
+                    code=err['type'], ctx=err.get('ctx'), default=err.get('msg')
                 )
                 w = self.widgets.get(err['loc'][0])
                 if w:

@@ -17,7 +17,7 @@ class SelectWidget(BaseValidationWidget):
     ):
         super().__init__(**kwargs)
         self.options = options
-        self.label = label
+        self.label_name = label
         self.multiple = multiple
 
     def collect(self) -> Optional[Any]:
@@ -28,7 +28,7 @@ class SelectWidget(BaseValidationWidget):
 
         select = (
             ui.select(
-                label=self.label,
+                label=self.label_name,
                 value=value,
                 options=self.options,
                 validation=self.default_validations,
@@ -37,5 +37,5 @@ class SelectWidget(BaseValidationWidget):
             .props("outlined dense")
             .classes("w-full")
         )
-
+        
         return select
