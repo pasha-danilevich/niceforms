@@ -1,7 +1,10 @@
 import logging
-from typing import Any, Generic, Optional, Type
+from typing import Any, Generic, Optional, Type, overload, Literal
 
 from nicegui import ui
+from nicegui.element import Element
+from nicegui.elements.card import Card
+from nicegui.elements.dialog import Dialog
 from pydantic import BaseModel, ConfigDict, ValidationError
 from pydantic.fields import FieldInfo
 
@@ -104,7 +107,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         """Наполнить виджеты данными"""
         if data is None:
             return
-        
+
         for field_name, value in data.items():
             if w := self.widgets.get(field_name):
                 w.fill(value)
@@ -166,45 +169,77 @@ class BaseModelForm(UIComponent, Generic[T]):
             ui.notify(f"Исправьте ошибки в форме: {self.title}")
             raise FormError(form_name=self.title)
 
+    def render_without_wrapper(self) -> None:
+        self.header = Header(
+            title=self.title,
+            description=self.description,
+            bg_color=self.header_bg_color,
+            parent_card=self.body_element,
+            is_nested=self._is_nested,
+            is_nullable=self._is_nullable,
+        )
+        self.header.render()
+
+        Body(
+            widgets=list(self.widgets.values()),
+        ).render()
+
+        if not self._is_nested:
+            Footer(
+                model=self.model,
+                on_submit=self.on_submit,
+                on_collect=self.build_model,
+                on_clear=self.clear,
+                view_clear_button=self.view_clear_button,
+                view_json_button=self.view_json_button,
+                view_submit_button=self.view_submit_button,
+            ).render()
+
+    @overload
+    def render(self) -> Card: ...
+
+    @overload
     def render(
         self,
-        as_card: bool = True,
+        wrap: Literal['card'] = 'card',
         body_classes: Optional[str] = None,
-    ) -> None:
-        """Render the form UI."""
+    ) -> Card: ...
+
+    @overload
+    def render(
+        self,
+        wrap: Literal['dialog'] = 'dialog',
+        body_classes: Optional[str] = None,
+    ) -> Dialog: ...
+
+    def render(
+        self,
+        wrap: Literal['dialog', 'card'] = 'card',
+        body_classes: Optional[str] = None,
+    ) -> Element:
+        """Render and wrap the form UI."""
 
         body_classes: str = (
             body_classes if body_classes is not None else self.DEFAULT_CLASSES
         )
 
-        logger.debug(f'Rendering form "{self.model.__name__} {as_card=}"')
+        logger.debug(f'Rendering form "{self.model.__name__} wrap={wrap}"')
 
-        body_element = ui.card if as_card else ui.element
-
-        with body_element().classes(body_classes) as self.body_element:
-            self.header = Header(
-                title=self.title,
-                description=self.description,
-                bg_color=self.header_bg_color,
-                parent_card=self.body_element,
-                is_nested=self._is_nested,
-                is_nullable=self._is_nullable,
-            )
-            self.header.render()
-
-            Body(
-                widgets=list(self.widgets.values()),
-            ).render()
-
-            if not self._is_nested:
-                Footer(
-                    model=self.model,
-                    on_submit=self.on_submit,
-                    on_collect=self.build_model,
-                    on_clear=self.clear,
-                    view_clear_button=self.view_clear_button,
-                    view_json_button=self.view_json_button,
-                    view_submit_button=self.view_submit_button,
-                ).render()
+        # --- DIALOG ---
+        if wrap == 'dialog':
+            with ui.dialog() as self.dialog:
+                with ui.card().classes(body_classes) as self.body_element:
+                    self.render_without_wrapper()
 
             self._is_rendered = True
+            return self.dialog
+
+        # --- CARD  ---
+        if wrap == 'card':
+            with ui.card().classes(body_classes) as self.body_element:
+                self.render_without_wrapper()
+
+            self._is_rendered = True
+            return self.body_element
+
+        raise ValueError(f'Invalid wrap: {wrap}')

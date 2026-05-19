@@ -72,4 +72,4 @@ async def nested() -> None:
             view_clear_button=True,
             view_json_button=False,
         )
-        form.render()
+        x = form.render(wrap='dialog')
