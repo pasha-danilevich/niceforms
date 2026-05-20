@@ -15,6 +15,7 @@ from cases import custom_type_widget
 from cases import select_widget
 from cases import pydantic_error_catching
 from cases import disable_widget
+from cases import as_dialog
 
 
 from nicegui import app, ui
@@ -34,6 +35,7 @@ async def index() -> None:
     ui.link(text='Select widget', target='/select')
     ui.link(text='Отлавливание Pydantic ошибок', target='/pydantic_error_catching')
     ui.link(text='Отключение виджета', target='/disable_widget')
+    ui.link(text='Отобразить как диалог', target='/as_dialog')
 
 
 app.include_router(basic.router)
@@ -48,6 +50,7 @@ app.include_router(custom_type_widget.router)
 app.include_router(select_widget.router)
 app.include_router(pydantic_error_catching.router)
 app.include_router(disable_widget.router)
+app.include_router(as_dialog.router)
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(show=False, reload=False, storage_secret='storage_secret')

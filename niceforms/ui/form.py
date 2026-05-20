@@ -1,5 +1,12 @@
 import logging
-from typing import Any, Generic, Optional, Type, overload, Literal
+from typing import (
+    Any,
+    Generic,
+    Optional,
+    Type,
+    overload,
+    Literal,
+)
 
 from nicegui import ui
 from nicegui.element import Element
@@ -8,6 +15,8 @@ from nicegui.elements.dialog import Dialog
 from pydantic import BaseModel, ConfigDict, ValidationError
 from pydantic.fields import FieldInfo
 
+from .button import FormButton
+from .json_viewer import JsonDialog
 from .ui_component import UIComponent
 from ..actions import OnSubmit
 from ..constants import *
@@ -30,50 +39,62 @@ class NestedForm(BaseModel):
 
 
 class BaseModelForm(UIComponent, Generic[T]):
-    DEFAULT_CLASSES = (
-        f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl overflow-hidden sm:p-4"
-    )
 
     def __init__(
         self,
         model: Type[T],
-        on_submit: Optional[OnSubmit[T]] = None,
+        on_submit: Optional[OnSubmit] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
         header_bg_color: Optional[str] = None,
-        view_annotation_type: bool = True,
-        view_clear_button: bool = True,
-        view_json_button: bool = True,
-        view_submit_button: bool = True,
+        view_annotation_type: bool = False,
         view_type_error_message: bool = True,
         _is_nullable: bool = False,
     ) -> None:
-        """Initialize universal form.
 
-        Args:
-            model: Pydantic model class
-            on_submit: Callback function for form submission
-            title: Form title (if None, uses model name)
-        """
         from ..widget_factory import WidgetFactory
 
-        self.factory = WidgetFactory(model, view_annotation_type, view_type_error_message)
+        self.factory = WidgetFactory(
+            model, view_annotation_type, view_type_error_message
+        )
 
         self.model = model
         self.on_submit = on_submit
         self.title = title or model.__name__
         self.description = description or self.model.__doc__
         self.header_bg_color = header_bg_color
-        self.view_clear_button = view_clear_button
-        self.view_json_button = view_json_button
-        self.view_submit_button = view_submit_button
 
         self._is_nullable = _is_nullable
         self._is_rendered: bool = False
 
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore # field_name: FieldInfo
+        self.buttons: dict[str, FormButton] = {
+            "clear": FormButton(
+                text="Очистить",
+                on_click=self.clear,
+                bg_color='gray',
+                classes='px-8',
+                style='color: gray',
+            ),
+            "json": FormButton(
+                text="Показать json",
+                on_click=self.render_json_viewer_dialog,
+                bg_color='gray',
+                classes='px-8',
+                style='color: gray',
+            ),
+            "submit": FormButton(
+                text="Отправить",
+                on_click=self.submit,
+                bg_color='green',
+                classes='px-12',
+                color_weight=500,
+                style='color: white',
+            ),
+        }
 
         # style
+        self.wrapper_classes = f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl overflow-hidden sm:p-4 gap-0"
         self.body_element = None  # тело всей формы
         self._is_nested = False
         self.widgets: dict[str, BaseWidget] = {}  # field_name: BaseWidget
@@ -84,6 +105,22 @@ class BaseModelForm(UIComponent, Generic[T]):
             self.widgets[field_name] = w
 
         self.header: Optional[Header] = None
+
+    async def submit(self) -> None:
+        if self.on_submit is not None:
+            try:
+                base_model = self.build_model()
+            except FormError:
+                return
+
+            result = self.on_submit(base_model)
+
+            import inspect
+
+            if inspect.isawaitable(result):
+                await result
+
+        logger.warning(f"on_submit function do not provided")
 
     def custom_widget(
         self,
@@ -148,6 +185,9 @@ class BaseModelForm(UIComponent, Generic[T]):
 
         return data
 
+    def render_json_viewer_dialog(self) -> None:
+        JsonDialog(model=self.build_model()).render()
+
     def build_model(self) -> T:
         """Собирать данные введенные в виджетах с помощью метода .collect_date()
         и создать BaseModel объект. Не игнорирует ошибки валидации в виджетах"""
@@ -189,46 +229,27 @@ class BaseModelForm(UIComponent, Generic[T]):
                 model=self.model,
                 on_submit=self.on_submit,
                 on_collect=self.build_model,
-                on_clear=self.clear,
-                view_clear_button=self.view_clear_button,
-                view_json_button=self.view_json_button,
-                view_submit_button=self.view_submit_button,
+                buttons=list(self.buttons.values()),
             ).render()
 
     @overload
     def render(self) -> Card: ...
 
     @overload
-    def render(
-        self,
-        wrap: Literal['card'] = 'card',
-        body_classes: Optional[str] = None,
-    ) -> Card: ...
+    def render(self, wrap: Literal['card'] = 'card') -> Card: ...
 
     @overload
-    def render(
-        self,
-        wrap: Literal['dialog'] = 'dialog',
-        body_classes: Optional[str] = None,
-    ) -> Dialog: ...
+    def render(self, wrap: Literal['dialog'] = 'dialog') -> Dialog: ...
 
-    def render(
-        self,
-        wrap: Literal['dialog', 'card'] = 'card',
-        body_classes: Optional[str] = None,
-    ) -> Element:
+    def render(self, wrap: Literal['dialog', 'card'] = 'card') -> Element:
         """Render and wrap the form UI."""
-
-        body_classes: str = (
-            body_classes if body_classes is not None else self.DEFAULT_CLASSES
-        )
 
         logger.debug(f'Rendering form "{self.model.__name__} wrap={wrap}"')
 
         # --- DIALOG ---
         if wrap == 'dialog':
             with ui.dialog() as self.dialog:
-                with ui.card().classes(body_classes) as self.body_element:
+                with ui.card().classes(self.wrapper_classes) as self.body_element:
                     self.render_without_wrapper()
 
             self._is_rendered = True
@@ -236,7 +257,7 @@ class BaseModelForm(UIComponent, Generic[T]):
 
         # --- CARD  ---
         if wrap == 'card':
-            with ui.card().classes(body_classes) as self.body_element:
+            with ui.card().classes(self.wrapper_classes) as self.body_element:
                 self.render_without_wrapper()
 
             self._is_rendered = True

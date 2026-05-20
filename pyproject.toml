@@ -1,6 +1,6 @@
 [project]
 name = "niceforms"
-version = "2.3.6"
+version = "3.0.0"
 description = "A dynamic form generator for NiceGUI that automatically creates interactive UI forms from Pydantic models"
 authors = [
     {name = "pasha_danilevich", email = "danilevitch.pasha@yandex.ru"}
@@ -26,7 +26,7 @@ build-backend = "poetry.core.masonry.api"
 dev = [
     "pytest (>=9.0.2,<10.0.0)",
     "black (>=26.3.1,<27.0.0)",
-    "gitprompter (>=0.2.0,<0.3.0)"
+    "gitprompter (>=0.2.1,<0.3.0)"
 ]
 
 [tool.black]

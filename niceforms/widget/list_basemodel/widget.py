@@ -9,7 +9,7 @@ from ...utils import extract_inner_type
 
 
 class ListBaseModelWidget(BaseWidget):
-    
+
     def __init__(
         self, title_getter: Optional[Callable[[BaseModel], str]] = None, **kwargs: Any
     ) -> None:
@@ -29,11 +29,11 @@ class ListBaseModelWidget(BaseWidget):
             model=self.model_type,
             title=None,
             view_annotation_type=self.view_annotation_type,
-            view_clear_button=False,
-            view_json_button=False,
-            view_submit_button=False,
             view_type_error_message=self.view_type_error_message,
         )
+        del self._form.buttons['json']
+        del self._form.buttons['clear']
+        del self._form.buttons['submit']
 
     @property
     def form(self):
@@ -110,7 +110,7 @@ class ListBaseModelWidget(BaseWidget):
         )
         el = self.component.render()
         return el
-    
+
     def set_enabled(self, value: bool) -> None:
         self.component.add_button.set_visibility(value)
         self.label.close_button.set_visibility(value)

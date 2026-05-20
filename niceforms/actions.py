@@ -1,11 +1,8 @@
-from typing import Protocol
+from typing import Callable, Awaitable, TypeAlias
+
+from pydantic import BaseModel
 
 from .utils import T
 
-
-class OnSubmit(Protocol[T]):
-    async def __call__(self, model: T) -> None: ...
-
-
-class BuildModel(Protocol):
-    def __call__(self) -> T: ...
+OnSubmit: TypeAlias = Callable[[T], None | Awaitable[None]]
+BuildModel: TypeAlias = Callable[[], BaseModel]

@@ -66,17 +66,19 @@ async def many_forms() -> None:
             User,
             on_submit=submit_handler,
             view_annotation_type=False,
-            view_json_button=False,
-            view_submit_button=False,
         )
+        del user_form.buttons['json']
+        del user_form.buttons['submit']
+
         user_form.render()
         person_form = BaseModelForm[Person](
             Person,
             on_submit=submit_handler,
             view_annotation_type=False,
-            view_json_button=False,
-            view_submit_button=False,
         )
+        del person_form.buttons['json']
+        del person_form.buttons['submit']
+        
         person_form.render()
 
         def collect_all_forms() -> None:

@@ -21,12 +21,13 @@ class NestedWidget(BaseWidget):
             # description=n_model.field_info.description,
             header_bg_color=self.BG_COLOR,
             on_submit=None,
-            view_json_button=False,
             view_annotation_type=self.view_annotation_type,
-            view_clear_button=False,
             view_type_error_message=self.view_type_error_message,
             _is_nullable=self.normalized_type.is_nullable,
         )
+        del self._form.buttons['json']
+        del self._form.buttons['clear']
+        
         self._form._is_nested = True
 
     def collect(self) -> Optional[Any]:

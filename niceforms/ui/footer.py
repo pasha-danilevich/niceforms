@@ -2,10 +2,11 @@ import logging
 from typing import Callable, Optional
 
 from nicegui import ui
+from nicegui.element import Element
 from nicegui.elements.button import Button
 from pydantic import BaseModel
-
-from niceforms.constants import PRIMARY_COLOR_GRADIENT
+import inspect
+from .button import FormButton
 from .json_viewer import JsonDialog
 from .ui_component import UIComponent
 from ..actions import BuildModel, OnSubmit
@@ -19,53 +20,21 @@ class Footer(UIComponent):
         self,
         model: type[BaseModel],
         on_submit: Optional[OnSubmit],
-        on_collect: BuildModel,
-        on_clear: Callable[[], None],
-        view_clear_button: bool = True,
-        view_json_button: bool = True,
-        view_submit_button: bool = True,
+        on_collect: Callable,
+        buttons: list[FormButton],
     ) -> None:
         self.model = model
         self.on_submit = on_submit
         self.collect = on_collect
-        self.on_clear = on_clear
-        self.view_clear_button = view_clear_button
-        self.view_json_button = view_json_button
-        self.view_submit_button = view_submit_button
+        self.buttons = buttons
 
         self._write_to_form_button: Optional[Button] = None
         self._submit_button: Optional[Button] = None
 
-    def render_json_viewer_dialog(self) -> None:
-        JsonDialog(model=self.collect()).render()
 
-    async def submit(self) -> None:
-
-        if self.on_submit is None:
-            logger.warning(f"on_submit function do not provided")
-            return
-        try:
-            base_model = self.collect()
-        except FormError:
-            return
-
-        await self.on_submit(base_model)
-
-    def render(self) -> None:
-        with ui.row().classes("w-full justify-end gap-3"):
-            if self.view_clear_button:
-                ui.button("Очистить", on_click=self.on_clear).props(
-                    "outlined flat"
-                ).classes("px-6 py-2")
-
-            if self.view_json_button:
-                ui.button(
-                    "Показать json", on_click=self.render_json_viewer_dialog
-                ).props("outlined flat").classes("px-6 py-2")
-
-            if self.view_submit_button:
-                self._submit_button = (
-                    ui.button("Отправить", on_click=self.submit, icon="send")
-                    .props("unelevated")
-                    .classes(f"{PRIMARY_COLOR_GRADIENT} text-white px-8 py-2")
-                )
+    def render(self) -> Element:
+        with ui.row().classes("w-full justify-end gap-3") as root:
+            for button in self.buttons:
+                btn = button.render()
+                
+        return root

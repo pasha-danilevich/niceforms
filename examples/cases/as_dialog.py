@@ -1,15 +1,4 @@
-"""Самый простой пример использования niceforms.
 
-Что происходит:
-
-Есть Pydantic-модель User
-На её основе строится форма
-При отправке выводится результат
-
-Что полезного показывает:
-
-Базовый сценарий: модель → форма → submit
-Как подключить BaseModelForm"""
 
 from enum import Enum
 from typing import Optional
@@ -38,9 +27,9 @@ class User(BaseModel):
     style: Style = Style.Yellow
 
 
-@router.page('/basic')
+@router.page('/as_dialog')
 @base
-async def basic() -> None:
+async def as_dialog() -> None:
     with ui.column().classes('w-full max-w-xl mx-auto'):
         TheNavigation(
             description='Это твоя точка входа. С этого нужно начинать.'
@@ -51,4 +40,6 @@ async def basic() -> None:
 
         form = BaseModelForm(User, on_submit=submit_handler, view_annotation_type=False)
         form.wrapper_classes = form.wrapper_classes + ' max-w-xl'
-        form.render()
+        dialog = form.render(wrap='dialog')
+        
+        ui.button('Open', on_click=dialog.open)

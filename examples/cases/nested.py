@@ -69,7 +69,7 @@ async def nested() -> None:
             User,
             on_submit=submit_handler,
             view_annotation_type=False,
-            view_clear_button=True,
-            view_json_button=False,
         )
-        x = form.render(wrap='dialog')
+        del form.buttons['json']
+        del form.buttons['submit']
+        form.render()
