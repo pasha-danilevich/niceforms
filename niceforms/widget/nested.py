@@ -6,24 +6,23 @@ from niceforms import BaseWidget
 
 
 class NestedWidget(BaseWidget):
-    BG_COLOR = "#2eeead"
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.model = self.normalized_type.origin_type
         self.view_type_error_message = kwargs.get('view_type_error_message', True)
+        self.expand_nested_form = kwargs.get('expand_nested_form', False)
+        self.nested_header_bg_color = kwargs.get('nested_header_bg_color','#747dff')
         
         from niceforms import BaseModelForm
 
         self._form = BaseModelForm(
             model=self.model,
             title=self.field.title if self.field.title else self.field_name.title(),
-            # description=n_model.field_info.description,
-            header_bg_color=self.BG_COLOR,
+            header_bg_color=self.nested_header_bg_color,
             on_submit=None,
-            view_annotation_type=self.view_annotation_type,
-            view_type_error_message=self.view_type_error_message,
             _is_nullable=self.normalized_type.is_nullable,
+            **kwargs,
         )
         del self._form.buttons['json']
         del self._form.buttons['clear']
@@ -42,7 +41,9 @@ class NestedWidget(BaseWidget):
     
     def render(self) -> Element:
         self.form.render_without_wrapper()
-        self.form.body.root.set_visibility(False)
+        if self.form.header.is_expanded and not self.expand_nested_form:
+            self.form.header.toggle_expand_parent()
+
         return Element()
 
     def fill(self, data: Any | None) -> None:

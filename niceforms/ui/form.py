@@ -9,10 +9,10 @@ from typing import (
 )
 
 from nicegui import ui
-from nicegui.event import Event
 from nicegui.element import Element
 from nicegui.elements.card import Card
 from nicegui.elements.dialog import Dialog
+from nicegui.event import Event
 from pydantic import BaseModel, ConfigDict, ValidationError
 from pydantic.fields import FieldInfo
 
@@ -31,9 +31,11 @@ from ..widget import BaseWidget
 
 logger = logging.getLogger(__name__)
 
+
 class EventGroup(Generic[T]):
     def __init__(self) -> None:
         self.submit = Event[T]()
+
 
 class NestedForm(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -51,23 +53,86 @@ class BaseModelForm(UIComponent, Generic[T]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         header_bg_color: Optional[str] = None,
-        view_annotation_type: bool = False,
-        view_type_error_message: bool = True,
         _is_nullable: bool = False,
+        **kwargs,
     ) -> None:
+        """
+        Динамический генератор форм на основе Pydantic-модели.
 
+        Форма автоматически создает виджеты для полей модели,
+        выполняет валидацию введенных данных и возвращает
+        экземпляр модели после отправки формы.
+
+        Args:
+            model:
+                Класс Pydantic-модели, на основе которого строится форма.
+
+            on_submit:
+                Callback-функция, вызываемая после успешной
+                валидации и отправки формы.
+
+                Получает экземпляр валидированной модели.
+
+            title:
+                Заголовок формы, отображаемый в верхней части.
+
+            description:
+                Дополнительное описание формы под заголовком.
+
+            header_bg_color:
+                Цвет фона заголовка основной формы.
+
+                Примеры:
+                    "#1e1e1e"
+                    "red"
+                    "rgb(255, 0, 0)"
+
+            _is_nullable:
+                Внутренний флаг, указывающий, что форма отображается
+                внутри Optional-поля вложенной модели.
+
+                Обычно не должен задаваться вручную.
+
+        Keyword Args:
+            view_annotation_type (bool):
+                Отображать тип поля рядом с названием.
+
+                По умолчанию:
+                    False
+
+            view_type_error_message (bool):
+                Отображать ошибки валидации и преобразования типов
+                под виджетами.
+
+                По умолчанию:
+                    True
+
+            expand_nested_form (bool):
+                Автоматически раскрывать вложенные формы при рендере.
+
+                Если False, вложенные формы будут свернуты
+                до ручного раскрытия.
+
+                По умолчанию:
+                    False
+
+            nested_header_bg_color (str):
+                Цвет фона заголовков вложенных форм.
+
+                По умолчанию:
+                    "#747dff"
+        """
         from ..widget_factory import WidgetFactory
 
-        self.factory = WidgetFactory(
-            model, view_annotation_type, view_type_error_message
-        )
+        self.factory = WidgetFactory(model, **kwargs)
         self.event = EventGroup[T]()
 
         self.model = model
         self.on_submit = on_submit
         self.title = title or model.__name__
         self.description = description or self.model.__doc__
-        self.header_bg_color = header_bg_color
+        self.header_bg_color = header_bg_color if header_bg_color else PRIMARY_COLOR_GRADIENT
+        self.kwargs: dict[str, Any] = kwargs
 
         self._is_nullable = _is_nullable
         self._is_rendered: bool = False

@@ -19,20 +19,20 @@ class Header(UIComponent):
     def __init__(
         self,
         title: str,
+        bg_color: str,
         description: Optional[str],
         body: Body,
         is_nested: bool,
         is_nullable: bool = False,
-        bg_color: Optional[str] = None,
     ) -> None:
         self.title = title
         self.description = description
         self.body = body
         self.is_nested = is_nested
         self.is_nullable = is_nullable
-        self.bg_color = bg_color if bg_color else PRIMARY_COLOR_GRADIENT
+        self.bg_color = bg_color
 
-        self._is_expanded = False
+        self.is_expanded = True
         self._button: Optional[Button] = None
         self._description: Optional[Element] = None
         self._expand_icon: Optional[NameElement] = None
@@ -41,16 +41,16 @@ class Header(UIComponent):
         self._main_container: Optional[Element] = None
 
         self._is_none: bool = False
-    
+
     @property
     def delete_icon(self) -> NameElement:
         if not self._delete_icon:
             raise ValueError("Not rendered yet")
         return self._delete_icon
-    
+
     def set_enabled(self, value: bool) -> None:
         raise NotImplementedError()
-    
+
     @property
     def is_none(self) -> bool:
         return self._is_none
@@ -73,8 +73,11 @@ class Header(UIComponent):
                 self._main_container.style('background: #6c757d')  # Серый цвет
                 self._expand_icon.set_visibility(False)
                 self.hidde_error_icon()
-                if self._is_expanded:
-                    self.parent_card.style('height: 100px')
+                if self.is_expanded:
+                    self.body.root.set_visibility(False)
+                    self.is_expanded = False
+                    self._expand_icon.props('name=unfold_more')  # иконка развернуть
+                    self._expand_icon.tooltip('Развернуть')
                     if self._description:
                         self._description.set_visibility(False)
                 if self._delete_icon:
@@ -91,16 +94,16 @@ class Header(UIComponent):
         return self._is_none
 
     def toggle_expand_parent(self) -> None:
-        if self._is_expanded:
+        if self.is_expanded:
             self.body.root.set_visibility(False)
-            self._is_expanded = False
+            self.is_expanded = False
             self._expand_icon.props('name=unfold_more')  # иконка развернуть
             self._expand_icon.tooltip('Развернуть')
             if self._description:
                 self._description.set_visibility(False)
         else:
             self.body.root.set_visibility(True)
-            self._is_expanded = True
+            self.is_expanded = True
             self._expand_icon.props('name=unfold_less')  # иконка свернуть
             self._expand_icon.tooltip('Свернуть')
             if self._description:

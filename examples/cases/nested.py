@@ -76,7 +76,6 @@ async def nested() -> None:
         form = BaseModelForm[User](
             User,
             on_submit=submit_handler,
-            view_annotation_type=False,
         )
         del form.buttons['json']
         del form.buttons['submit']

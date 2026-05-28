@@ -27,10 +27,6 @@ from .widget.unknown_type import UnknownTypeWidget
 logger = logging.getLogger(__name__)
 
 
-from collections import defaultdict
-from typing import get_origin, get_args
-
-
 class WidgetFactory:
     widgets: dict[type, type[BaseWidget]] = {
         str: StringWidget,
@@ -52,16 +48,14 @@ class WidgetFactory:
     _base_widgets = widgets.copy()
     _insert_history: list[tuple[type, type[BaseWidget]]] = []
 
-    def __init__(self, model: type[BaseModel], view_annotation: bool, view_type_error_message: bool) -> None:
+    def __init__(self, model: type[BaseModel], **kwargs) -> None:
         self.model = model
-        self.view_annotation_type = view_annotation
-        self.view_type_error_message = view_type_error_message
+        self.kwargs = kwargs
+
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore # field_name: FieldInfo
 
     @classmethod
-    def insert_new_widget(
-        cls, field_type: type, widget_type: type[BaseWidget]
-    ) -> None:
+    def insert_new_widget(cls, field_type: type, widget_type: type[BaseWidget]) -> None:
         assert issubclass(
             widget_type, BaseWidget
         ), 'Widget must be a subclass of BaseWidget'
@@ -97,7 +91,7 @@ class WidgetFactory:
 
         if widget_type is None:
 
-            if self.view_type_error_message:
+            if self.kwargs.get('view_type_error_message', True):
                 widget_type = UnknownTypeWidget
                 logger.warning(
                     f'No widget for field "{field_name}". Type {field_info.annotation}. Creating default {widget_type.__name__}'
@@ -117,15 +111,25 @@ class WidgetFactory:
         kwargs: Optional[dict] = None,
     ) -> BaseWidget:
         kwargs = kwargs or {}
-        kwargs.update(view_annotation_type=self.view_annotation_type, view_type_error_message=self.view_type_error_message)
+
+        merged_kwargs = {
+            **self.kwargs,
+            **kwargs,
+        }
+
+        # удаляем системные параметры
+        merged_kwargs.pop('field_info', None)
+        merged_kwargs.pop('field_name', None)
+
+        logger.debug(f"Build widget with kwargs: {merged_kwargs}")
+
         field_info = self.fields[field_name]
 
         if widget_type:
             return widget_type(
                 field_info=field_info,
                 field_name=field_name,
-                view_annotation=self.view_annotation_type,
-                **kwargs,
+                **merged_kwargs,
             )
 
         return self.ensure_widget_type(
@@ -134,8 +138,7 @@ class WidgetFactory:
         )(
             field_info=field_info,
             field_name=field_name,
-            view_annotation=self.view_annotation_type,
-            **kwargs,
+            **merged_kwargs,
         )
 
     @classmethod
