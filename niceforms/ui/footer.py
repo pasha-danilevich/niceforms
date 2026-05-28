@@ -31,10 +31,17 @@ class Footer(UIComponent):
         self._write_to_form_button: Optional[Button] = None
         self._submit_button: Optional[Button] = None
 
+        self._root: Optional[Element] = None
+
+    @property
+    def root(self) -> Element:
+        if self._root is None:
+            raise ValueError("Not rendered")
+        return self._root
 
     def render(self) -> Element:
-        with ui.row().classes("w-full justify-end gap-3") as root:
+        with ui.row().classes("w-full justify-end gap-3") as self._root:
             for button in self.buttons:
                 btn = button.render()
-                
-        return root
+
+        return self.root

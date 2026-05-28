@@ -36,6 +36,13 @@ class Address(BaseModel):
     city: str
     coordinates: Coordinates
 
+class Person(BaseModel):
+    """Some description"""
+    name: str
+    age: int
+
+class Relationship(BaseModel):
+    users: list[Person]
 
 class Appearance(BaseModel):
     """Appearance"""
@@ -53,6 +60,7 @@ class User(BaseModel):
     appearance: Appearance = Field(
         ..., title="Внешний вид", description="Отличительные черты персоны"
     )
+    relationship: Relationship = Field(title="Оооочень длинный заголовок, который не вмещается в шапку")
 
 
 @router.page('/nested')

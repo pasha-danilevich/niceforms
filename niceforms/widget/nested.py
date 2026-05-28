@@ -41,8 +41,8 @@ class NestedWidget(BaseWidget):
         self.form.header.delete_icon.set_visibility(value)
     
     def render(self) -> Element:
-        self.form.render()
-        self.form.body_element.style('height: 100px')
+        self.form.render_without_wrapper()
+        self.form.body.root.set_visibility(False)
         return Element()
 
     def fill(self, data: Any | None) -> None:

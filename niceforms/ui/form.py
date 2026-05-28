@@ -99,7 +99,27 @@ class BaseModelForm(UIComponent, Generic[T]):
 
             self.widgets[field_name] = w
 
-        self.header: Optional[Header] = None
+        self._header: Optional[Header] = None
+        self._body: Optional[Body] = None
+        self._footer: Optional[Footer] = None
+
+    @property
+    def header(self) -> Header:
+        if self._header is None:
+            raise ValueError("Not rendered")
+        return self._header
+
+    @property
+    def body(self) -> Body:
+        if self._body is None:
+            raise ValueError("Not rendered")
+        return self._body
+
+    @property
+    def footer(self) -> Footer:
+        if self._footer is None:
+            raise ValueError("Not rendered")
+        return self._footer
 
     async def submit(self) -> None:
         try:
@@ -205,28 +225,34 @@ class BaseModelForm(UIComponent, Generic[T]):
             ui.notify(f"Исправьте ошибки в форме: {self.title}")
             raise FormError(form_name=self.title)
 
-    def render_without_wrapper(self) -> None:
-        self.header = Header(
-            title=self.title,
-            description=self.description,
-            bg_color=self.header_bg_color,
-            parent_card=self.body_element,
-            is_nested=self._is_nested,
-            is_nullable=self._is_nullable,
-        )
-        self.header.render()
+    def render_without_wrapper(self) -> Element:
+        with ui.element().classes('w-full') as self.root:
+            self._body = Body(
+                widgets=list(self.widgets.values()),
+            )
 
-        Body(
-            widgets=list(self.widgets.values()),
-        ).render()
-
-        if not self._is_nested:
-            Footer(
+            self._header = Header(
+                title=self.title,
+                description=self.description,
+                bg_color=self.header_bg_color,
+                body=self.body,
+                is_nested=self._is_nested,
+                is_nullable=self._is_nullable,
+            )
+            self._footer = Footer(
                 model=self.model,
                 on_submit=self.on_submit,
                 on_collect=self.build_model,
                 buttons=list(self.buttons.values()),
-            ).render()
+            )
+
+            self.header.render()
+            self.body.render()
+
+            if not self._is_nested:
+                self.footer.render()
+
+        return self.root
 
     @overload
     def render(self) -> Card: ...

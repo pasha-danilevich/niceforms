@@ -6,6 +6,7 @@ from nicegui.element import Element
 from nicegui.elements.button import Button
 from nicegui.elements.mixins.name_element import NameElement
 
+from .body import Body
 from .ui_component import UIComponent
 from niceforms.constants import DEFAULT_PADDING, PRIMARY_COLOR_GRADIENT
 
@@ -19,14 +20,14 @@ class Header(UIComponent):
         self,
         title: str,
         description: Optional[str],
-        parent_card: Element,
+        body: Body,
         is_nested: bool,
         is_nullable: bool = False,
         bg_color: Optional[str] = None,
     ) -> None:
         self.title = title
         self.description = description
-        self.parent_card = parent_card
+        self.body = body
         self.is_nested = is_nested
         self.is_nullable = is_nullable
         self.bg_color = bg_color if bg_color else PRIMARY_COLOR_GRADIENT
@@ -91,14 +92,14 @@ class Header(UIComponent):
 
     def toggle_expand_parent(self) -> None:
         if self._is_expanded:
-            self.parent_card.style('height: 100px')
+            self.body.root.set_visibility(False)
             self._is_expanded = False
             self._expand_icon.props('name=unfold_more')  # иконка развернуть
             self._expand_icon.tooltip('Развернуть')
             if self._description:
                 self._description.set_visibility(False)
         else:
-            self.parent_card.style('height: 100%')
+            self.body.root.set_visibility(True)
             self._is_expanded = True
             self._expand_icon.props('name=unfold_less')  # иконка свернуть
             self._expand_icon.tooltip('Свернуть')
@@ -117,7 +118,12 @@ class Header(UIComponent):
         with self._main_container:
             # Контейнер для заголовка и кнопок
             with ui.element().classes("flex justify-between items-start"):
-                ui.label(self.title).classes("text-2xl font-bold text-white")
+                if self.is_nested:
+                    label_classes = "text-base font-bold text-white"
+                else:
+                    label_classes = "text-2xl font-bold text-white"
+
+                ui.label(self.title).classes(label_classes)
 
                 # Контейнер для иконок справа
                 with ui.element().classes("flex gap-2 items-center"):
@@ -132,7 +138,7 @@ class Header(UIComponent):
                     # Иконка удаления/восстановления
                     if self.is_nested and self.is_nullable:
                         self._delete_icon = (
-                            ui.icon('delete_outline', size="md")
+                            ui.icon('delete_outline', size="sm")
                             .classes(
                                 "cursor-pointer text-white/70 hover:text-white "
                                 "transition-all duration-200"
@@ -144,7 +150,7 @@ class Header(UIComponent):
                     # Иконка развернуть/свернуть
                     if self.is_nested:
                         self._expand_icon = (
-                            ui.icon('unfold_more', size="md")
+                            ui.icon('unfold_more', size="sm")
                             .classes(
                                 "cursor-pointer text-white/70 hover:text-white "
                                 "transition-all duration-200"
