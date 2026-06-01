@@ -121,6 +121,13 @@ class BaseModelForm(UIComponent, Generic[T]):
 
                 По умолчанию:
                     "#747dff"
+
+            render_widget_variant (Literal['default', 'slim'])
+                Варианты отображения виджета в теле формы
+
+                По умолчанию:
+                    "default"
+
         """
         from ..widget_factory import WidgetFactory
 
@@ -292,8 +299,17 @@ class BaseModelForm(UIComponent, Generic[T]):
 
     def render_without_wrapper(self) -> Element:
         with ui.element().classes('w-full') as self.root:
+            try:
+                from .render_widget_variant import VARIANTS
+
+                variant = self.kwargs.get('render_widget_variant', 'default')
+                func = VARIANTS[variant]
+            except KeyError:
+                raise ValueError("No variant")
+
             self._body = Body(
                 widgets=list(self.widgets.values()),
+                render_widget=func,
             )
 
             self._header = Header(

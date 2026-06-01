@@ -1,4 +1,4 @@
-from typing import cast, Optional
+from typing import cast, Optional, Callable
 
 from nicegui import ui
 from nicegui.element import Element
@@ -7,8 +7,9 @@ from niceforms.widget import BaseWidget, BaseValidationWidget
 
 
 class Body:
-    def __init__(self, widgets: list[BaseWidget]) -> None:
+    def __init__(self, widgets: list[BaseWidget], render_widget: Callable[[BaseWidget], Element] | None) -> None:
         self.widgets = widgets
+        self.render_widget = render_widget
         self._root: Optional[Element] = None
 
     @property
@@ -23,19 +24,7 @@ class Body:
 
         with ui.column().classes(f"w-full p-1 sm:p-4 gap-[0px]") as self._root:
             for w in self.widgets:
-
-                with ui.element().classes(f"w-full"):
-                    w.render_label()
-                    el = w.render()
-                    w.set_element(el)
-
-                    if not isinstance(w, BaseValidationWidget):
-                        w.render_error()
-
-                    if isinstance(w.element, ValidationElement):
-                        el = cast(ValidationElement, w.element)
-                        el.on('blur', el.validate)
-
-                    widgets.append(w)
+                self.render_widget(w)
+                widgets.append(w)
 
         return self.root

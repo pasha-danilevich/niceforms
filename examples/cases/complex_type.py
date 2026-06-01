@@ -65,7 +65,7 @@ async def complex_type() -> None:
         async def submit_handler(model: UserForm):
             print(f"Пользователь создан: {model}")
 
-        form = BaseModelForm(UserForm, on_submit=submit_handler)
+        form = BaseModelForm(UserForm, on_submit=submit_handler, render_widget_variant='slim')
         form.render()
 
         form.fill({'created_at': datetime.datetime.now()})
