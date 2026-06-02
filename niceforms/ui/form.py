@@ -160,7 +160,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         }
 
         # style
-        self.wrapper_classes = f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl overflow-hidden sm:p-4 gap-0"
+        self.wrapper_classes = f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl sm:p-4 gap-0"
         self.body_element = None  # тело всей формы
         self._is_nested = False
         self.widgets: dict[str, BaseWidget] = {}  # field_name: BaseWidget
