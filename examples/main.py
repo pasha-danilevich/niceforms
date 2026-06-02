@@ -56,4 +56,4 @@ app.include_router(as_dialog.router)
 app.include_router(widget_visibility.router)
 
 if __name__ in {"__main__", "__mp_main__"}:
-    ui.run(show=False, reload=False, storage_secret='storage_secret', port=8000)
+    ui.run(show=False, reload=False, storage_secret='storage_secret', port=8001)

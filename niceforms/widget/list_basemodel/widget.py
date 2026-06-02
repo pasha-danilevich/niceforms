@@ -112,4 +112,9 @@ class ListBaseModelWidget(BaseWidget):
 
     def set_enabled(self, value: bool) -> None:
         self.component.add_button.set_visibility(value)
+
+        for record in self.component.records:
+            record.edit_btn.set_visibility(value)
+            record.delete_btn.set_visibility(value)
+
         self.label.close_button.set_visibility(value)

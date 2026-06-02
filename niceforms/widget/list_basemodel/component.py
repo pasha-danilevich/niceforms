@@ -47,6 +47,29 @@ class RecordLine(UIComponent):
         self.on_edit = on_edit
         self.on_delete = on_delete
 
+        # button
+        self._view_btn: Optional[Button] = None
+        self._edit_btn: Optional[Button] = None
+        self._delete_btn: Optional[Button] = None
+
+    @property
+    def view_btn(self) -> Button:
+        if self._view_btn is None:
+            raise ValueError("view btn is not rendered yet!")
+        return self._view_btn
+
+    @property
+    def edit_btn(self) -> Button:
+        if self._edit_btn is None:
+            raise ValueError("edit btn is not rendered yet!")
+        return self._edit_btn
+
+    @property
+    def delete_btn(self) -> Button:
+        if self._delete_btn is None:
+            raise ValueError("delete btn is not rendered yet!")
+        return self._delete_btn
+
     def render(self) -> None:
         with ui.row().classes(
             'w-full justify-between items-center p-2 bg-gray-50 rounded-xl'
@@ -55,7 +78,7 @@ class RecordLine(UIComponent):
 
             with ui.row().classes('gap-1'):
                 # Кнопка "Показать" с иконкой visibility
-                ui.button(
+                self._view_btn = ui.button(
                     icon='visibility',
                     on_click=lambda: self.on_view(self.model),
                 ).props('flat round').classes('hover:bg-blue-50').props(
@@ -65,7 +88,7 @@ class RecordLine(UIComponent):
                 )
 
                 # Кнопка "Редактировать" с иконкой edit
-                ui.button(
+                self._edit_btn = ui.button(
                     icon='edit',
                     on_click=lambda: self.on_edit(
                         model=self.model, index=self.list_index
@@ -77,7 +100,7 @@ class RecordLine(UIComponent):
                 )
 
                 # Кнопка "Удалить" с иконкой delete
-                ui.button(
+                self._delete_btn = ui.button(
                     icon='delete',
                     on_click=lambda: self.on_delete(
                         model=self.model, index=self.list_index
@@ -108,6 +131,7 @@ class ListComponent(UIComponent, Generic[T]):
         from niceforms import BaseModelForm
 
         self.form: BaseModelForm[T] = form
+        self.records: list[RecordLine] = []
         
     @property
     def add_button(self) -> Button:
@@ -136,7 +160,7 @@ class ListComponent(UIComponent, Generic[T]):
 
         with self.container:
             for i, record in enumerate(self.storage):
-                RecordLine(
+                line = RecordLine(
                     number=i + 1,
                     list_index=i,
                     title=self.ensure_title(record, i + 1),
@@ -144,7 +168,9 @@ class ListComponent(UIComponent, Generic[T]):
                     on_view=self.show_info,
                     on_edit=self.show_edit_dialog,
                     on_delete=self.delete,
-                ).render()
+                )
+                line.render()
+                self.records.append(line)
 
             if not self.storage:
                 VoidRecordLine().render()

@@ -50,23 +50,6 @@ class EditDialog(UIComponent):
         self.form: BaseModelForm = form
 
     def render(self) -> Dialog:
-        # with ui.dialog() as dialog:
-        #     with ui.card().classes('w-full'):
-        #         ui.label("Редактировать").classes('text-xl font-bold mb-4')
-        #
-        #         self.form.title = self.record_title_getter(self.model)
-        #         self.form.render(wrap='dialog')
-        #         self.form.fill(data=self.model.model_dump())
-        #
-        #         with ui.row().classes('justify-end gap-2 mt-4'):
-        #             ui.button('Отмена', on_click=dialog.close).props('flat')
-        #             ui.button(
-        #                 'Сохранить',
-        #                 on_click=lambda: self.on_edit(
-        #                     model=self.form.build_model(), index=self.index
-        #                 ),
-        #             ).props('color=primary')
-
         self.form.title = self.record_title_getter(self.model)
         self.form.buttons['submit'] = PositiveButton(
             text='Обновить запись',
@@ -116,8 +99,12 @@ class ViewDialog(UIComponent):
 
     def render(self) -> Dialog:
         self.form.title = self.record_title_getter(self.model)
-        dialog = self.form.render(wrap='dialog')
+        send_btn = self.form.buttons.get("submit")
 
+        if send_btn:
+            del self.form.buttons["submit"]
+
+        dialog = self.form.render(wrap='dialog')
         self.form.fill(data=self.model.model_dump())
 
         for w in self.form.widgets.values():
