@@ -78,44 +78,53 @@ class RecordLine(UIComponent):
 
             with ui.row().classes('gap-1'):
                 # Кнопка "Показать" с иконкой visibility
-                self._view_btn = ui.button(
-                    icon='visibility',
-                    on_click=lambda: self.on_view(self.model),
-                ).props('flat round').classes('hover:bg-blue-50').props(
-                    'size=0.75rem'
-                ).tooltip(
-                    'Показать'
+                self._view_btn = (
+                    ui.button(
+                        icon='visibility',
+                        on_click=lambda: self.on_view(self.model),
+                    )
+                    .props('flat round')
+                    .classes('hover:bg-blue-50')
+                    .props('size=0.75rem')
+                    .tooltip('Показать')
                 )
 
                 # Кнопка "Редактировать" с иконкой edit
-                self._edit_btn = ui.button(
-                    icon='edit',
-                    on_click=lambda: self.on_edit(
-                        model=self.model, index=self.list_index
-                    ),
-                ).props('flat round').classes('hover:bg-orange-50').props(
-                    'size=0.75rem'
-                ).tooltip(
-                    'Редактировать'
+                self._edit_btn = (
+                    ui.button(
+                        icon='edit',
+                        on_click=lambda: self.on_edit(
+                            model=self.model, index=self.list_index
+                        ),
+                    )
+                    .props('flat round')
+                    .classes('hover:bg-orange-50')
+                    .props('size=0.75rem')
+                    .tooltip('Редактировать')
                 )
 
                 # Кнопка "Удалить" с иконкой delete
-                self._delete_btn = ui.button(
-                    icon='delete',
-                    on_click=lambda: self.on_delete(
-                        model=self.model, index=self.list_index
-                    ),
-                ).props('flat round color=negative').classes('hover:bg-red-50').props(
-                    'size=0.75rem'
-                ).tooltip(
-                    'Удалить'
+                self._delete_btn = (
+                    ui.button(
+                        icon='delete',
+                        on_click=lambda: self.on_delete(
+                            model=self.model, index=self.list_index
+                        ),
+                    )
+                    .props('flat round color=negative')
+                    .classes('hover:bg-red-50')
+                    .props('size=0.75rem')
+                    .tooltip('Удалить')
                 )
 
 
 class ListComponent(UIComponent, Generic[T]):
 
     def __init__(
-        self, storage: list[T], record_title_getter: Callable[[T], Optional[str]], form
+        self,
+        storage: list[T],
+        record_title_getter: Callable[[T], Optional[str]],
+        form,
     ) -> None:
         self.storage: list[T] = storage
         self.record_title_getter = record_title_getter
@@ -125,20 +134,21 @@ class ListComponent(UIComponent, Generic[T]):
         self.dialog: Optional[Dialog] = None
         self.current_user = None
         self.is_edit_mode: bool = False
-        
+
         self._add_button: Optional[Button] = None
 
         from niceforms import BaseModelForm
 
         self.form: BaseModelForm[T] = form
         self.records: list[RecordLine] = []
-        
+
     @property
     def add_button(self) -> Button:
         if not self._add_button:
             raise ValueError('Not rendered yet')
-        
+
         return self._add_button
+
     def ensure_title(self, model: BaseModel, number: int) -> str:
         text = self.record_title_getter(model)
         return text if text is not None else f'Запись №{number}'
@@ -151,7 +161,9 @@ class ListComponent(UIComponent, Generic[T]):
             self.refresh_list()
 
             # Кнопка добавления
-            self._add_button = PositiveButton("", on_click=self.show_add_dialog, icon='add', classes='w-full').render()
+            self._add_button = PositiveButton(
+                "", on_click=self.show_add_dialog, icon='add', classes='w-full'
+            ).render()
         return column
 
     def refresh_list(self):
