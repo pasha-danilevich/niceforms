@@ -98,8 +98,10 @@ class BaseWidget(UIComponent, ABC):
         self._container: Optional[Element] = None
         
         from .. import BaseModelForm
+        from .list_basemodel import ListBaseModelWidget
 
         self._form: Optional[BaseModelForm] = None
+        self._column: Optional[ListBaseModelWidget] = None
 
     @abstractmethod
     def fill(self, data: Optional[Any]) -> None:
@@ -132,10 +134,15 @@ class BaseWidget(UIComponent, ABC):
 
     @property
     def form(self):
-        assert (
-            self._form is not None
-        ), f"Current widget {self.__class__.__name__} does not support form within himself"
+        if self._form is None:
+            raise ValueError(f"Current widget {self.__class__.__name__} does not support .form within himself. Only BaseModel field support .form")
         return self._form
+    
+    @property
+    def column(self):
+        if self._column is None:
+            raise ValueError(f"Current widget {self.__class__.__name__} does not support .column within himself. Only list[BaseModel] field support .column")
+        return self._column
     
     @property
     def label(self) -> WidgetLabel:

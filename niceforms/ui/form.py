@@ -229,6 +229,7 @@ class BaseModelForm(UIComponent, Generic[T]):
 
     def fill(self, data: dict[str, Any] | None) -> None:
         """Наполнить виджеты данными"""
+        logger.debug(f'Filling form: {self.title}: {data}')
         if data is None:
             return
 

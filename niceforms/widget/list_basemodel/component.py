@@ -1,13 +1,14 @@
 from typing import Optional, Callable, Generic
 
-from nicegui import ui
+from nicegui import ui, Event
 from nicegui.element import Element
 from nicegui.elements.button import Button
-from nicegui.elements.dialog import Dialog
 
 from .action import *
-from .dialog import AddDialog, ConfirmDeleteDialog, EditDialog, ViewDialog
+from .dialog import ConfirmDeleteDialog
+
 from ...ui.button import PositiveButton
+
 from ...ui.ui_component import UIComponent
 from ...utils import T
 
@@ -29,43 +30,75 @@ class VoidRecordLine(UIComponent):
 class RecordLine(UIComponent):
     def __init__(
         self,
+        record_title_getter: Callable[[T], Optional[str]],
         number: int,
         list_index: int,
         title: str,
         model: BaseModel,
-        on_view: SaveAction,
         on_edit: EditAction,
         on_delete: DeleteAction,
+        kwarg: dict,
     ) -> None:
+        from niceforms import BaseModelForm
+
         self.number = number
         self.list_index = list_index
         self.title = title
         self.model = model
 
         # actions
-        self.on_view = on_view
         self.on_edit = on_edit
         self.on_delete = on_delete
 
-        # button
+        # buttons
         self._view_btn: Optional[Button] = None
         self._edit_btn: Optional[Button] = None
         self._delete_btn: Optional[Button] = None
 
+        self.read_form = BaseModelForm(type(model), **kwarg)
+        self.edit_form = BaseModelForm(type(model), **kwarg)
+
+        self.read_form.buttons = {}
+        self.edit_form.buttons = {}
+
+        # configure ReadForm
+        self.read_form.title = record_title_getter(model)
+
+        # configure EditFrom
+        self.edit_form.title = record_title_getter(model)
+        self.edit_form.buttons['submit'] = PositiveButton(
+            text='Обновить запись',
+            on_click=lambda: self.on_edit(
+                model=self.edit_form.build_model(),
+                index=list_index,
+                dialog=self._edit_dialog,
+            ),
+        )
+
+        # dialogs
+        self._view_dialog = self.read_form.render(wrap='dialog')
+        self._edit_dialog = self.edit_form.render(wrap='dialog')
+
+        for w in self.read_form.widgets.values():
+            w.set_enabled(False)
+
+        self.read_form.fill(data=model.model_dump())
+        self.edit_form.fill(data=model.model_dump())
+
     @property
-    def view_btn(self) -> Button:
+    def view_button(self) -> Button:
         if self._view_btn is None:
             raise ValueError("view btn is not rendered yet!")
         return self._view_btn
 
     @property
-    def edit_btn(self) -> Button:
+    def edit_button(self) -> Button:
         if self._edit_btn is None:
             raise ValueError("edit btn is not rendered yet!")
         return self._edit_btn
 
     @property
-    def delete_btn(self) -> Button:
+    def delete_button(self) -> Button:
         if self._delete_btn is None:
             raise ValueError("delete btn is not rendered yet!")
         return self._delete_btn
@@ -81,11 +114,10 @@ class RecordLine(UIComponent):
                 self._view_btn = (
                     ui.button(
                         icon='visibility',
-                        on_click=lambda: self.on_view(self.model),
+                        on_click=self._view_dialog.open,
                     )
-                    .props('flat round')
+                    .props('flat round size=0.75rem')
                     .classes('hover:bg-blue-50')
-                    .props('size=0.75rem')
                     .tooltip('Показать')
                 )
 
@@ -93,13 +125,10 @@ class RecordLine(UIComponent):
                 self._edit_btn = (
                     ui.button(
                         icon='edit',
-                        on_click=lambda: self.on_edit(
-                            model=self.model, index=self.list_index
-                        ),
+                        on_click=self._edit_dialog.open,
                     )
-                    .props('flat round')
+                    .props('flat round size=0.75rem')
                     .classes('hover:bg-orange-50')
-                    .props('size=0.75rem')
                     .tooltip('Редактировать')
                 )
 
@@ -111,36 +140,45 @@ class RecordLine(UIComponent):
                             model=self.model, index=self.list_index
                         ),
                     )
-                    .props('flat round color=negative')
+                    .props('flat round color=negative size=0.75rem')
                     .classes('hover:bg-red-50')
-                    .props('size=0.75rem')
                     .tooltip('Удалить')
                 )
 
 
-class ListComponent(UIComponent, Generic[T]):
+class Column(UIComponent, Generic[T]):
 
     def __init__(
         self,
+        model_type: type[BaseModel],
         storage: list[T],
         record_title_getter: Callable[[T], Optional[str]],
-        form,
+        kwarg,
     ) -> None:
         self.storage: list[T] = storage
         self.record_title_getter = record_title_getter
-
+        self.kwarg = kwarg
         self.container: Optional[Element] = None
-
-        self.dialog: Optional[Dialog] = None
-        self.current_user = None
-        self.is_edit_mode: bool = False
 
         self._add_button: Optional[Button] = None
 
         from niceforms import BaseModelForm
 
-        self.form: BaseModelForm[T] = form
+        self.create_form = BaseModelForm(model_type, kwarg)
+
+        # configure CreateForm
+        self.create_form.title = 'Создать запись'
+        self.create_form.buttons = {
+            'submit': PositiveButton(
+                text='Добавить запись',
+                on_click=lambda: self.save(self.create_form.build_model()),
+            )
+        }
+        self._create_record_dialog = self.create_form.render(wrap='dialog')
+
         self.records: list[RecordLine] = []
+        
+        self.on_refresh = Event()
 
     @property
     def add_button(self) -> Button:
@@ -162,7 +200,10 @@ class ListComponent(UIComponent, Generic[T]):
 
             # Кнопка добавления
             self._add_button = PositiveButton(
-                "", on_click=self.show_add_dialog, icon='add', classes='w-full'
+                "",
+                on_click=self._create_record_dialog.open,
+                icon='add',
+                classes='w-full',
             ).render()
         return column
 
@@ -173,57 +214,34 @@ class ListComponent(UIComponent, Generic[T]):
         with self.container:
             for i, record in enumerate(self.storage):
                 line = RecordLine(
+                    record_title_getter=self.record_title_getter,
                     number=i + 1,
                     list_index=i,
                     title=self.ensure_title(record, i + 1),
                     model=record,
-                    on_view=self.show_info,
-                    on_edit=self.show_edit_dialog,
+                    on_edit=self.edit,
                     on_delete=self.delete,
+                    kwarg=self.kwarg,
                 )
                 line.render()
                 self.records.append(line)
 
             if not self.storage:
                 VoidRecordLine().render()
+        
+        self.on_refresh.emit()
 
-    def show_info(self, model: BaseModel):
-        """Показать информацию о записи"""
-        self.dialog = ViewDialog(
-            model=model,
-            record_title_getter=self.record_title_getter,
-            form=self.form,
-        ).render()
-        self.dialog.open()
-
-    def show_add_dialog(self):
-        """Показать диалог добавления пользователя"""
-        self.dialog = AddDialog(
-            on_save=self.save,
-            form=self.form,
-        ).render()
-        self.dialog.open()
-
-    def show_edit_dialog(self, model: BaseModel, index: int):
-        """Показать диалог редактирования пользователя"""
-        self.dialog = EditDialog(
-            on_edit=self.edit,
-            record_title_getter=self.record_title_getter,
-            model=model,
-            index=index,
-            form=self.form,
-        ).render()
-        self.dialog.open()
-
-    def edit(self, model: BaseModel, index: int) -> None:
+    def edit(self, model: BaseModel, index: int, dialog: Dialog) -> None:
         self.storage[index] = model
-        self.dialog.close()
+        dialog.close()
         self.refresh_list()
 
     def save(self, model: BaseModel) -> None:
         """Сохранить"""
         self.storage.append(model)
-        self.dialog.close()
+
+        self._create_record_dialog.close()
+
         self.refresh_list()
 
     def delete(self, model: BaseModel, index: int) -> None:
@@ -237,7 +255,7 @@ class ListComponent(UIComponent, Generic[T]):
         dialog = ConfirmDeleteDialog(
             on_confirm=confirm_delete,
             record_title=self.ensure_title(model, index + 1),
-            wrapper_classes=self.form.wrapper_classes,
+            wrapper_classes='',
         ).render()
 
         dialog.open()
