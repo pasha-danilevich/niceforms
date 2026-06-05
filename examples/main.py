@@ -18,6 +18,7 @@ from cases import disable_widget
 from cases import as_dialog
 from cases import widget_visibility
 from cases import custom_placeholder_getter
+from cases import readonly
 
 
 from nicegui import app, ui
@@ -40,6 +41,7 @@ async def index() -> None:
     ui.link(text='Отобразить как диалог', target='/as_dialog')
     ui.link(text='Управление видимостью виджетов', target='/widget_visibility')
     ui.link(text='Кастомизация placeholder', target='/placeholder')
+    ui.link(text='Read-only форма', target='/readonly')
 
 
 app.include_router(basic.router)
@@ -57,6 +59,7 @@ app.include_router(disable_widget.router)
 app.include_router(as_dialog.router)
 app.include_router(widget_visibility.router)
 app.include_router(custom_placeholder_getter.router)
+app.include_router(readonly.router)
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(show=False, reload=False, storage_secret='storage_secret', port=8001)

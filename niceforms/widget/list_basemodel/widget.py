@@ -103,6 +103,10 @@ class ListBaseModelWidget(BaseWidget):
         for record in self.column.records:
             record.edit_button.set_visibility(value)
             record.delete_button.set_visibility(value)
+            for widget in record.read_form.widgets.values():
+                if isinstance(widget, self.__class__):
+                    widget.set_enabled(value)
+
 
         self.label.close_button.set_visibility(value)
 

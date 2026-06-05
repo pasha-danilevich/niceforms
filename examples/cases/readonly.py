@@ -25,7 +25,7 @@ class User(BaseModel):
     height: Optional[int]
     style: Style = Style.Yellow
     birthday: Optional[datetime] = datetime.now()
-    start_dt: Optional[date] = datetime.now()
+    today: Optional[date] = datetime.now()
 
 
 @router.page('/readonly')
@@ -44,4 +44,16 @@ async def basic() -> None:
         form.render()
 
         form.set_readonly(True)
-        form.widgets["start_dt"].set_readonly(True)
+
+        form.fill(
+            {
+                "name": "John",
+                "surname": "Doe",
+                "height": 175,
+                "style": Style.Red,
+                "birthday": datetime(year=1986, month=12, day=16),
+                "today": datetime.now().strftime("%Y-%m-%d"),
+            }
+        )
+
+        form.widgets["today"].set_readonly(False)

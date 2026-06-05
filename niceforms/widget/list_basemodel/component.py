@@ -79,9 +79,6 @@ class RecordLine(UIComponent):
         self._view_dialog = self.read_form.render(wrap='dialog')
         self._edit_dialog = self.edit_form.render(wrap='dialog')
 
-        for w in self.read_form.widgets.values():
-            w.set_enabled(False)
-
         self.read_form.fill(data=model.model_dump())
         self.edit_form.fill(data=model.model_dump())
 
@@ -114,7 +111,7 @@ class RecordLine(UIComponent):
                 self._view_btn = (
                     ui.button(
                         icon='visibility',
-                        on_click=self._view_dialog.open,
+                        on_click=self._open_view,
                     )
                     .props('flat round size=0.75rem')
                     .classes('hover:bg-blue-50')
@@ -144,6 +141,10 @@ class RecordLine(UIComponent):
                     .classes('hover:bg-red-50')
                     .tooltip('Удалить')
                 )
+
+    def _open_view(self) -> None:
+        self.read_form.set_readonly(True)
+        self._view_dialog.open()
 
 
 class Column(UIComponent, Generic[T]):

@@ -250,10 +250,6 @@ class BaseWidget(UIComponent, ABC):
 
 
 class BaseValueWidget(BaseWidget, ABC):
-    
-    def set_readonly(self, value: bool) -> None:
-        self.element.props('readonly')
-    
     @abstractmethod
     def render(self) -> ValueElement:
         raise NotImplementedError

@@ -13,7 +13,7 @@ from niceforms import BaseWidget, BaseValueWidget
 class DateWidgetMixin:
 
     def default_placeholder_getter(self, widget: BaseWidget) -> str:
-        return '0000-00-00'
+        return 'ГГГГ-ММ-ДД'
 
 class DateWidget(DateWidgetMixin, BaseValueWidget):
     def __init__(self, *args, **kwargs) -> None:
@@ -214,7 +214,7 @@ class DateTimeWidget(DateWidgetMixin, BaseWidget):
                 .classes("w-full")
             )
             self._time_input = (
-                ui.time_input(on_change=self.hide_error)
+                ui.time_input(on_change=self.hide_error, placeholder="--:--")
                 .props("outlined dense")
                 .classes("")
             )

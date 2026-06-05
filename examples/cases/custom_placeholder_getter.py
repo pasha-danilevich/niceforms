@@ -4,6 +4,7 @@ from nicegui import APIRouter, ui
 from pydantic import BaseModel, Field
 
 from niceforms import BaseModelForm, BaseWidget
+from niceforms.widget.integer import IntegerWidget
 from niceforms.widget_factory import WidgetFactory
 from ._layout import base, TheNavigation
 router = APIRouter()
@@ -20,6 +21,8 @@ class User(BaseModel):
 def my_custom_placeholder_getter(widget: BaseWidget) -> Optional[str]:
     return f'my custom placeholder: {widget.field_name}'
 
+def exclusive_widget_custom_placeholder(widget: BaseWidget) -> Optional[str]:
+    return f"field name is: {widget.field_name}"
 
 @router.page('/placeholder')
 @base
@@ -38,4 +41,6 @@ async def basic() -> None:
             view_annotation_type=False,
             placeholder_getter=my_custom_placeholder_getter,
         )
+        form.custom_widget("height", IntegerWidget, placeholder_getter=exclusive_widget_custom_placeholder)
+
         form.render()
