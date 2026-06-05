@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from nicegui import ui
 from nicegui.element import Element
@@ -11,7 +11,7 @@ from nicegui.elements.time_input import TimeInput
 from niceforms import BaseWidget, BaseValueWidget
 
 class DateWidgetMixin:
-    
+
     def default_placeholder_getter(self, widget: BaseWidget) -> str:
         return '0000-00-00'
 
@@ -60,7 +60,21 @@ class DateWidget(DateWidgetMixin, BaseValueWidget):
     def set_enabled(self, value: bool) -> None:
         super().set_enabled(value)
         self.btn.set_enabled(value)
-    
+
+    def set_readonly(self, value: bool) -> None:
+        el = cast(DateInput, self.element)
+        if value:
+            el.props("readonly")
+            el.button.set_visibility(False)
+            self.label.close_button.set_visibility(False)
+            self.btn.set_visibility(False)
+        else:
+            el.props(remove="readonly")
+            el.button.set_visibility(True)
+            self.label.close_button.set_visibility(True)
+            self.btn.set_visibility(True)
+
+
     def render(self) -> ValueElement:
         with ui.row().classes("w-full").style(
             "display: flex; flex-direction: row; flex-wrap: nowrap;"
@@ -173,7 +187,23 @@ class DateTimeWidget(DateWidgetMixin, BaseWidget):
         self.time_input.set_enabled(value)
         self.btn.set_enabled(value)
         self.label.close_button.set_visibility(value)
-    
+
+    def set_readonly(self, value: bool) -> None:
+        if value:
+            self.date_input.props("readonly")
+            self.date_input.button.set_visibility(False)
+            self.time_input.props("readonly")
+            self.time_input.button.set_visibility(False)
+            self._btn.set_visibility(False)
+            self.label.close_button.set_visibility(False)
+        else:
+            self.date_input.props(remove="readonly")
+            self.date_input.button.set_visibility(True)
+            self.time_input.props(remove="readonly")
+            self.time_input.button.set_visibility(True)
+            self._btn.set_visibility(True)
+            self.label.close_button.set_visibility(True)
+
     def render(self) -> Element:
         with ui.row().classes("w-full").style(
             "display: flex; flex-direction: row; flex-wrap: nowrap;"

@@ -9,7 +9,6 @@ from ...utils import extract_inner_type
 
 
 class ListBaseModelWidget(BaseWidget):
-
     def __init__(
         self, title_getter: Optional[Callable[[BaseModel], str]] = None, **kwargs: Any
     ) -> None:
@@ -106,3 +105,6 @@ class ListBaseModelWidget(BaseWidget):
             record.delete_button.set_visibility(value)
 
         self.label.close_button.set_visibility(value)
+
+    def set_readonly(self, value: bool) -> None:
+        self.set_enabled(not value)

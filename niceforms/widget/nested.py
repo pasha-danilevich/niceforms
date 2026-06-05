@@ -39,6 +39,9 @@ class NestedWidget(BaseWidget):
     def set_enabled(self, value: bool) -> None:
         self.form.set_enabled(value)
         self.form.header.delete_icon.set_visibility(value)
+
+    def set_readonly(self, value: bool) -> None:
+        self.form.set_readonly(value)
     
     def render(self) -> Element:
         self.form.render_without_wrapper()

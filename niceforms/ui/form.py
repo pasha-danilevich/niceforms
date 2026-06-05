@@ -254,6 +254,10 @@ class BaseModelForm(UIComponent, Generic[T]):
         for w in self.widgets.values():
             w.set_enabled(value)
 
+    def set_readonly(self, value: bool) -> None:
+        for w in self.widgets.values():
+            w.set_readonly(value)
+
     def collect_data(self, validate: bool = True) -> dict[str, Any]:
         """Собирать данные введенные в виджетах
 

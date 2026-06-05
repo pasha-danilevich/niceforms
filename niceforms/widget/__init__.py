@@ -120,6 +120,10 @@ class BaseWidget(UIComponent, ABC):
     @abstractmethod
     def set_enabled(self, value: bool) -> None:
         raise NotImplementedError()
+
+    @abstractmethod
+    def set_readonly(self, value: bool) -> None:
+        raise NotImplementedError()
     
     @abstractmethod
     def clear(self) -> None:
@@ -269,7 +273,14 @@ class BaseValueWidget(BaseWidget, ABC):
         el: DisableableElement = self.element  # type: ignore
         el.set_enabled(value)
         self.label.close_button.set_visibility(value)
-        
+
+    def set_readonly(self, value: bool) -> None:
+        if value:
+            self.label.close_button.set_visibility(False)
+            self.element.props("readonly")
+        else:
+            self.label.close_button.set_visibility(True)
+            self.element.props(remove="readonly")
         
     @property
     def element(self) -> ValueElement:
