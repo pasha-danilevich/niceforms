@@ -36,6 +36,12 @@ class Status(str, Enum):
 class Address(BaseModel):
     street: str
     city: str
+    
+class Person(BaseModel):
+    """Some description"""
+
+    name: str
+    age: int
 
 
 class UserForm(BaseModel):
@@ -50,6 +56,7 @@ class UserForm(BaseModel):
     status: Status = Field(Status.INACTIVE, title="Статус")
     address: Address | None = Field(..., title="Адрес")
     tags: List[str] = Field(title="Теги")
+    relations: list[Person] = Field(default=[Person(name='Bob', age=30)])
     date: Optional[datetime.date] = Field(..., title="Дата")
     created_at: datetime.datetime = Field(..., title="Время создания")
 

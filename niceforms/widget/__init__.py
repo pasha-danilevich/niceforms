@@ -88,6 +88,7 @@ class BaseWidget(UIComponent, ABC):
         self.field = field_info
         self.field_name = field_name
         self.normalized_type = normalize_type(field_info.annotation)
+        self.placeholder_getter = kwargs.get('placeholder_getter', self.default_placeholder_getter)
 
         self.view_annotation_type = kwargs.get('view_annotation_type', False)
 
@@ -163,11 +164,10 @@ class BaseWidget(UIComponent, ABC):
 
     @property
     def placeholder(self) -> str:
-        return (
-            f"Введите {self.field.title.lower()}"
-            if self.field.title
-            else "Введите значение"
-        )
+        if self.placeholder_getter:
+            return self.placeholder_getter(self)
+        else:
+            return self.default_placeholder_getter(self)
 
     @property
     def default_value(self) -> Optional[Any]:
@@ -215,7 +215,14 @@ class BaseWidget(UIComponent, ABC):
         if self._error_label:
             self._error_icon.set_visibility(False)
             self._error_label.set_visibility(False)
-
+    
+    def default_placeholder_getter(self, widget: 'BaseWidget') -> str:
+        return (
+            f"Введите {self.field.title.lower()}"
+            if self.field.title
+            else "Введите значение"
+        )
+    
     def _set_element(self, element: Element, expected_type: type) -> None:
         assert isinstance(
             element, expected_type
@@ -239,7 +246,10 @@ class BaseWidget(UIComponent, ABC):
 
 
 class BaseValueWidget(BaseWidget, ABC):
-
+    
+    def set_readonly(self, value: bool) -> None:
+        self.element.props('readonly')
+    
     @abstractmethod
     def render(self) -> ValueElement:
         raise NotImplementedError

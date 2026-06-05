@@ -164,7 +164,7 @@ class Column(UIComponent, Generic[T]):
 
         from niceforms import BaseModelForm
 
-        self.create_form = BaseModelForm(model_type, kwarg)
+        self.create_form = BaseModelForm(model_type, **kwarg)
 
         # configure CreateForm
         self.create_form.title = 'Создать запись'

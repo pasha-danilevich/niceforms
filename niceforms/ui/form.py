@@ -127,6 +127,12 @@ class BaseModelForm(UIComponent, Generic[T]):
 
                 По умолчанию:
                     "w-full p-1 sm:p-4 gap-[0px]"
+            
+            placeholder_getter (Callable[[BaseWidget], str | None]
+                Кастомизация placeholder
+                
+                По умолчанию:
+                    BaseWidget.default_placeholder_getter
         """
         from ..widget_factory import WidgetFactory
 

@@ -10,8 +10,12 @@ from nicegui.elements.time_input import TimeInput
 
 from niceforms import BaseWidget, BaseValueWidget
 
+class DateWidgetMixin:
+    
+    def default_placeholder_getter(self, widget: BaseWidget) -> str:
+        return '0000-00-00'
 
-class DateWidget(BaseValueWidget):
+class DateWidget(DateWidgetMixin, BaseValueWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._btn: Optional[Button] = None
@@ -62,7 +66,7 @@ class DateWidget(BaseValueWidget):
             "display: flex; flex-direction: row; flex-wrap: nowrap;"
         ):
             el = (
-                ui.date_input(placeholder='1990-01-01', on_change=self.hide_error)
+                ui.date_input(placeholder=self.placeholder, on_change=self.hide_error)
                 .props("outlined dense")
                 .classes("w-full")
             )
@@ -74,7 +78,7 @@ class DateWidget(BaseValueWidget):
         return el
 
 
-class DateTimeWidget(BaseWidget):
+class DateTimeWidget(DateWidgetMixin, BaseWidget):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -175,12 +179,12 @@ class DateTimeWidget(BaseWidget):
             "display: flex; flex-direction: row; flex-wrap: nowrap;"
         ) as row:
             self._date_input = (
-                ui.date_input(placeholder='1990-01-01', on_change=self.hide_error)
+                ui.date_input(placeholder=self.placeholder, on_change=self.hide_error)
                 .props("outlined dense")
                 .classes("w-full")
             )
             self._time_input = (
-                ui.time_input(placeholder='12:00', on_change=self.hide_error)
+                ui.time_input(on_change=self.hide_error)
                 .props("outlined dense")
                 .classes("")
             )
