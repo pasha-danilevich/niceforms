@@ -9,14 +9,16 @@ from niceforms import BaseValidationWidget
 class SelectWidget(BaseValidationWidget):
 
     def __init__(
-        self,
-        options: dict[Hashable, str],
-        label: str = 'Выберите значение',
-        multiple: bool = False,
-        **kwargs,
+            self,
+            options: dict[Hashable, str],
+            with_input: bool = False,
+            label: str = 'Выберите значение',
+            multiple: bool = False,
+            **kwargs,
     ):
         super().__init__(**kwargs)
         self.options = options
+        self.with_input = with_input
         self.label_name = label
         self.multiple = multiple
 
@@ -33,9 +35,10 @@ class SelectWidget(BaseValidationWidget):
                 options=self.options,
                 validation=self.default_validations,
                 multiple=self.multiple,
+                with_input=self.with_input,
             )
             .props("outlined dense")
             .classes("w-full")
         )
-        
+
         return select
