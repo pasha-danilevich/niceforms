@@ -22,7 +22,7 @@ def default(widget: BaseWidget) -> Element:
             el.on('blur', el.validate)
     return root
 
-def slim(widget: BaseWidget) -> Element:
+def inline(widget: BaseWidget) -> Element:
     w = widget
     title = w.field.title if w.field.title else w.field_name.title()
 
@@ -59,5 +59,5 @@ def slim(widget: BaseWidget) -> Element:
 
 VARIANTS = {
     'default': default,
-    'slim': slim,
+    'inline': inline,
 }

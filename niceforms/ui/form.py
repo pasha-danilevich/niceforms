@@ -122,7 +122,7 @@ class BaseModelForm(UIComponent, Generic[T]):
                 По умолчанию:
                     "#747dff"
 
-            render_widget_variant (Literal['default', 'slim'])
+            style (Literal['default', 'inline'])
                 Варианты отображения виджета в теле формы
 
                 По умолчанию:
@@ -302,7 +302,7 @@ class BaseModelForm(UIComponent, Generic[T]):
             try:
                 from .render_widget_variant import VARIANTS
 
-                variant = self.kwargs.get('render_widget_variant', 'default')
+                variant = self.kwargs.get('style', 'default')
                 func = VARIANTS[variant]
             except KeyError:
                 raise ValueError("No variant")
