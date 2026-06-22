@@ -13,6 +13,7 @@ def default(widget: BaseWidget) -> Element:
         w.render_label()
         el = w.render()
         w.set_element(el)
+        w.set_container(root)
 
         if not isinstance(w, BaseValidationWidget):
             w.render_error()
@@ -49,6 +50,7 @@ def inline(widget: BaseWidget) -> Element:
         with ui.row().classes("col-span-9 justify-end"):
             el = w.render()
             w.set_element(el)
+            w.set_container(root)
 
             if isinstance(w.element, ValidationElement):
                 el = cast(ValidationElement, w.element)
