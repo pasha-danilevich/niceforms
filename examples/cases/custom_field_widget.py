@@ -102,6 +102,7 @@ async def list_model() -> None:
             view_annotation_type=False,
         )
 
+
         form.custom_widget(
             field_name='items',
             widget=ListBaseModelWidget,
@@ -130,3 +131,6 @@ async def list_model() -> None:
         )
 
         form.render()
+
+        w = form.widgets['name']
+        w.set_enabled(False)

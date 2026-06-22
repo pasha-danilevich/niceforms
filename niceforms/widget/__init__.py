@@ -88,6 +88,7 @@ class BaseWidget(UIComponent, ABC):
         self.field = field_info
         self.field_name = field_name
         self.normalized_type = normalize_type(field_info.annotation)
+        self.placeholder_getter = kwargs.get('placeholder_getter', self.default_placeholder_getter)
 
         self.view_annotation_type = kwargs.get('view_annotation_type', False)
 
@@ -95,10 +96,13 @@ class BaseWidget(UIComponent, ABC):
         self._error_label: Optional[TextElement] = None
         self._error_icon: Optional[Element] = None
         self._label: Optional[WidgetLabel] = None
+        self._container: Optional[Element] = None
         
         from .. import BaseModelForm
+        from .list_basemodel import ListBaseModelWidget
 
         self._form: Optional[BaseModelForm] = None
+        self._column: Optional[ListBaseModelWidget] = None
 
     @abstractmethod
     def fill(self, data: Optional[Any]) -> None:
@@ -116,6 +120,10 @@ class BaseWidget(UIComponent, ABC):
     @abstractmethod
     def set_enabled(self, value: bool) -> None:
         raise NotImplementedError()
+
+    @abstractmethod
+    def set_readonly(self, value: bool) -> None:
+        raise NotImplementedError()
     
     @abstractmethod
     def clear(self) -> None:
@@ -131,10 +139,15 @@ class BaseWidget(UIComponent, ABC):
 
     @property
     def form(self):
-        assert (
-            self._form is not None
-        ), f"Current widget {self.__class__.__name__} does not support form within himself"
+        if self._form is None:
+            raise ValueError(f"Current widget {self.__class__.__name__} does not support .form within himself. Only BaseModel field support .form")
         return self._form
+    
+    @property
+    def column(self):
+        if self._column is None:
+            raise ValueError(f"Current widget {self.__class__.__name__} does not support .column within himself. Only list[BaseModel] field support .column")
+        return self._column
     
     @property
     def label(self) -> WidgetLabel:
@@ -148,18 +161,29 @@ class BaseWidget(UIComponent, ABC):
         return self._rendered_element
 
     @property
+    def container(self) -> Element:
+        if not self._container:
+            raise ValueError('Widget has not been rendered yet.')
+        return self._container
+
+    @property
     def placeholder(self) -> str:
-        return (
-            f"Введите {self.field.title.lower()}"
-            if self.field.title
-            else "Введите значение"
-        )
+        if self.placeholder_getter:
+            return self.placeholder_getter(self)
+        else:
+            return self.default_placeholder_getter(self)
 
     @property
     def default_value(self) -> Optional[Any]:
         return (
             self.field.default if self.field.default is not PydanticUndefined else None
         )
+
+    def set_container(self, container: Element) -> None:
+        self._container = container
+
+    def set_visibility(self, value: bool) -> None:
+        self.container.set_visibility(value)
 
     def render_error(self) -> None:
 
@@ -195,7 +219,14 @@ class BaseWidget(UIComponent, ABC):
         if self._error_label:
             self._error_icon.set_visibility(False)
             self._error_label.set_visibility(False)
-
+    
+    def default_placeholder_getter(self, widget: 'BaseWidget') -> str:
+        return (
+            f"Введите {self.field.title.lower()}"
+            if self.field.title
+            else "Введите значение"
+        )
+    
     def _set_element(self, element: Element, expected_type: type) -> None:
         assert isinstance(
             element, expected_type
@@ -219,7 +250,6 @@ class BaseWidget(UIComponent, ABC):
 
 
 class BaseValueWidget(BaseWidget, ABC):
-
     @abstractmethod
     def render(self) -> ValueElement:
         raise NotImplementedError
@@ -239,7 +269,14 @@ class BaseValueWidget(BaseWidget, ABC):
         el: DisableableElement = self.element  # type: ignore
         el.set_enabled(value)
         self.label.close_button.set_visibility(value)
-        
+
+    def set_readonly(self, value: bool) -> None:
+        if value:
+            self.label.close_button.set_visibility(False)
+            self.element.props("readonly")
+        else:
+            self.label.close_button.set_visibility(True)
+            self.element.props(remove="readonly")
         
     @property
     def element(self) -> ValueElement:

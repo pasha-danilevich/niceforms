@@ -23,9 +23,14 @@ router = APIRouter()
 from pydantic import BaseModel, Field
 
 
+class Tag(BaseModel):
+    id: int
+    description: str
+
 class Item(BaseModel):
     size: int
     color: str
+    tags: list[Tag]
 
 
 class Person(BaseModel):
@@ -53,3 +58,6 @@ async def list_model() -> None:
 
         form = BaseModelForm[Room](Room, on_submit=submit_handler, view_annotation_type=False)
         form.render()
+        form.fill(Room(number=1, floor=1, peoples=[Person(name="John Doe", age=26, items=[Item(size=25, color="green", tags=[Tag(id=2, description="...")])])]).model_dump())
+
+        # form.set_readonly(True)

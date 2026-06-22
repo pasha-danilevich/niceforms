@@ -46,7 +46,7 @@ class Person(BaseModel):
 class UserForm(BaseModel):
     """User form model for demonstration."""
 
-    name: Optional[str]
+    name: Optional[str] = "name"
     email: str = Field(..., title="Email", description="Введите ваш email")
     age: int = Field(..., title="Возраст", ge=18, le=100)
     summa: float = Field(..., title="Сумма")
@@ -74,4 +74,5 @@ async def disable_widget() -> None:
         form = BaseModelForm(UserForm, on_submit=submit_handler, view_type_error_message=False, view_annotation_type=False)
         form.render()
         form.set_enabled(False)
+
         form.fill({'created_at': datetime.datetime.now()})

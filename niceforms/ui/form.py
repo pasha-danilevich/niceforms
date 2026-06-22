@@ -122,6 +122,18 @@ class BaseModelForm(UIComponent, Generic[T]):
                 По умолчанию:
                     "#747dff"
 
+            body_element_classes (str):
+                Классы html для body элемента
+
+                По умолчанию:
+                    "w-full p-1 sm:p-4 gap-[0px]"
+
+            placeholder_getter (Callable[[BaseWidget], str | None]
+                Кастомизация placeholder
+
+                По умолчанию:
+                    BaseWidget.default_placeholder_getter
+
             style (Literal['default', 'inline'])
                 Варианты отображения виджета в теле формы
 
@@ -161,7 +173,7 @@ class BaseModelForm(UIComponent, Generic[T]):
         }
 
         # style
-        self.wrapper_classes = f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl overflow-hidden sm:p-4 gap-0"
+        self.wrapper_classes = f"p-2 w-full {DEFAULT_FORM_WIDTH} shadow-lg rounded-xl sm:p-4 gap-0"
         self.body_element = None  # тело всей формы
         self._is_nested = False
         self.widgets: dict[str, BaseWidget] = {}  # field_name: BaseWidget
@@ -230,6 +242,7 @@ class BaseModelForm(UIComponent, Generic[T]):
 
     def fill(self, data: dict[str, Any] | None) -> None:
         """Наполнить виджеты данными"""
+        logger.debug(f'Filling form: {self.title}: {data}')
         if data is None:
             return
 
@@ -247,6 +260,10 @@ class BaseModelForm(UIComponent, Generic[T]):
     def set_enabled(self, value: bool) -> None:
         for w in self.widgets.values():
             w.set_enabled(value)
+
+    def set_readonly(self, value: bool) -> None:
+        for w in self.widgets.values():
+            w.set_readonly(value)
 
     def collect_data(self, validate: bool = True) -> dict[str, Any]:
         """Собирать данные введенные в виджетах
@@ -310,6 +327,7 @@ class BaseModelForm(UIComponent, Generic[T]):
             self._body = Body(
                 widgets=list(self.widgets.values()),
                 render_widget=func,
+                body_element_classes=self.kwargs.get("body_element_classes", "w-full p-1 sm:p-4 gap-[0px]"),
             )
 
             self._header = Header(
