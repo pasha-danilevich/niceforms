@@ -24,26 +24,38 @@ def default(widget: BaseWidget) -> Element:
 
 def slim(widget: BaseWidget) -> Element:
     w = widget
-    with ui.element().classes(f"w-full") as root:
-        title = w.field.title if w.field.title else w.field_name.title()
+    title = w.field.title if w.field.title else w.field_name.title()
 
-        with ui.row().classes('w-full items-center'):
-            ui.label(title).classes('basis-48')
+    with ui.row().classes("w-full grid grid-cols-12 items-center") as root:
 
-            el = w.render()
-            el.classes('flex-1')
+        with ui.row().classes(
+            "col-span-3 min-w-0 items-center gap-1 text-grey-8 pb-[20px]"
+        ):
+            ui.label(title).classes("""
+                text-sm
+                font-medium
+                truncate
+                min-w-0
+                """).tooltip(title)
+
             if w.field.description:
-                el.tooltip(w.field.description)
+                ui.icon(
+                    "help_outline",
+                    size="12px",
+                ).classes(
+                    "cursor-help text-grey-5 shrink-0 pb-2"
+                ).tooltip(w.field.description)
 
-        w.set_element(el)
+        with ui.row().classes("col-span-9 justify-end"):
+            el = w.render()
+            w.set_element(el)
 
-        if not isinstance(w, BaseValidationWidget):
-            w.render_error()
+            if isinstance(w.element, ValidationElement):
+                el = cast(ValidationElement, w.element)
+                el.on('blur', el.validate)
 
-        if isinstance(w.element, ValidationElement):
-            el = cast(ValidationElement, w.element)
-            el.on('blur', el.validate)
     return root
+
 
 VARIANTS = {
     'default': default,
