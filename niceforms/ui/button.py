@@ -26,6 +26,13 @@ class FormButton(UIComponent):
         self.style = style
         self.bg_color = bg_color
         self.color_weight = color_weight
+        self._element = None
+        
+    @property
+    def element(self) -> ui.button:
+        if self._element is None:
+            raise ValueError("Not rendered")
+        return self._element
 
     def render(self) -> Button:
         btn = (
@@ -44,7 +51,7 @@ class FormButton(UIComponent):
 
         if self.on_click:
             btn.on_click(self.on_click)
-
+        self._element = btn
         return btn
 
 class PositiveButton(FormButton):
