@@ -66,7 +66,7 @@ class RecordLine(UIComponent):
 
         # configure EditFrom
         self.edit_form.title = record_title_getter(model)
-        self.edit_form.buttons['submit'] = PositiveButton(
+        self.edit_form.buttons['submit'] = lambda : PositiveButton(
             text='Обновить запись',
             on_click=lambda: self.on_edit(
                 model=self.edit_form.build_model(),
@@ -170,7 +170,7 @@ class Column(UIComponent, Generic[T]):
         # configure CreateForm
         self.create_form.title = 'Создать запись'
         self.create_form.buttons = {
-            'submit': PositiveButton(
+            'submit': lambda : PositiveButton(
                 text='Добавить запись',
                 on_click=lambda: self.save(self.create_form.build_model()),
             )
@@ -204,8 +204,8 @@ class Column(UIComponent, Generic[T]):
                 "",
                 on_click=self._create_record_dialog.open,
                 icon='add',
-                classes='w-full',
-            ).render()
+                
+            ).classes('w-full')
         return column
 
     def refresh_list(self):

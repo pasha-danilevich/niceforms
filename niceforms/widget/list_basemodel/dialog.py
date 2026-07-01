@@ -22,7 +22,7 @@ class AddDialog(UIComponent):
 
     def render(self) -> Dialog:
         self.form.title = 'Создать запись'
-        self.form.buttons['submit'] = PositiveButton(
+        self.form.buttons['submit'] = lambda : PositiveButton(
             text='Добавить запись',
             on_click=lambda: self.on_save(model=self.form.build_model()),
         )
@@ -51,7 +51,7 @@ class EditDialog(UIComponent):
 
     def render(self) -> Dialog:
         self.form.title = self.record_title_getter(self.model)
-        self.form.buttons['submit'] = PositiveButton(
+        self.form.buttons['submit'] = lambda : PositiveButton(
             text='Обновить запись',
             on_click=lambda: self.on_edit(
                 model=self.form.build_model(), index=self.index
@@ -77,8 +77,8 @@ class ConfirmDeleteDialog(UIComponent):
                     f'Вы уверены, что хотите запись "{self.record_title}"?'
                 ).classes('mb-4')
                 with ui.row().classes('justify-end gap-2 w-full mt-10'):
-                    DefaultButton('Отмена', on_click=dialog.close).render()
-                    NegativeButton('Удалить', on_click=self.on_confirm).render()
+                    DefaultButton('Отмена', on_click=dialog.close)
+                    NegativeButton('Удалить', on_click=self.on_confirm)
 
         return dialog
 
