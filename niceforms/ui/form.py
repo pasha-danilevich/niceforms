@@ -5,7 +5,7 @@ from typing import (
     Optional,
     Type,
     overload,
-    Literal, Callable,
+    Literal,
 )
 
 from nicegui import ui
@@ -157,16 +157,16 @@ class BaseModelForm(UIComponent, Generic[T]):
         self._is_rendered: bool = False
 
         self.fields: dict[str, FieldInfo] = self.model.model_fields  # type: ignore # field_name: FieldInfo
-        self.buttons: dict[str, Callable[[], ui.button]] = {
-            "clear": lambda : DefaultButton(
+        self.buttons: dict[str, FormButton] = {
+            "clear": DefaultButton(
                 text="Очистить",
                 on_click=self.clear,
             ),
-            "json": lambda : DefaultButton(
+            "json": DefaultButton(
                 text="Показать json",
                 on_click=self.render_json_viewer_dialog,
             ),
-            "submit": lambda : PositiveButton(
+            "submit": PositiveButton(
                 text="Отправить",
                 on_click=self.submit,
             ),

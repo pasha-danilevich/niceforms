@@ -19,12 +19,13 @@ class Footer(UIComponent):
         model: type[BaseModel],
         on_submit: Optional[OnSubmit],
         on_collect: Callable,
-        buttons: list[Callable[[], ui.button]],
+        buttons: list[FormButton],
     ) -> None:
         self.model = model
         self.on_submit = on_submit
         self.collect = on_collect
         self.buttons = buttons
+
         self._write_to_form_button: Optional[Button] = None
         self._submit_button: Optional[Button] = None
 
@@ -39,6 +40,6 @@ class Footer(UIComponent):
     def render(self) -> Element:
         with ui.row().classes("w-full justify-end gap-3") as self._root:
             for button in self.buttons:
-                button()
+                btn = button.render()
 
         return self.root
