@@ -306,7 +306,8 @@ class BaseValidationWidget(BaseValueWidget, ABC):
         raise NotImplementedError
 
     @property
-    def default_validations(self) -> dict[str, Callable]:
+    def default_validations(self) -> dict[str, Callable] | None:
+        # return None
 
         def is_empty(value: Any) -> bool:
             if value is None:
