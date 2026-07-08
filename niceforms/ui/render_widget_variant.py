@@ -28,10 +28,10 @@ def inline(widget: BaseWidget) -> Element:
     w = widget
     title = w.field.title if w.field.title else w.field_name.title()
 
-    with ui.row().classes("w-full grid grid-cols-12 items-center") as root:
+    with ui.row().classes("w-full grid grid-cols-12") as root:
 
         with ui.row().classes(
-            "col-span-3 min-w-0 items-center gap-1 text-grey-8 pb-[10%] h-full"
+            "col-span-3 min-w-0 items-center gap-1 text-grey-8 pb-[8px] h-full"
         ):
             ui.label(title).classes("""
                 text-sm
@@ -52,13 +52,13 @@ def inline(widget: BaseWidget) -> Element:
             el = w.render()
 
             with el.add_slot("append"):
-                (
+                clear_button = (
                     ui.button(icon='close', color='secondary')
-                    .on_click(w.clear)
                     .props('flat dense round')
                     .classes('text-xs opacity-30 hover:opacity-80 transition-opacity')
                     .tooltip('Очистить')
                 )
+                clear_button.on('click.stop', w.clear)
 
             w.set_element(el)
             w.set_container(root)
